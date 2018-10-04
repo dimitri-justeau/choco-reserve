@@ -33,7 +33,7 @@ import java.util.Arrays;
 /**
  * Test case for RasterReader.
  */
-public class RasterReaderTest {
+public class TestRasterReader {
 
     @Test
     public void testReadMetaData() {
