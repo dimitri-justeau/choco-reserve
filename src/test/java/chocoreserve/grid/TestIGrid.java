@@ -27,15 +27,12 @@ import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
 import chocoreserve.grid.regular.square.HeightConnectedSquareGrid;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
-import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
