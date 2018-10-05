@@ -80,14 +80,4 @@ public class TestFourConnectedSquareGrid {
         expected = new int[] {19, 23};
         Assert.assertTrue(Arrays.equals(neighbors, expected));
     }
-
-    @Test
-    public void testGetFullGraph() {
-
-    }
-
-    @Test
-    public void testGetPartialGraph() {
-
-    }
 }

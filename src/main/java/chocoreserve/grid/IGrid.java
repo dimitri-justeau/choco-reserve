@@ -67,17 +67,17 @@ public interface IGrid {
     /**
      *
      * @param model The GraphModel to be associated with the graph.
-     * @param nodes The nodes to be included in the graph.
+     * @param cells The cells to be included in the graph.
      * @param setType The SetType to use for encoding the graph.
      * @return The partial graph associated to a subset of cells of the grid.
      */
-    default UndirectedGraph getPartialGraph(GraphModel model, int[] nodes, SetType setType) {
+    default UndirectedGraph getPartialGraph(GraphModel model, int[] cells, SetType setType) {
         int nbCells = getNbCells();
         UndirectedGraph partialGraph = new UndirectedGraph(model, nbCells, setType, false);
-        for (int i : nodes) {
+        for (int i : cells) {
             partialGraph.addNode(i);
         }
-        for (int i : nodes) {
+        for (int i : cells) {
             int[] neighbors = getNeighbors(i);
             for (int ii : neighbors) {
                 if (partialGraph.getNodes().contains(ii)) {

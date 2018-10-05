@@ -27,8 +27,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Test case for HeightConnectedSquareGrid.
@@ -49,7 +47,7 @@ public class TestHeightConnectedSquareGrid {
 
     @Test
     public void testGetNbCells() {
-        FourConnectedSquareGrid grid = new FourConnectedSquareGrid(5, 5);
+        HeightConnectedSquareGrid grid = new HeightConnectedSquareGrid(5, 5);
         Assert.assertEquals(grid.getNbCells(), 25);
     }
 
@@ -81,15 +79,5 @@ public class TestHeightConnectedSquareGrid {
         Arrays.sort(neighbors);
         expected = new int[] {18, 19, 23};
         Assert.assertTrue(Arrays.equals(neighbors, expected));
-    }
-
-    @Test
-    public void testGetFullGraph() {
-
-    }
-
-    @Test
-    public void testGetPartialGraph() {
-
     }
 }
