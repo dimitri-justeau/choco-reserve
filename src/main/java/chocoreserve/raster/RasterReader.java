@@ -28,6 +28,7 @@ import org.geotools.gce.geotiff.GeoTiffReader;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  *  Raster file reader. For now, only GeoTIFF files are accepted.
@@ -87,7 +88,7 @@ public class RasterReader {
         double[][] values = new double[height][width];
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-                values[i][j] = grid.getRenderedImage().getData().getSample(j, i, 0);
+                values[i][j] = grid.getRenderedImage().getData().getSampleDouble(j, i, 0);
             }
         }
         return values;
@@ -104,12 +105,7 @@ public class RasterReader {
         int height = grid.getRenderedImage().getHeight();
         int width = grid.getRenderedImage().getWidth();
         double[] values = new double[height * width];
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                values[j + i * width] = grid.getRenderedImage().getData().getSample(j, i, 0);
-            }
-        }
-        return values;
+        return grid.getRenderedImage().getData().getSamples(0, 0, width, height, 0, values);
     }
 
     /**
@@ -142,11 +138,6 @@ public class RasterReader {
         int height = grid.getRenderedImage().getHeight();
         int width = grid.getRenderedImage().getWidth();
         int[] values = new int[height * width];
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                values[j + i * width] = grid.getRenderedImage().getData().getSample(j, i, 0);
-            }
-        }
-        return values;
+        return grid.getRenderedImage().getData().getSamples(0, 0, width, height, 0, values);
     }
 }

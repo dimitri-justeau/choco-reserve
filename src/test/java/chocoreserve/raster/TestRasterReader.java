@@ -28,7 +28,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * Test case for RasterReader.
@@ -37,7 +36,7 @@ public class TestRasterReader {
 
     @Test
     public void testReadMetaData() {
-        String fullPath = getClass().getClassLoader().getResource("raster/test_raster_int.tif").getPath();
+        String fullPath = getClass().getClassLoader().getResource("raster/test_raster_binary.tif").getPath();
         try {
             RasterReader reader = new RasterReader(fullPath);
             int width = reader.getWidth();
@@ -61,7 +60,7 @@ public class TestRasterReader {
 
     @Test
     public void testReadAsDoubleMatrix() {
-        String fullPath = getClass().getClassLoader().getResource("raster/test_raster_double.tif").getPath();
+        String fullPath = getClass().getClassLoader().getResource("raster/test_raster_probabilistic.tif").getPath();
         try {
             RasterReader reader = new RasterReader(fullPath);
             double[][] data = reader.readAsDoubleMatrix();
@@ -75,7 +74,7 @@ public class TestRasterReader {
 
     @Test
     public void testReadAsDoubleArray() {
-        String fullPath = getClass().getClassLoader().getResource("raster/test_raster_double.tif").getPath();
+        String fullPath = getClass().getClassLoader().getResource("raster/test_raster_probabilistic.tif").getPath();
         try {
             RasterReader reader = new RasterReader(fullPath);
             double[] data = reader.readAsDoubleArray();
@@ -88,7 +87,7 @@ public class TestRasterReader {
 
     @Test
     public void testReadAsIntMatrix() {
-        String fullPath = getClass().getClassLoader().getResource("raster/test_raster_int.tif").getPath();
+        String fullPath = getClass().getClassLoader().getResource("raster/test_raster_binary.tif").getPath();
         try {
             RasterReader reader = new RasterReader(fullPath);
             int[][] data = reader.readAsIntMatrix();
@@ -102,7 +101,7 @@ public class TestRasterReader {
 
     @Test
     public void testReadAsIntArray() {
-        String fullPath = getClass().getClassLoader().getResource("raster/test_raster_int.tif").getPath();
+        String fullPath = getClass().getClassLoader().getResource("raster/test_raster_binary.tif").getPath();
         try {
             RasterReader reader = new RasterReader(fullPath);
             int[] data = reader.readAsIntArray();
