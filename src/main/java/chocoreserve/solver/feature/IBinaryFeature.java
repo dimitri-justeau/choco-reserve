@@ -23,6 +23,8 @@
 
 package chocoreserve.solver.feature;
 
+import java.io.IOException;
+
 /**
  * Interface describing a binary feature.
  */
@@ -31,5 +33,5 @@ public interface IBinaryFeature extends IFeature {
     /**
      * @return The data associated with the feature as binary data.
      */
-    int[] getBinaryData();
+    int[] getBinaryData() throws IOException;
 }

@@ -42,6 +42,5 @@ public interface IReserveModel {
      * @return The Choco (graph) model on which relies the model.
      */
     GraphModel getChocoModel();
-
-
+    
 }

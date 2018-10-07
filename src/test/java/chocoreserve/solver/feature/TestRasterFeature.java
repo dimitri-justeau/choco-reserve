@@ -26,6 +26,8 @@ package chocoreserve.solver.feature;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.IOException;
+
 /**
  * Test for RasterFeature class.
  */
@@ -34,27 +36,42 @@ public class TestRasterFeature {
     @Test
     public void testBinary() {
         String fullPath = getClass().getClassLoader().getResource("raster/test_raster_binary.tif").getPath();
-        IBinaryFeature feature = new BinaryRasterFeature(fullPath);
-        int[] data = feature.getBinaryData();
-        for (int d : data) {
-            Assert.assertTrue(d == 0 || d == 1);
+        try {
+            IBinaryFeature feature = new BinaryRasterFeature(fullPath);
+            int[] data = feature.getBinaryData();
+            for (int d : data) {
+                Assert.assertTrue(d == 0 || d == 1);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail();
         }
     }
 
     @Test
     public void testGetDataProbabilistic() {
         String fullPath = getClass().getClassLoader().getResource("raster/test_raster_probabilistic.tif").getPath();
-        IProbabilisticFeature feature = new ProbabilisticRasterFeature(fullPath);
-        double[] data = feature.getProbabilisticData();
-        for (double d : data) {
-            Assert.assertTrue(d >= 0 && d <= 1);
+        try {
+            IProbabilisticFeature feature = new ProbabilisticRasterFeature(fullPath);
+            double[] data = feature.getProbabilisticData();
+            for (double d : data) {
+                Assert.assertTrue(d >= 0 && d <= 1);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail();
         }
     }
 
     @Test
     public void testGetDataQuantitative() {
         String fullPath = getClass().getClassLoader().getResource("raster/test_raster_quantitative.tif").getPath();
-        IQuantitativeFeature feature = new QuantitativeRasterFeature(fullPath);
-        int[] data = feature.getQuantitativeData();
+        try {
+            IQuantitativeFeature feature = new QuantitativeRasterFeature(fullPath);
+            int[] data = feature.getQuantitativeData();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Assert.fail();
+        }
     }
 }

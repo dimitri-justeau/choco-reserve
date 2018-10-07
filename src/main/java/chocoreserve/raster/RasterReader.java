@@ -28,7 +28,6 @@ import org.geotools.gce.geotiff.GeoTiffReader;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  *  Raster file reader. For now, only GeoTIFF files are accepted.

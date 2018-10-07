@@ -23,6 +23,8 @@
 
 package chocoreserve.solver.feature;
 
+import java.io.IOException;
+
 /**
  * Interface describing a feature.
  */
@@ -31,5 +33,5 @@ public interface IFeature {
     /**
      * @return The raw data associated with the feature.
      */
-    double[] getData();
+    double[] getData() throws IOException;
 }

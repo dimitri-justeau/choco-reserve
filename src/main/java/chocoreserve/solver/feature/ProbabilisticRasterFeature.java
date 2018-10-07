@@ -23,12 +23,14 @@
 
 package chocoreserve.solver.feature;
 
+import java.io.IOException;
+
 /**
  * Probabilistic feature loaded from a raster file.
  */
 public class ProbabilisticRasterFeature extends RasterFeature implements IProbabilisticFeature {
 
-    public ProbabilisticRasterFeature(String rasterFilePath) {
+    public ProbabilisticRasterFeature(String rasterFilePath) throws IOException {
         super(rasterFilePath);
     }
 }

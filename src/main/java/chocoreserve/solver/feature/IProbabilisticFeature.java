@@ -25,6 +25,8 @@ package chocoreserve.solver.feature;
 
 import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 
+import java.io.IOException;
+
 /**
  * Interface describing a probabilistic feature.
  */
@@ -33,7 +35,7 @@ public interface IProbabilisticFeature extends IFeature {
     /**
      * @return The data associated with the feature as probabilistic data.
      */
-    default double[] getProbabilisticData() throws ValueException {
+    default double[] getProbabilisticData() throws ValueException, IOException {
         double[] data = getData();
         for (double d : data) {
             if (d > 1) {

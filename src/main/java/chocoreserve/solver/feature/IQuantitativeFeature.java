@@ -23,6 +23,7 @@
 
 package chocoreserve.solver.feature;
 
+import java.io.IOException;
 import java.util.stream.IntStream;
 
 /**
@@ -33,10 +34,10 @@ public interface IQuantitativeFeature extends IBinaryFeature {
     /**
      * @return The data associated with the feature as quantitative data.
      */
-    int[] getQuantitativeData();
+    int[] getQuantitativeData() throws IOException;
 
     @Override
-    default int[] getBinaryData() {
+    default int[] getBinaryData() throws IOException {
         return IntStream.of(getQuantitativeData())
                 .map(i -> i >= 1 ? 1 : 0)
                 .toArray();

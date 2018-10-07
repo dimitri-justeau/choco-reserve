@@ -30,17 +30,12 @@ import java.io.IOException;
  */
 public class BinaryRasterFeature extends RasterFeature implements IBinaryFeature {
 
-    public BinaryRasterFeature(String rasterFilePath) {
+    public BinaryRasterFeature(String rasterFilePath) throws IOException {
         super(rasterFilePath);
     }
 
     @Override
-    public int[] getBinaryData() {
-        try {
-            return rasterReader.readAsIntArray();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public int[] getBinaryData() throws IOException {
+        return rasterReader.readAsIntArray();
     }
 }
