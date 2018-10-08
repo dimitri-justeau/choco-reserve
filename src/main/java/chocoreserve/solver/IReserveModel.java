@@ -24,7 +24,14 @@
 package chocoreserve.solver;
 
 import chocoreserve.grid.IGrid;
+import chocoreserve.solver.feature.IFeature;
 import org.chocosolver.graphsolver.GraphModel;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
+import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.variables.BoolVar;
+import org.chocosolver.solver.variables.IntVar;
+
+import java.util.Map;
 
 /**
  * Interface for the base model of the Nature Reserve Problem. Defines the variables and constraints that are common
@@ -39,9 +46,49 @@ public interface IReserveModel {
     IGrid getGrid();
 
     /**
+     * Add a feature to the model.
+     */
+    void addFeature(IFeature feature);
+
+    /**
+     * @return A map of the features referenced by the model.
+     */
+    Map<String, IFeature> getFeatures();
+
+    // --------------------- //
+    // Choco related methods //
+    // --------------------- //
+
+    /**
      * @return The Choco (graph) model on which relies the model.
      */
     GraphModel getChocoModel();
-    
 
+    /**
+     * @return The Choco solver associated to the model.
+     */
+    default Solver getChocoSolver() {
+        return getChocoModel().getSolver();
+    }
+
+    /**
+     * @return The graph variable representing the spatial graph.
+     */
+    UndirectedGraphVar getSpatialGraphVar();
+
+    /**
+     * @return The decision variables of the model, which are the planning units.
+     *         Each planning unit is associated to a cell of the grid.
+     */
+    BoolVar[] getPlanningUnits();
+
+    /**
+     * @return The IntVar corresponding to the number of connected components of the spatial graph.
+     */
+    IntVar getNbConnectedComponents();
+
+    /**
+     * @return The IntVar corresponding to the number of selected planning units.
+     */
+    IntVar getNbPlanningUnits();
 }
