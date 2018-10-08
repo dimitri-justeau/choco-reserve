@@ -78,8 +78,9 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory {
                 grid.getFullGraph(model, SetType.BIPARTITESET)
         );
         this.nbCC = this.model.intVar("nbCC", 0, this.grid.getNbCells());
-        this.nbPlanningUnits = this.model.intVar("nbPlanningUnits", this.grid.getNbCells());
+        this.nbPlanningUnits = this.model.intVar("nbPlanningUnits", 0, this.grid.getNbCells());
         // Post necessary constraints
+        this.model.nodesChanneling(this.g, this.planningUnits).post();
         this.model.post(new Constraint("inducedNeighborhood", new PropInducedNeighborhood(this.g)));
         this.model.nbConnectedComponents(this.g, this.nbCC).post();
         this.model.sum(this.planningUnits, "=", this.nbPlanningUnits).post();

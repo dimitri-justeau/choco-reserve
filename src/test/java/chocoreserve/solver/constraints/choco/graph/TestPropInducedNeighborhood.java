@@ -30,6 +30,7 @@ import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
@@ -78,7 +79,11 @@ public class TestPropInducedNeighborhood {
         Solver solver = model.getSolver();
         List<Solution> solutions = solver.findAllSolutions();
         Assert.assertEquals(solutions.size(), 1);
-        Assert.assertTrue(g.isInstantiated());
+        try {
+            solutions.get(0).restore();
+        } catch (ContradictionException e) {
+            e.printStackTrace();
+        }
         int[] nodes = g.getMandatoryNodes().toArray();
         Arrays.sort(nodes);
         Assert.assertTrue(Arrays.equals(nodes, selected));
