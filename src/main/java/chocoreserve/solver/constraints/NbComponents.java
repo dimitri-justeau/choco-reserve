@@ -27,7 +27,7 @@ import chocoreserve.solver.IReserveModel;
 import org.chocosolver.solver.variables.IntVar;
 
 /**
- * NbComponent constraint.
+ * nb_components constraint.
  */
 public class NbComponents extends ReserveConstraint {
 

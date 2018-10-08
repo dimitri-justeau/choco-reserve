@@ -28,33 +28,39 @@ import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 
 /**
- * Interface for Grids.
+ * Abstract base class for grids.
  */
-public interface IGrid {
+public abstract class Grid implements IGrid {
 
-    /**
-     * @return The number of cells of the grid.
-     */
-    int getNbCells();
+    @Override
+    public UndirectedGraph getFullGraph(GraphModel model, SetType setType) {
+        int nbCells = getNbCells();
+        UndirectedGraph g = new UndirectedGraph(model, nbCells, setType, false);
+        for (int i = 0; i < nbCells; i++) {
+            g.addNode(i);
+            int[] neighbors = getNeighbors(i);
+            for (int ii : neighbors) {
+                g.addEdge(i, ii);
+            }
+        }
+        return g;
+    }
 
-    /**
-     * @param i The index of a cell.
-     * @return The neighbors of i in the grid.
-     */
-    int[] getNeighbors(int i);
-
-    /**
-     * @param model The GraphModel to be associated with the graph.
-     * @param setType The SetType to use for encoding the graph.
-     * @return The full spatial graph associated to the grid. Full means that there will be one node for each cell.
-     */
-    UndirectedGraph getFullGraph(GraphModel model, SetType setType);
-
-    /**
-     * @param model The GraphModel to be associated with the graph.
-     * @param cells The cells to be included in the graph.
-     * @param setType The SetType to use for encoding the graph.
-     * @return The partial graph associated to a subset of cells of the grid.
-     */
-    UndirectedGraph getPartialGraph(GraphModel model, int[] cells, SetType setType);
+    @Override
+    public UndirectedGraph getPartialGraph(GraphModel model, int[] cells, SetType setType) {
+        int nbCells = getNbCells();
+        UndirectedGraph partialGraph = new UndirectedGraph(model, nbCells, setType, false);
+        for (int i : cells) {
+            partialGraph.addNode(i);
+        }
+        for (int i : cells) {
+            int[] neighbors = getNeighbors(i);
+            for (int ii : neighbors) {
+                if (partialGraph.getNodes().contains(ii)) {
+                    partialGraph.addEdge(i, ii);
+                }
+            }
+        }
+        return partialGraph;
+    }
 }

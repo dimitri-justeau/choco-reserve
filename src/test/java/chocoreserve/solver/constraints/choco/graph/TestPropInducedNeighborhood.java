@@ -23,7 +23,7 @@
 
 package chocoreserve.solver.constraints.choco.graph;
 
-import chocoreserve.grid.IGrid;
+import chocoreserve.grid.Grid;
 import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
@@ -58,7 +58,7 @@ public class TestPropInducedNeighborhood {
 
     @Test
     public void testPropInducedNeighborhood() {
-        IGrid grid = new FourConnectedSquareGrid(5, 5);
+        Grid grid = new FourConnectedSquareGrid(5, 5);
         GraphModel model = new GraphModel("TestPropInducedNeigh");
         UndirectedGraphVar g = model.graphVar(
             "testGraph",

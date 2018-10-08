@@ -23,7 +23,7 @@
 
 package chocoreserve.solver.constraints;
 
-import chocoreserve.grid.IGrid;
+import chocoreserve.grid.Grid;
 import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
 import chocoreserve.solver.ReserveModel;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
@@ -53,7 +53,7 @@ public class TestNbComponents {
      */
     @Test
     public void testNbComponentsSuccessCase1() {
-        IGrid grid = new FourConnectedSquareGrid(3, 3);
+        Grid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
         reserveModel.nbComponents(5, 5).post();
         UndirectedGraphVar g = reserveModel.getSpatialGraphVar();
@@ -80,7 +80,7 @@ public class TestNbComponents {
      */
     @Test
     public void testNbComponentsSuccessCase2() {
-        IGrid grid = new FourConnectedSquareGrid(2, 2);
+        Grid grid = new FourConnectedSquareGrid(2, 2);
         ReserveModel reserveModel = new ReserveModel(grid);
         reserveModel.nbComponents(2, 2).post();
         Solver solver = reserveModel.getChocoSolver();
@@ -96,7 +96,7 @@ public class TestNbComponents {
      */
     @Test
     public void testNbComponentsSuccessCase3() {
-        IGrid grid = new FourConnectedSquareGrid(1, 2);
+        Grid grid = new FourConnectedSquareGrid(1, 2);
         ReserveModel reserveModel = new ReserveModel(grid);
         reserveModel.nbComponents(0, 1).post();
         Solver solver = reserveModel.getChocoSolver();
@@ -117,7 +117,7 @@ public class TestNbComponents {
      */
     @Test
     public void testNbComponentsFailCase1() {
-        IGrid grid = new FourConnectedSquareGrid(3, 3);
+        Grid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
         reserveModel.nbComponents(6, 6).post();
         UndirectedGraphVar g = reserveModel.getSpatialGraphVar();

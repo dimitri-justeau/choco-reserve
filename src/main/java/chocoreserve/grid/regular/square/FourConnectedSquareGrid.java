@@ -23,7 +23,7 @@
 
 package chocoreserve.grid.regular.square;
 
-import chocoreserve.grid.IGrid;
+import chocoreserve.grid.Grid;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * 4-connected regular square grid.
  */
-public class FourConnectedSquareGrid implements IGrid {
+public class FourConnectedSquareGrid extends Grid {
 
     int nbRows, nbCols;
 

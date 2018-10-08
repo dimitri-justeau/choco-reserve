@@ -24,28 +24,25 @@
 package chocoreserve.solver.constraints;
 
 import chocoreserve.solver.IReserveModel;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.variables.IntVar;
 
 /**
- * Interface for constraints over the Nature Reserve Problem.
+ * area_components constraint.
  */
-public interface IReserveConstraintFactory {
+public class AreaComponents extends ReserveConstraint {
 
-    IReserveModel _self();
+    private IntVar minNCC, maxNCC;
 
-    // ---------------------------------- //
-    // Feature representation constraints //
-    // ---------------------------------- //
-
-    // ------------------- //
-    // Spatial constraints //
-    // ------------------- //
-
-    default IReserveConstraint nbComponents(int nbMin, int nbMax) {
-        return new NbComponents(_self(), nbMin, nbMax);
+    public AreaComponents(IReserveModel reserveModel, IntVar minNCC, IntVar maxNCC) {
+        super(reserveModel);
+        this.minNCC = minNCC;
+        this.maxNCC = maxNCC;
     }
 
-    default IReserveConstraint areaComponents(IntVar minNCC, IntVar maxNCC) {
-        return new AreaComponents(_self(), minNCC, maxNCC);
+    @Override
+    public void post() {
+        UndirectedGraphVar g = reserveModel.getSpatialGraphVar();
+        reserveModel.getChocoModel().sizeConnectedComponents(g, minNCC, maxNCC).post();
     }
 }
