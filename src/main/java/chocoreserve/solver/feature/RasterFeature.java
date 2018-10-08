@@ -46,13 +46,8 @@ public abstract class RasterFeature implements IFeature {
         this(rasterFilePath, new File(rasterFilePath).getName());
     }
 
-    public double[] getData() {
-        try {
-            return rasterReader.readAsDoubleArray();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+    public double[] getData() throws IOException {
+        return rasterReader.readAsDoubleArray();
     }
 
     public String getName() {
