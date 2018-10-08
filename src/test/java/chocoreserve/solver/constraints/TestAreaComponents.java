@@ -64,7 +64,6 @@ public class TestAreaComponents {
         IntVar minNCC = reserveModel.getChocoModel().intVar(3, 4);
         IntVar maxNCC = reserveModel.getChocoModel().intVar(3, 4);
         reserveModel.areaComponents(minNCC, maxNCC).post();
-        UndirectedGraphVar g = reserveModel.getSpatialGraphVar();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();
         Assert.assertEquals(4, solutions.size());
@@ -89,7 +88,6 @@ public class TestAreaComponents {
         IntVar minNCC = reserveModel.getChocoModel().intVar("minNCC", 3, 4);
         IntVar maxNCC = reserveModel.getChocoModel().intVar("maxNCC", 3, 4);
         reserveModel.areaComponents(minNCC, maxNCC).post();
-        UndirectedGraphVar g = reserveModel.getSpatialGraphVar();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();
         Assert.assertEquals(3, solutions.size());

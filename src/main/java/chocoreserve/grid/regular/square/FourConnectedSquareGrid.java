@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class FourConnectedSquareGrid extends Grid {
 
-    int nbRows, nbCols;
+    private int nbRows, nbCols;
 
     public FourConnectedSquareGrid(int nbRows, int nbCols) {
         this.nbRows = nbRows;

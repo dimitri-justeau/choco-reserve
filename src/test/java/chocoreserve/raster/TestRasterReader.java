@@ -53,7 +53,7 @@ public class TestRasterReader {
     public void testWrongPath() {
         String fullPath = "Wrong path";
         try {
-            RasterReader reader = new RasterReader(fullPath);
+            new RasterReader(fullPath);
             Assert.fail();
         } catch (IOException e) { }
     }

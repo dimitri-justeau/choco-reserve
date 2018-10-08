@@ -47,9 +47,9 @@
             <version>4.0.6</version>
         </dependency>
         <dependency>
-            <groupId>org.choco-solver</groupId>
+            <groupId>com.github.chocoteam</groupId>
             <artifactId>choco-graph</artifactId>
-            <version>LATEST</version>
+            <version>a98a35e8c8ab054e556a7a86a8436174b60a1927</version>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
@@ -92,6 +92,9 @@
             <name>Boundless Maven Repository</name>
             <url>http://repo.boundlessgeo.com/main</url>
         </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
-
 </project>

@@ -120,7 +120,6 @@ public class TestNbComponents {
         Grid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
         reserveModel.nbComponents(6, 6).post();
-        UndirectedGraphVar g = reserveModel.getSpatialGraphVar();
         Solver solver = reserveModel.getChocoSolver();
         boolean solution = solver.solve();
         Assert.assertFalse(solution);
