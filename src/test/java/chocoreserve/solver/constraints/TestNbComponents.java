@@ -89,6 +89,23 @@ public class TestNbComponents {
     }
 
     /**
+     * Test case 1: 1x2 4-connected square grid, 0 - 1 CC -> 4 solutions (), (0), (1) and (0, 1).
+     *     -------
+     *    | 0 | 1 |
+     *     -------
+     */
+    @Test
+    public void testNbComponentsSuccessCase3() {
+        IGrid grid = new FourConnectedSquareGrid(1, 2);
+        ReserveModel reserveModel = new ReserveModel(grid);
+        reserveModel.nbComponents(0, 1).post();
+        Solver solver = reserveModel.getChocoSolver();
+        List<Solution> solutions = solver.findAllSolutions();
+        Assert.assertEquals(4, solutions.size());
+    }
+
+
+    /**
      * Test case 1: 3x3 4-connected square grid, 6 CC -> Fail.
      *     -----------
      *    | 0 | 1 | 2 |
