@@ -32,8 +32,6 @@ import org.chocosolver.util.ESat;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 
-import java.util.List;
-
 /**
  * Ensures that if two nodes are enforced then any arc (or edge) linking them in the initial GUB
  * is also enforced.

@@ -56,7 +56,7 @@ public class TestFourConnectedSquareGrid {
         FourConnectedSquareGrid grid = new FourConnectedSquareGrid(5, 5);
         // Cell in the middle: 12
         int[] neighbors = grid.getNeighbors(12);
-        Arrays.sort(neighbors);;
+        Arrays.sort(neighbors);
         int[] expected = new int[] {7, 11, 13, 17};
         Assert.assertTrue(Arrays.equals(neighbors, expected));
         // Cell 0
