@@ -30,6 +30,10 @@ import java.io.IOException;
  */
 public class ProbabilisticRasterFeature extends RasterFeature implements IProbabilisticFeature {
 
+    public ProbabilisticRasterFeature(String rasterFilePath, String name) throws IOException {
+        super(rasterFilePath, name);
+    }
+
     public ProbabilisticRasterFeature(String rasterFilePath) throws IOException {
         super(rasterFilePath);
     }

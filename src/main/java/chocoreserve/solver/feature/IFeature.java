@@ -34,4 +34,9 @@ public interface IFeature {
      * @return The raw data associated with the feature.
      */
     double[] getData() throws IOException;
+
+    /**
+     * @return The name of the feature.
+     */
+    String getName();
 }

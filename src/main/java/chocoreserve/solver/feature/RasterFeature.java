@@ -25,6 +25,7 @@ package chocoreserve.solver.feature;
 
 import chocoreserve.raster.RasterReader;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -32,12 +33,17 @@ import java.io.IOException;
  */
 public abstract class RasterFeature implements IFeature {
 
-    protected String rasterFilePath;
+    protected String rasterFilePath, name;
     protected RasterReader rasterReader;
 
-    public RasterFeature(String rasterFilePath) throws IOException {
+    public RasterFeature(String rasterFilePath, String name) throws IOException {
         this.rasterFilePath = rasterFilePath;
+        this.name = name;
         this.rasterReader = new RasterReader(rasterFilePath);
+    }
+
+    public RasterFeature(String rasterFilePath) throws IOException {
+        this(rasterFilePath, new File(rasterFilePath).getName());
     }
 
     public double[] getData() {
@@ -47,5 +53,9 @@ public abstract class RasterFeature implements IFeature {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public String getName() {
+        return name;
     }
 }

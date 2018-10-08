@@ -30,6 +30,10 @@ import java.io.IOException;
  */
 public class BinaryRasterFeature extends RasterFeature implements IBinaryFeature {
 
+    public BinaryRasterFeature(String rasterFilePath, String name) throws IOException {
+        super(rasterFilePath, name);
+    }
+
     public BinaryRasterFeature(String rasterFilePath) throws IOException {
         super(rasterFilePath);
     }

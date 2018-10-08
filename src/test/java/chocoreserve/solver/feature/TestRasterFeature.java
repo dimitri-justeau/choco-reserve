@@ -38,6 +38,7 @@ public class TestRasterFeature {
         String fullPath = getClass().getClassLoader().getResource("raster/test_raster_binary.tif").getPath();
         try {
             IBinaryFeature feature = new BinaryRasterFeature(fullPath);
+            Assert.assertEquals(feature.getName(), "test_raster_binary.tif");
             int[] data = feature.getBinaryData();
             for (int d : data) {
                 Assert.assertTrue(d == 0 || d == 1);
@@ -52,7 +53,8 @@ public class TestRasterFeature {
     public void testGetDataProbabilistic() {
         String fullPath = getClass().getClassLoader().getResource("raster/test_raster_probabilistic.tif").getPath();
         try {
-            IProbabilisticFeature feature = new ProbabilisticRasterFeature(fullPath);
+            IProbabilisticFeature feature = new ProbabilisticRasterFeature(fullPath, "probTest");
+            Assert.assertEquals(feature.getName(), "probTest");
             double[] data = feature.getProbabilisticData();
             for (double d : data) {
                 Assert.assertTrue(d >= 0 && d <= 1);

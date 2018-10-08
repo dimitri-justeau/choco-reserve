@@ -30,6 +30,10 @@ import java.io.IOException;
  */
 public class QuantitativeRasterFeature extends RasterFeature implements IQuantitativeFeature {
 
+    public QuantitativeRasterFeature(String rasterFilePath, String name) throws IOException {
+        super(rasterFilePath, name);
+    }
+
     public QuantitativeRasterFeature(String rasterFilePath) throws IOException {
         super(rasterFilePath);
     }
