@@ -21,28 +21,37 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.feature;
+package chocoreserve.solver.feature.raster;
 
-import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
+import chocoreserve.raster.RasterReader;
+import chocoreserve.solver.feature.IFeature;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
- * Interface describing a probabilistic feature.
+ * Feature based on a raster file.
  */
-public interface IProbabilisticFeature extends IFeature {
+public abstract class RasterFeature implements IFeature {
 
-    /**
-     * @return The data associated with the feature as probabilistic data.
-     */
-    default double[] getProbabilisticData() throws ValueException, IOException {
-        double[] data = getData();
-        for (double d : data) {
-            if (d > 1) {
-                throw new ValueException("There are values strictly greater than 1 describing the feature." +
-                        " They cannot be interpreted as probabilistic data");
-            }
-        }
-        return getData();
+    protected String rasterFilePath, name;
+    protected RasterReader rasterReader;
+
+    public RasterFeature(String rasterFilePath, String name) throws IOException {
+        this.rasterFilePath = rasterFilePath;
+        this.name = name;
+        this.rasterReader = new RasterReader(rasterFilePath);
+    }
+
+    public RasterFeature(String rasterFilePath) throws IOException {
+        this(rasterFilePath, new File(rasterFilePath).getName());
+    }
+
+    public double[] getData() throws IOException {
+        return rasterReader.readAsDoubleArray();
+    }
+
+    public String getName() {
+        return name;
     }
 }

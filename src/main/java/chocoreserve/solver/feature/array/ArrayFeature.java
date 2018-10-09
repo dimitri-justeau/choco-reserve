@@ -21,20 +21,23 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.feature;
+package chocoreserve.solver.feature.array;
 
-import java.io.IOException;
+import chocoreserve.solver.feature.IFeature;
 
 /**
- * Probabilistic feature loaded from a raster file.
+ * Feature based on direct array input.
  */
-public class ProbabilisticRasterFeature extends RasterFeature implements IProbabilisticFeature {
+public abstract class ArrayFeature implements IFeature {
 
-    public ProbabilisticRasterFeature(String rasterFilePath, String name) throws IOException {
-        super(rasterFilePath, name);
+    protected String name;
+
+    public ArrayFeature(String name) {
+        this.name = name;
     }
 
-    public ProbabilisticRasterFeature(String rasterFilePath) throws IOException {
-        super(rasterFilePath);
+    @Override
+    public String getName() {
+        return name;
     }
 }

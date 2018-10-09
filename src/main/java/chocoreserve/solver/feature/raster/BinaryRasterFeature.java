@@ -21,25 +21,27 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.feature;
+package chocoreserve.solver.feature.raster;
+
+import chocoreserve.solver.feature.IBinaryFeature;
 
 import java.io.IOException;
 
 /**
- * Quantitative feature loaded from a raster file.
+ * Binary feature loaded from a raster file.
  */
-public class QuantitativeRasterFeature extends RasterFeature implements IQuantitativeFeature {
+public class BinaryRasterFeature extends RasterFeature implements IBinaryFeature {
 
-    public QuantitativeRasterFeature(String rasterFilePath, String name) throws IOException {
+    public BinaryRasterFeature(String rasterFilePath, String name) throws IOException {
         super(rasterFilePath, name);
     }
 
-    public QuantitativeRasterFeature(String rasterFilePath) throws IOException {
+    public BinaryRasterFeature(String rasterFilePath) throws IOException {
         super(rasterFilePath);
     }
 
-        @Override
-    public int[] getQuantitativeData() throws IOException {
+    @Override
+    public int[] getBinaryData() throws IOException {
         return rasterReader.readAsIntArray();
     }
 }

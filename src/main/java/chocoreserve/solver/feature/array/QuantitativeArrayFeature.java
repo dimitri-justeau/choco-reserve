@@ -21,28 +21,21 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.feature;
+package chocoreserve.solver.feature.array;
 
-import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
-
-import java.io.IOException;
+import chocoreserve.solver.feature.IQuantitativeFeature;
 
 /**
- * Interface describing a probabilistic feature.
+ * Quantitative feature loaded from an int[].
  */
-public interface IProbabilisticFeature extends IFeature {
+public class QuantitativeArrayFeature extends BinaryArrayFeature implements IQuantitativeFeature {
 
-    /**
-     * @return The data associated with the feature as probabilistic data.
-     */
-    default double[] getProbabilisticData() throws ValueException, IOException {
-        double[] data = getData();
-        for (double d : data) {
-            if (d > 1) {
-                throw new ValueException("There are values strictly greater than 1 describing the feature." +
-                        " They cannot be interpreted as probabilistic data");
-            }
-        }
-        return getData();
+    public QuantitativeArrayFeature(String name, int[] data) {
+        super(name, data);
+    }
+
+    @Override
+    public int[] getQuantitativeData() {
+        return data;
     }
 }

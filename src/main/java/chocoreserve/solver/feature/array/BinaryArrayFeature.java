@@ -21,28 +21,31 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.feature;
+package chocoreserve.solver.feature.array;
 
-import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
+import chocoreserve.solver.feature.IBinaryFeature;
 
-import java.io.IOException;
+import java.util.stream.IntStream;
 
 /**
- * Interface describing a probabilistic feature.
+ * Binary feature loaded from an int[].
  */
-public interface IProbabilisticFeature extends IFeature {
+public class BinaryArrayFeature extends ArrayFeature implements IBinaryFeature {
 
-    /**
-     * @return The data associated with the feature as probabilistic data.
-     */
-    default double[] getProbabilisticData() throws ValueException, IOException {
-        double[] data = getData();
-        for (double d : data) {
-            if (d > 1) {
-                throw new ValueException("There are values strictly greater than 1 describing the feature." +
-                        " They cannot be interpreted as probabilistic data");
-            }
-        }
-        return getData();
+    protected int[] data;
+
+    public BinaryArrayFeature(String name, int[] data) {
+        super(name);
+        this.data = data;
+    }
+
+    @Override
+    public double[] getData() {
+        return IntStream.of(data).mapToDouble(i -> (double) i).toArray();
+    }
+
+    @Override
+    public int[] getBinaryData() {
+        return IntStream.of(data).map(i -> i >= 1 ? 1 : 0).toArray();
     }
 }

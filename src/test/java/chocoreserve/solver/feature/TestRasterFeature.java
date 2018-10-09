@@ -23,6 +23,9 @@
 
 package chocoreserve.solver.feature;
 
+import chocoreserve.solver.feature.raster.BinaryRasterFeature;
+import chocoreserve.solver.feature.raster.ProbabilisticRasterFeature;
+import chocoreserve.solver.feature.raster.QuantitativeRasterFeature;
 import org.junit.Assert;
 import org.junit.Test;
 
