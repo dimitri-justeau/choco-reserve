@@ -24,32 +24,23 @@
 package chocoreserve.solver.constraints;
 
 import chocoreserve.solver.IReserveModel;
-import org.chocosolver.solver.variables.IntVar;
 
 /**
- * Interface for constraints over the Nature Reserve Problem.
+ * area_reserve_system constraint.
  */
-public interface IReserveConstraintFactory {
+public class AreaReserveSystem extends ReserveConstraint {
 
-    IReserveModel self();
+    private int areaMin, areaMax;
 
-    // ---------------------------------- //
-    // Feature representation constraints //
-    // ---------------------------------- //
-
-    // ------------------- //
-    // Spatial constraints //
-    // ------------------- //
-
-    default IReserveConstraint nbComponents(int nbMin, int nbMax) {
-        return new NbComponents(self(), nbMin, nbMax);
+    public AreaReserveSystem(IReserveModel reserveModel, int areaMin, int areaMax) {
+        super(reserveModel);
+        this.areaMin = areaMin;
+        this.areaMax = areaMax;
     }
 
-    default IReserveConstraint areaReserves(IntVar minNCC, IntVar maxNCC) {
-        return new AreaReserves(self(), minNCC, maxNCC);
-    }
-
-    default IReserveConstraint areaReserveSystem(int areaMin, int areaMax){
-        return new AreaReserveSystem(self(), areaMin, areaMax);
+    @Override
+    public void post() {
+        reserveModel.getChocoModel().arithm(reserveModel.getNbPlanningUnits(), ">=", areaMin).post();
+        reserveModel.getChocoModel().arithm(reserveModel.getNbPlanningUnits(), "<=", areaMax).post();
     }
 }

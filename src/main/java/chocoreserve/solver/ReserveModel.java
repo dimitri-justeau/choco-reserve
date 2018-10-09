@@ -23,6 +23,7 @@
 
 package chocoreserve.solver;
 
+import chocoreserve.exception.ModelNotInstantiatedError;
 import chocoreserve.grid.IGrid;
 import chocoreserve.solver.constraints.IReserveConstraintFactory;
 import chocoreserve.solver.constraints.choco.graph.PropInducedNeighborhood;
@@ -131,8 +132,23 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory {
         return nbPlanningUnits;
     }
 
+    // -------------------------- //
+    // Solution retrieval methods //
+    // -------------------------- //
+
     @Override
-    public IReserveModel _self() {
+    public int[] getSelectedPlanningUnits() throws ModelNotInstantiatedError {
+        UndirectedGraphVar g = getSpatialGraphVar();
+        if (!g.isInstantiated()) {
+            throw new ModelNotInstantiatedError();
+        }
+        return g.getMandatoryNodes().toArray();
+    }
+
+    // For constraint factory
+
+    @Override
+    public IReserveModel self() {
         return this;
     }
 }

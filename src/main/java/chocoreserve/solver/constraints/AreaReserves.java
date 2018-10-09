@@ -28,13 +28,13 @@ import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.variables.IntVar;
 
 /**
- * area_components constraint.
+ * area_reserves constraint.
  */
-public class AreaComponents extends ReserveConstraint {
+public class AreaReserves extends ReserveConstraint {
 
     private IntVar minNCC, maxNCC;
 
-    public AreaComponents(IReserveModel reserveModel, IntVar minNCC, IntVar maxNCC) {
+    public AreaReserves(IReserveModel reserveModel, IntVar minNCC, IntVar maxNCC) {
         super(reserveModel);
         this.minNCC = minNCC;
         this.maxNCC = maxNCC;

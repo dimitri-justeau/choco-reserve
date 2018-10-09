@@ -21,35 +21,20 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.constraints;
-
-import chocoreserve.solver.IReserveModel;
-import org.chocosolver.solver.variables.IntVar;
+package chocoreserve.exception;
 
 /**
- * Interface for constraints over the Nature Reserve Problem.
+ * Exception to be thrown when trying to retrieve solutions when the solver is not at a solution state.
  */
-public interface IReserveConstraintFactory {
+public class ModelNotInstantiatedError extends Exception {
 
-    IReserveModel self();
-
-    // ---------------------------------- //
-    // Feature representation constraints //
-    // ---------------------------------- //
-
-    // ------------------- //
-    // Spatial constraints //
-    // ------------------- //
-
-    default IReserveConstraint nbComponents(int nbMin, int nbMax) {
-        return new NbComponents(self(), nbMin, nbMax);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return "The solver is not at a solution state (i.e. there are variables not instantiated in the model)." +
+                " Use getChocoSolver().solve(), or if you stored solutions, use the restore() method.";
     }
 
-    default IReserveConstraint areaReserves(IntVar minNCC, IntVar maxNCC) {
-        return new AreaReserves(self(), minNCC, maxNCC);
-    }
-
-    default IReserveConstraint areaReserveSystem(int areaMin, int areaMax){
-        return new AreaReserveSystem(self(), areaMin, areaMax);
-    }
 }

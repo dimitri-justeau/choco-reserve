@@ -35,9 +35,9 @@ import org.junit.Test;
 import java.util.List;
 
 /**
- * Test for AreaComponents constraint.
+ * Test for AreaReserves constraint.
  */
-public class TestAreaComponents {
+public class TestAreaReserves {
 
     /**
      * Success test case 1: 3x3 4-connected square grid, 2 CC of size 3 -> 4 solutions :
@@ -62,7 +62,7 @@ public class TestAreaComponents {
         reserveModel.nbComponents(2, 2).post();
         IntVar minNCC = reserveModel.getChocoModel().intVar(3, 4);
         IntVar maxNCC = reserveModel.getChocoModel().intVar(3, 4);
-        reserveModel.areaComponents(minNCC, maxNCC).post();
+        reserveModel.areaReserves(minNCC, maxNCC).post();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();
         Assert.assertEquals(4, solutions.size());
@@ -86,7 +86,7 @@ public class TestAreaComponents {
         reserveModel.nbComponents(1, 1).post();
         IntVar minNCC = reserveModel.getChocoModel().intVar("minNCC", 3, 4);
         IntVar maxNCC = reserveModel.getChocoModel().intVar("maxNCC", 3, 4);
-        reserveModel.areaComponents(minNCC, maxNCC).post();
+        reserveModel.areaReserves(minNCC, maxNCC).post();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();
         Assert.assertEquals(3, solutions.size());

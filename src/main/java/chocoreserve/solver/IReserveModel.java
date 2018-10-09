@@ -23,6 +23,7 @@
 
 package chocoreserve.solver;
 
+import chocoreserve.exception.ModelNotInstantiatedError;
 import chocoreserve.grid.IGrid;
 import chocoreserve.solver.feature.IFeature;
 import org.chocosolver.graphsolver.GraphModel;
@@ -91,4 +92,14 @@ public interface IReserveModel {
      * @return The IntVar corresponding to the number of selected planning units.
      */
     IntVar getNbPlanningUnits();
+
+    // -------------------------- //
+    // Solution retrieval methods //
+    // -------------------------- //
+
+    /**
+     * @return The indices of the selected planning units.
+     * @throws ModelNotInstantiatedError If the solver is not at a solution state.
+     */
+    int[] getSelectedPlanningUnits() throws ModelNotInstantiatedError;
 }
