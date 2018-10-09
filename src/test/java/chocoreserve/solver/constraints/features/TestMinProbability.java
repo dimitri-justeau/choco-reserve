@@ -23,33 +23,25 @@
 
 package chocoreserve.solver.constraints.features;
 
-import chocoreserve.solver.IReserveModel;
-import chocoreserve.solver.feature.IBinaryFeature;
-import chocoreserve.solver.feature.IFeature;
-
-import java.io.IOException;
+import org.junit.Test;
 
 /**
- * Redundant features constraint.
+ * Test case for MinProbability constraint.
  */
-public class RedundantFeatures extends FeaturesConstraint {
+public class TestMinProbability {
 
-    private int k;
+    @Test
+    public void testSuccess1() {
 
-    public RedundantFeatures(IReserveModel reserveModel, int k, IBinaryFeature... features) {
-        super(reserveModel, features);
-        this.k = k;
     }
 
-    @Override
-    public void post() {
-        for (IFeature feature : features) {
-            try {
-                int[] coeffs = ((IBinaryFeature) feature).getBinaryData();
-                chocoModel.scalar(reserveModel.getPlanningUnits(), coeffs, ">=", k).post();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+    @Test
+    public void testSuccess2() {
+
+    }
+
+    @Test
+    public void testFail() {
+
     }
 }

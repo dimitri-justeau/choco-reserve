@@ -25,11 +25,13 @@ package chocoreserve.solver.constraints;
 
 import chocoreserve.solver.IReserveModel;
 import chocoreserve.solver.constraints.features.CoveredFeatures;
+import chocoreserve.solver.constraints.features.MinProbability;
 import chocoreserve.solver.constraints.features.RedundantFeatures;
 import chocoreserve.solver.constraints.spatial.AreaReserveSystem;
 import chocoreserve.solver.constraints.spatial.AreaReserves;
 import chocoreserve.solver.constraints.spatial.NbReserves;
 import chocoreserve.solver.feature.IBinaryFeature;
+import chocoreserve.solver.feature.IProbabilisticFeature;
 import org.chocosolver.solver.variables.IntVar;
 
 /**
@@ -49,6 +51,10 @@ public interface IReserveConstraintFactory {
 
     default IReserveConstraint redundantFeatures(int k, IBinaryFeature... features) {
         return new RedundantFeatures(self(), k, features);
+    }
+
+    default IReserveConstraint minProbability(double alpha, IProbabilisticFeature... features) {
+        return new MinProbability(self(), alpha, features);
     }
 
     // ------------------- //
