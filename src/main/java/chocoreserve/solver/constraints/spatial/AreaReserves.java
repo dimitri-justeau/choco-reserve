@@ -27,7 +27,7 @@ import chocoreserve.solver.IReserveModel;
 import org.chocosolver.solver.variables.IntVar;
 
 /**
- * area_reserves constraint.
+ * Area of reserves constraint.
  */
 public class AreaReserves extends SpatialConstraint {
 

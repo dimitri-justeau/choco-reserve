@@ -21,26 +21,36 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.constraints.spatial;
+package chocoreserve.solver.constraints.features;
 
 import chocoreserve.solver.IReserveModel;
+import chocoreserve.solver.feature.IBinaryFeature;
+import chocoreserve.solver.feature.IFeature;
+import org.chocosolver.solver.variables.IntVar;
+
+import java.io.IOException;
 
 /**
- * Area of reserve_system constraint.
+ * Redundant features constraint.
  */
-public class AreaReserveSystem extends SpatialConstraint {
+public class RedundantFeatures extends FeaturesConstraint {
 
-    private int areaMin, areaMax;
+    private int k;
 
-    public AreaReserveSystem(IReserveModel reserveModel, int areaMin, int areaMax) {
-        super(reserveModel);
-        this.areaMin = areaMin;
-        this.areaMax = areaMax;
+    public RedundantFeatures(IReserveModel reserveModel, int k, IBinaryFeature... features) {
+        super(reserveModel, features);
+        this.k = k;
     }
 
     @Override
     public void post() {
-        chocoModel.arithm(reserveModel.getNbPlanningUnits(), ">=", areaMin).post();
-        chocoModel.arithm(reserveModel.getNbPlanningUnits(), "<=", areaMax).post();
+        for (IFeature feature : features) {
+            try {
+                int[] coeffs = ((IBinaryFeature) feature).getBinaryData();
+                chocoModel.scalar(reserveModel.getPlanningUnits(), coeffs, ">=", k).post();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

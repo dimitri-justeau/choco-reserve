@@ -28,28 +28,27 @@ import chocoreserve.grid.Grid;
 import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.feature.IBinaryFeature;
-import chocoreserve.solver.feature.IQuantitativeFeature;
 import chocoreserve.solver.feature.array.BinaryArrayFeature;
-import chocoreserve.solver.feature.array.QuantitativeArrayFeature;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Test for CoveredFeatures constraint.
+ * Test for RedundantFeatures constraint.
  */
-public class TestCoveredFeatures {
+public class TestRedundantFeatures {
 
     /**
      * Success test case 1:
      *     - 3x3 4-connected square grid.
-     *     - 1 binary feature present in only one planning unit (3).
+     *     - 1 binary feature present in only 3 planning units (0, 1, 2).
+     *     - Must be 3-redundant.
      *
      *     -----------
-     *    |   |   |   |
+     *    | X | X | X |
      *     -----------
-     *    | X |   |   |
+     *    |   |   |   |
      *     -----------
      *    |   |   |   |
      *     -----------
@@ -59,39 +58,38 @@ public class TestCoveredFeatures {
         Grid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
         IBinaryFeature feature = new BinaryArrayFeature(
-                "test_binary",
-                new int[] {0, 0, 0, 1, 0, 0, 0, 0, 0 }
+                "binary",
+                new int[] {1, 1, 1, 0, 0, 0, 0, 0, 0}
         );
-        reserveModel.coveredFeatures(feature).post();
+        reserveModel.redundantFeatures(3, feature).post();
         Solver solver = reserveModel.getChocoSolver();
         if (solver.solve()) {
             do {
                 try {
                     ISet nodes = reserveModel.getSelectedPlanningUnitsAsSet();
-                    Assert.assertTrue(nodes.contains(3));
-                } catch (ModelNotInstantiatedError modelNotInstantiatedError) {
-                    modelNotInstantiatedError.printStackTrace();
+                    Assert.assertTrue(nodes.contains(0) && nodes.contains(1) && nodes.contains(2));
+                } catch (ModelNotInstantiatedError e) {
+                    e.printStackTrace();
                     Assert.fail();
                 }
             } while (solver.solve());
-        } else {
-            Assert.fail();
         }
     }
 
     /**
-     * Success test case 1:
+     * Success test case 2:
      *     - 3x3 4-connected square grid.
-     *     - 1 binary feature (A) present in only one planning unit (5).
-     *     - 1 quantitative feature (B) present in three planning units (0, 8, 2).
+     *     - 1 binary feature (A) present in 2 planning units (0, 1).
+     *     - 1 binary feature (B) present in 4 planning units (0, 2, 4, 6).
+     *     - Both must be 2-redundant.
      *
      *     -----------
-     *    | B |   | B |
-     *     -----------
-     *    |   |   | A |
-     *     -----------
-     *    |   |   | B |
-     *     -----------
+     *    | AB | A | B |
+     *     ------------
+     *    |    | B |   |
+     *     ------------
+     *    | B  |   |   |
+     *     ------------
      */
     @Test
     public void testSuccess2() {
@@ -99,44 +97,43 @@ public class TestCoveredFeatures {
         ReserveModel reserveModel = new ReserveModel(grid);
         IBinaryFeature featureA = new BinaryArrayFeature(
                 "A",
-                new int[] {0, 0, 0, 0, 0, 1, 0, 0, 0}
+                new int[] {1, 1, 0, 0, 0, 0, 0, 0, 0}
         );
-        IQuantitativeFeature featureB = new QuantitativeArrayFeature(
+        IBinaryFeature featureB = new BinaryArrayFeature(
                 "B",
-                new int[] {12, 0, 5, 0, 0, 0, 0, 0, 3}
+                new int[] {1, 0, 1, 0, 1, 0, 1, 0, 0}
         );
-        reserveModel.coveredFeatures(featureA, featureB).post();
+        reserveModel.redundantFeatures(2, featureA, featureB).post();
         Solver solver = reserveModel.getChocoSolver();
         if (solver.solve()) {
             do {
                 try {
                     ISet nodes = reserveModel.getSelectedPlanningUnitsAsSet();
-                    Assert.assertTrue(nodes.contains(5));
-                    Assert.assertTrue(nodes.contains(0) || nodes.contains(2) || nodes.contains(8));
-                } catch (ModelNotInstantiatedError modelNotInstantiatedError) {
-                    modelNotInstantiatedError.printStackTrace();
+                    Assert.assertTrue(nodes.contains(0) && nodes.contains(1) &&
+                            (nodes.contains(2) || nodes.contains(4) || nodes.contains(6)));
+                } catch (ModelNotInstantiatedError e) {
+                    e.printStackTrace();
                     Assert.fail();
                 }
             } while (solver.solve());
-        } else {
-            Assert.fail();
         }
     }
 
     /**
-     * Success test case 1:
+     * Fail test case:
      *     - 3x3 4-connected square grid.
-     *     - 1 binary feature present in no planning unit.
+     *     - 1 binary feature present in 2 planning units (0, 1).
+     *     - Must be 3-redundant.
      */
     @Test
     public void testFail() {
         Grid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
         IBinaryFeature feature = new BinaryArrayFeature(
-                "A",
-                new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0}
+                "binary",
+                new int[] {1, 1, 0, 0, 0, 0, 0, 0, 0}
         );
-        reserveModel.coveredFeatures(feature).post();
+        reserveModel.redundantFeatures(3, feature).post();
         Solver solver = reserveModel.getChocoSolver();
         Assert.assertFalse(solver.solve());
     }

@@ -30,7 +30,7 @@ import chocoreserve.solver.feature.IFeature;
 import java.io.IOException;
 
 /**
- * covered features constraint.
+ * Covered features constraint.
  */
 public class CoveredFeatures extends FeaturesConstraint {
 

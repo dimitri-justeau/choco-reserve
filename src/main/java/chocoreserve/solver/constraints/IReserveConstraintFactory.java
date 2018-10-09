@@ -25,9 +25,10 @@ package chocoreserve.solver.constraints;
 
 import chocoreserve.solver.IReserveModel;
 import chocoreserve.solver.constraints.features.CoveredFeatures;
+import chocoreserve.solver.constraints.features.RedundantFeatures;
 import chocoreserve.solver.constraints.spatial.AreaReserveSystem;
 import chocoreserve.solver.constraints.spatial.AreaReserves;
-import chocoreserve.solver.constraints.spatial.NbComponents;
+import chocoreserve.solver.constraints.spatial.NbReserves;
 import chocoreserve.solver.feature.IBinaryFeature;
 import org.chocosolver.solver.variables.IntVar;
 
@@ -46,12 +47,16 @@ public interface IReserveConstraintFactory {
         return new CoveredFeatures(self(), features);
     }
 
+    default IReserveConstraint redundantFeatures(int k, IBinaryFeature... features) {
+        return new RedundantFeatures(self(), k, features);
+    }
+
     // ------------------- //
     // Spatial constraints //
     // ------------------- //
 
-    default IReserveConstraint nbComponents(int nbMin, int nbMax) {
-        return new NbComponents(self(), nbMin, nbMax);
+    default IReserveConstraint nbReserves(int nbMin, int nbMax) {
+        return new NbReserves(self(), nbMin, nbMax);
     }
 
     default IReserveConstraint areaReserves(IntVar minNCC, IntVar maxNCC) {

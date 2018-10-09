@@ -36,7 +36,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Test for NbComponents constraint.
+ * Test for NbReserves constraint.
  */
 public class TestNbComponents {
 
@@ -54,7 +54,7 @@ public class TestNbComponents {
     public void testNbComponentsSuccessCase1() {
         Grid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.nbComponents(5, 5).post();
+        reserveModel.nbReserves(5, 5).post();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();
         Assert.assertEquals(1, solutions.size());
@@ -80,7 +80,7 @@ public class TestNbComponents {
     public void testNbComponentsSuccessCase2() {
         Grid grid = new FourConnectedSquareGrid(2, 2);
         ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.nbComponents(2, 2).post();
+        reserveModel.nbReserves(2, 2).post();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();
         Assert.assertEquals(2, solutions.size());
@@ -96,7 +96,7 @@ public class TestNbComponents {
     public void testNbComponentsSuccessCase3() {
         Grid grid = new FourConnectedSquareGrid(1, 2);
         ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.nbComponents(0, 1).post();
+        reserveModel.nbReserves(0, 1).post();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();
         Assert.assertEquals(4, solutions.size());
@@ -117,7 +117,7 @@ public class TestNbComponents {
     public void testNbComponentsFailCase1() {
         Grid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.nbComponents(6, 6).post();
+        reserveModel.nbReserves(6, 6).post();
         Solver solver = reserveModel.getChocoSolver();
         boolean solution = solver.solve();
         Assert.assertFalse(solution);

@@ -59,7 +59,7 @@ public class TestAreaReserves {
     public void testAreaComponentsSuccess1() {
         Grid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.nbComponents(2, 2).post();
+        reserveModel.nbReserves(2, 2).post();
         IntVar minNCC = reserveModel.getChocoModel().intVar(3, 4);
         IntVar maxNCC = reserveModel.getChocoModel().intVar(3, 4);
         reserveModel.areaReserves(minNCC, maxNCC).post();
@@ -83,7 +83,7 @@ public class TestAreaReserves {
     public void testAreaComponentsSuccess2() {
         Grid grid = new FourConnectedSquareGrid(1, 4);
         ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.nbComponents(1, 1).post();
+        reserveModel.nbReserves(1, 1).post();
         IntVar minNCC = reserveModel.getChocoModel().intVar("minNCC", 3, 4);
         IntVar maxNCC = reserveModel.getChocoModel().intVar("maxNCC", 3, 4);
         reserveModel.areaReserves(minNCC, maxNCC).post();

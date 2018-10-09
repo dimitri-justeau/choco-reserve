@@ -26,13 +26,13 @@ package chocoreserve.solver.constraints.spatial;
 import chocoreserve.solver.IReserveModel;
 
 /**
- * nb_components constraint.
+ * Number of reserves constraint.
  */
-public class NbComponents extends SpatialConstraint {
+public class NbReserves extends SpatialConstraint {
 
     private int nbMin, nbMax;
 
-    public NbComponents(IReserveModel reserveModel, int nbMin, int nbMax) {
+    public NbReserves(IReserveModel reserveModel, int nbMin, int nbMax) {
         super(reserveModel);
         this.nbMin = nbMin;
         this.nbMax = nbMax;
