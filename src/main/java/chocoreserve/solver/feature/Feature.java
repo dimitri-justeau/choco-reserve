@@ -21,33 +21,20 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.feature.raster;
-
-import chocoreserve.raster.RasterReader;
-import chocoreserve.solver.feature.Feature;
-
-import java.io.File;
-import java.io.IOException;
+package chocoreserve.solver.feature;
 
 /**
- * Feature based on a raster file.
+ * Abstract base class for feature.
  */
-public abstract class RasterFeature extends Feature {
+public abstract class Feature implements IFeature {
 
-    protected String rasterFilePath;
-    protected RasterReader rasterReader;
+    protected String name;
 
-    public RasterFeature(String rasterFilePath, String name) throws IOException {
-        super(name);
-        this.rasterFilePath = rasterFilePath;
-        this.rasterReader = new RasterReader(rasterFilePath);
+    public Feature(String name) {
+        this.name = name;
     }
 
-    public RasterFeature(String rasterFilePath) throws IOException {
-        this(rasterFilePath, new File(rasterFilePath).getName());
-    }
-
-    public double[] getData() throws IOException {
-        return rasterReader.readAsDoubleArray();
+    public String getName() {
+        return name;
     }
 }

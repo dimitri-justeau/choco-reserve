@@ -23,21 +23,15 @@
 
 package chocoreserve.solver.feature.array;
 
-import chocoreserve.solver.feature.IFeature;
+
+import chocoreserve.solver.feature.Feature;
 
 /**
  * Feature based on direct array input.
  */
-public abstract class ArrayFeature implements IFeature {
-
-    protected String name;
+public abstract class ArrayFeature extends Feature {
 
     public ArrayFeature(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
+        super(name);
     }
 }

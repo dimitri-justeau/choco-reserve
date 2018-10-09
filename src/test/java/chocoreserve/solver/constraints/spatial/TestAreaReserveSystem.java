@@ -21,8 +21,9 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.constraints;
+package chocoreserve.solver.constraints.spatial;
 
+import chocoreserve.exception.ModelNotInstantiatedError;
 import chocoreserve.grid.Grid;
 import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
 import chocoreserve.solver.ReserveModel;
@@ -34,14 +35,16 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.IntStream;
 
 /**
- * Test for NbComponents constraint.
+ * Test for AreaReserveSystem constraint.
  */
-public class TestNbComponents {
+public class TestAreaReserveSystem {
 
     /**
-     * Test case 1: 3x3 4-connected square grid, 5 CC -> 1 solution (0, 2, 4, 6, 8).
+     * Success test case 1: 3x3 4-connected square grid, areaMin = areaMax = 9 -> 1 solution.
+     *
      *     -----------
      *    | 0 | 1 | 2 |
      *     -----------
@@ -51,10 +54,10 @@ public class TestNbComponents {
      *     -----------
      */
     @Test
-    public void testNbComponentsSuccessCase1() {
+    public void testAreaReserveSystemSuccess1() {
         Grid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.nbComponents(5, 5).post();
+        reserveModel.areaReserveSystem(9, 9).post();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();
         Assert.assertEquals(1, solutions.size());
@@ -64,47 +67,13 @@ public class TestNbComponents {
             e.printStackTrace();
         }
         int[] nodes = reserveModel.getSpatialGraphVar().getMandatoryNodes().toArray();
-        Arrays.sort(nodes);
-        Assert.assertTrue(Arrays.equals(nodes, new int[] {0, 2, 4, 6, 8}));
+        Assert.assertTrue(Arrays.equals(IntStream.range(0, 9).toArray(), nodes));
     }
 
     /**
-     * Test case 1: 2x2 4-connected square grid, 2 CC -> 2 solution (0, 3) and (1, 2).
-     *     -------
-     *    | 0 | 1 |
-     *     -------
-     *    | 2 | 3 |
-     *     -------
-     */
-    @Test
-    public void testNbComponentsSuccessCase2() {
-        Grid grid = new FourConnectedSquareGrid(2, 2);
-        ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.nbComponents(2, 2).post();
-        Solver solver = reserveModel.getChocoSolver();
-        List<Solution> solutions = solver.findAllSolutions();
-        Assert.assertEquals(2, solutions.size());
-    }
-
-    /**
-     * Test case 1: 1x2 4-connected square grid, 0 - 1 CC -> 4 solutions (), (0), (1) and (0, 1).
-     *     -------
-     *    | 0 | 1 |
-     *     -------
-     */
-    @Test
-    public void testNbComponentsSuccessCase3() {
-        Grid grid = new FourConnectedSquareGrid(1, 2);
-        ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.nbComponents(0, 1).post();
-        Solver solver = reserveModel.getChocoSolver();
-        List<Solution> solutions = solver.findAllSolutions();
-        Assert.assertEquals(4, solutions.size());
-    }
-
-
-    /**
-     * Test case 1: 3x3 4-connected square grid, 6 CC -> Fail.
+     * Success test case 1: 3x3 4-connected square grid, areaMin = 2, areaMax = 4.
+     * Many solutions, we just test that they all satisfy the constraint.
+     *
      *     -----------
      *    | 0 | 1 | 2 |
      *     -----------
@@ -114,12 +83,43 @@ public class TestNbComponents {
      *     -----------
      */
     @Test
-    public void testNbComponentsFailCase1() {
+    public void testAreaReserveSystemSuccess2() {
         Grid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.nbComponents(6, 6).post();
+        reserveModel.areaReserveSystem(2, 4).post();
         Solver solver = reserveModel.getChocoSolver();
-        boolean solution = solver.solve();
-        Assert.assertFalse(solution);
+        if (solver.solve()) {
+            do {
+                try {
+                    int n = reserveModel.getSelectedPlanningUnits().length;
+                    Assert.assertTrue(n >= 2 && n <= 4);
+                } catch (ModelNotInstantiatedError modelNotInstantiatedError) {
+                    modelNotInstantiatedError.printStackTrace();
+                    Assert.fail();
+                }
+            } while (solver.solve());
+        } else {
+            Assert.fail();
+        }
+    }
+
+    /**
+     * Fail test case 1: 3x3 4-connected square grid, areaMin = 10, areaMax = 20.
+     *
+     *     -----------
+     *    | 0 | 1 | 2 |
+     *     -----------
+     *    | 3 | 4 | 5 |
+     *     -----------
+     *    | 6 | 7 | 8 |
+     *     -----------
+     */
+    @Test
+    public void testAreaReserveSystemFail() {
+        Grid grid = new FourConnectedSquareGrid(3, 3);
+        ReserveModel reserveModel = new ReserveModel(grid);
+        reserveModel.areaReserveSystem(10, 20).post();
+        Solver solver = reserveModel.getChocoSolver();
+        Assert.assertFalse(solver.solve());
     }
 }

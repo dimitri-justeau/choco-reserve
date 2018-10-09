@@ -21,14 +21,14 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.constraints;
+package chocoreserve.solver.constraints.spatial;
 
 import chocoreserve.solver.IReserveModel;
 
 /**
  * area_reserve_system constraint.
  */
-public class AreaReserveSystem extends ReserveConstraint {
+public class AreaReserveSystem extends SpatialConstraint {
 
     private int areaMin, areaMax;
 
@@ -40,7 +40,7 @@ public class AreaReserveSystem extends ReserveConstraint {
 
     @Override
     public void post() {
-        reserveModel.getChocoModel().arithm(reserveModel.getNbPlanningUnits(), ">=", areaMin).post();
-        reserveModel.getChocoModel().arithm(reserveModel.getNbPlanningUnits(), "<=", areaMax).post();
+        chocoModel.arithm(reserveModel.getNbPlanningUnits(), ">=", areaMin).post();
+        chocoModel.arithm(reserveModel.getNbPlanningUnits(), "<=", areaMax).post();
     }
 }

@@ -24,6 +24,11 @@
 package chocoreserve.solver.constraints;
 
 import chocoreserve.solver.IReserveModel;
+import chocoreserve.solver.constraints.features.CoveredFeatures;
+import chocoreserve.solver.constraints.spatial.AreaReserveSystem;
+import chocoreserve.solver.constraints.spatial.AreaReserves;
+import chocoreserve.solver.constraints.spatial.NbComponents;
+import chocoreserve.solver.feature.IBinaryFeature;
 import org.chocosolver.solver.variables.IntVar;
 
 /**
@@ -36,6 +41,10 @@ public interface IReserveConstraintFactory {
     // ---------------------------------- //
     // Feature representation constraints //
     // ---------------------------------- //
+
+    default IReserveConstraint coveredFeatures(IBinaryFeature... features) {
+        return new CoveredFeatures(self(), features);
+    }
 
     // ------------------- //
     // Spatial constraints //

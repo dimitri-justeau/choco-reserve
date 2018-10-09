@@ -31,8 +31,10 @@ import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.util.objects.setDataStructures.ISet;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Interface for the base model of the Nature Reserve Problem. Defines the variables and constraints that are common
@@ -98,8 +100,14 @@ public interface IReserveModel {
     // -------------------------- //
 
     /**
-     * @return The indices of the selected planning units.
+     * @return The indices of the selected planning units as an int array.
      * @throws ModelNotInstantiatedError If the solver is not at a solution state.
      */
     int[] getSelectedPlanningUnits() throws ModelNotInstantiatedError;
+
+    /**
+     * @return The indices of the selected planning units as an integer set.
+     * @throws ModelNotInstantiatedError If the solver is not at a solution state.
+     */
+    ISet getSelectedPlanningUnitsAsSet() throws ModelNotInstantiatedError;
 }

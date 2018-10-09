@@ -21,33 +21,32 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.feature.raster;
+package chocoreserve.solver.constraints.features;
 
-import chocoreserve.raster.RasterReader;
-import chocoreserve.solver.feature.Feature;
+import chocoreserve.solver.IReserveModel;
+import chocoreserve.solver.feature.IBinaryFeature;
+import chocoreserve.solver.feature.IFeature;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
- * Feature based on a raster file.
+ * covered features constraint.
  */
-public abstract class RasterFeature extends Feature {
+public class CoveredFeatures extends FeaturesConstraint {
 
-    protected String rasterFilePath;
-    protected RasterReader rasterReader;
-
-    public RasterFeature(String rasterFilePath, String name) throws IOException {
-        super(name);
-        this.rasterFilePath = rasterFilePath;
-        this.rasterReader = new RasterReader(rasterFilePath);
+    public CoveredFeatures(IReserveModel reserveModel, IBinaryFeature... features) {
+        super(reserveModel, features);
     }
 
-    public RasterFeature(String rasterFilePath) throws IOException {
-        this(rasterFilePath, new File(rasterFilePath).getName());
-    }
-
-    public double[] getData() throws IOException {
-        return rasterReader.readAsDoubleArray();
+    @Override
+    public void post() {
+        for (IFeature feature : features) {
+            try {
+                int[] coeffs = ((IBinaryFeature) feature).getBinaryData();
+                chocoModel.scalar(reserveModel.getPlanningUnits(), coeffs, ">=", 1).post();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

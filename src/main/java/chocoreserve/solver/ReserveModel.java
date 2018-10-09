@@ -34,10 +34,12 @@ import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
+import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Base model for the Nature Reserve Problem. Defines the variables and constraints that are common to every
@@ -138,11 +140,16 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory {
 
     @Override
     public int[] getSelectedPlanningUnits() throws ModelNotInstantiatedError {
+        return getSelectedPlanningUnitsAsSet().toArray();
+    }
+
+    @Override
+    public ISet getSelectedPlanningUnitsAsSet() throws ModelNotInstantiatedError {
         UndirectedGraphVar g = getSpatialGraphVar();
         if (!g.isInstantiated()) {
             throw new ModelNotInstantiatedError();
         }
-        return g.getMandatoryNodes().toArray();
+        return g.getMandatoryNodes();
     }
 
     // For constraint factory

@@ -21,33 +21,26 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.feature.raster;
+package chocoreserve.solver.constraints.features;
 
-import chocoreserve.raster.RasterReader;
-import chocoreserve.solver.feature.Feature;
-
-import java.io.File;
-import java.io.IOException;
+import chocoreserve.solver.IReserveModel;
+import chocoreserve.solver.constraints.ReserveConstraint;
+import chocoreserve.solver.feature.IFeature;
 
 /**
- * Feature based on a raster file.
+ * Abstract base class for features representation constraints.
  */
-public abstract class RasterFeature extends Feature {
+public abstract class FeaturesConstraint extends ReserveConstraint {
 
-    protected String rasterFilePath;
-    protected RasterReader rasterReader;
+    protected IFeature[] features;
 
-    public RasterFeature(String rasterFilePath, String name) throws IOException {
-        super(name);
-        this.rasterFilePath = rasterFilePath;
-        this.rasterReader = new RasterReader(rasterFilePath);
-    }
-
-    public RasterFeature(String rasterFilePath) throws IOException {
-        this(rasterFilePath, new File(rasterFilePath).getName());
-    }
-
-    public double[] getData() throws IOException {
-        return rasterReader.readAsDoubleArray();
+    public FeaturesConstraint(IReserveModel reserveModel, IFeature... features) {
+        super(reserveModel);
+        this.features = features;
+        for (IFeature feature : features) {
+            if (!reserveModel.getFeatures().containsKey(feature.getName())) {
+                reserveModel.addFeature(feature);
+            }
+        }
     }
 }

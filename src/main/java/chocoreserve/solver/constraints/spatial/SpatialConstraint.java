@@ -21,33 +21,24 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.feature.raster;
+package chocoreserve.solver.constraints.spatial;
 
-import chocoreserve.raster.RasterReader;
-import chocoreserve.solver.feature.Feature;
-
-import java.io.File;
-import java.io.IOException;
+import chocoreserve.solver.IReserveModel;
+import chocoreserve.solver.constraints.ReserveConstraint;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
+import org.chocosolver.solver.variables.IntVar;
 
 /**
- * Feature based on a raster file.
+ * Abstract base class for spatial constraints
  */
-public abstract class RasterFeature extends Feature {
+public abstract class SpatialConstraint extends ReserveConstraint {
 
-    protected String rasterFilePath;
-    protected RasterReader rasterReader;
+    protected UndirectedGraphVar g;
+    protected IntVar nbCC;
 
-    public RasterFeature(String rasterFilePath, String name) throws IOException {
-        super(name);
-        this.rasterFilePath = rasterFilePath;
-        this.rasterReader = new RasterReader(rasterFilePath);
-    }
-
-    public RasterFeature(String rasterFilePath) throws IOException {
-        this(rasterFilePath, new File(rasterFilePath).getName());
-    }
-
-    public double[] getData() throws IOException {
-        return rasterReader.readAsDoubleArray();
+    public SpatialConstraint(IReserveModel reserveModel) {
+        super(reserveModel);
+        this.g = reserveModel.getSpatialGraphVar();
+        this.nbCC = reserveModel.getNbConnectedComponents();
     }
 }

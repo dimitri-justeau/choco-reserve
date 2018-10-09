@@ -24,6 +24,7 @@
 package chocoreserve.solver.constraints;
 
 import chocoreserve.solver.IReserveModel;
+import org.chocosolver.graphsolver.GraphModel;
 
 /**
  * Abstract base class for reserve constraints.
@@ -31,8 +32,10 @@ import chocoreserve.solver.IReserveModel;
 public abstract class ReserveConstraint implements IReserveConstraint {
 
     protected IReserveModel reserveModel;
+    protected GraphModel chocoModel;
 
     public ReserveConstraint(IReserveModel reserveModel) {
         this.reserveModel = reserveModel;
+        this.chocoModel = reserveModel.getChocoModel();
     }
 }
