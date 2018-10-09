@@ -34,7 +34,6 @@ import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Interface for the base model of the Nature Reserve Problem. Defines the variables and constraints that are common

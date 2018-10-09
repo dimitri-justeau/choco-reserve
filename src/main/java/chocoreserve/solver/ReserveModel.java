@@ -39,7 +39,6 @@ import org.chocosolver.util.objects.setDataStructures.SetType;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Base model for the Nature Reserve Problem. Defines the variables and constraints that are common to every
