@@ -14,19 +14,19 @@ Choco-reserve implements the model described in [Justeau-Allaire, Birnbaum and L
 
 First, create a grid representing the discretized geographical space you are working on:
 
-```
+```java
 Grid grid = new FourConnectedSquareGrid(nbRows, nbCols);
 ```
 
 Then instantiate a ReserveModel object:
 
-```
+```java
 ReserveModel reserveModel = new ReserveModel(grid);
 ```
 
 Create some features (e.g. from raster files):
 
-```
+```java
 BinaryFeature speciesA = reserveModel.binaryFeature("Species_A", "/path/to/species_A/raster.tiff");
 BinaryFeature speciesB = reserveModel.binaryFeature("Species_B", "/path/to/species_B/raster.tiff");
 ProbabilisticFeature speciesC = reserveModel.binaryFeature("Species_C", "/path/to/species_C/raster.tiff");
@@ -34,7 +34,7 @@ ProbabilisticFeature speciesC = reserveModel.binaryFeature("Species_C", "/path/t
 
 Post some constraint to the model:
 
-```
+```java
 reserveModel.coveredFeatures(speciesA, speciesB).post();
 reserveModel.minProbability(0.9, speciesC).post();
 reserveModel.nbReserves(1, 1).post();
@@ -42,7 +42,7 @@ reserveModel.nbReserves(1, 1).post();
 
 Get the Choco solver and solve:
 
-```
+```java
 Solver solver = reserveModel.getChocoSolver();
 solver.solve();
 ```
