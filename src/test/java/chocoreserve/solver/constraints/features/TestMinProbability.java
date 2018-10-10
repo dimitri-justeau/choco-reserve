@@ -23,25 +23,146 @@
 
 package chocoreserve.solver.constraints.features;
 
+import chocoreserve.exception.ModelNotInstantiatedError;
+import chocoreserve.grid.Grid;
+import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
+import chocoreserve.solver.ReserveModel;
+import chocoreserve.solver.feature.IProbabilisticFeature;
+import chocoreserve.solver.feature.array.ProbabilisticArrayFeature;
+import org.chocosolver.solver.Solver;
+import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.stream.IntStream;
 
 /**
  * Test case for MinProbability constraint.
  */
 public class TestMinProbability {
 
+    /**
+     * Success test case 1:
+     *     - 3x3 4-connected square grid.
+     *     - 1 probabilistic feature.
+     *     - Must have a minimum probability of presence of 0.8.
+     *
+     *     -----------------
+     *    | 0.1 | 0.2 | 0.1 |
+     *     -----------------
+     *    | 0.7 | 0.1 | 0.1 |
+     *     -----------------
+     *    | 0.3 | 0.3 | 0.1 |
+     *     -----------------
+     */
     @Test
     public void testSuccess1() {
-
+        Grid grid = new FourConnectedSquareGrid(3, 3);
+        ReserveModel reserveModel = new ReserveModel(grid);
+        double[] data = new double[] {0.1, 0.2, 0.1, 0.7, 0.1, 0.1, 0.3, 0.3, 0.1};
+        IProbabilisticFeature feature = new ProbabilisticArrayFeature("probabilistic", data);
+        reserveModel.minProbability(0.8, feature).post();
+        Solver solver = reserveModel.getChocoSolver();
+        int nbSol = 0;
+        if (solver.solve()) {
+            do {
+                nbSol ++;
+                try {
+                    int[] nodes = reserveModel.getSelectedPlanningUnits();
+                    double prob = IntStream.of(nodes).mapToDouble(i -> 1 - data[i]).reduce(1, (a, b) -> a * b);
+                    Assert.assertTrue(prob <= 0.2);
+                } catch (ModelNotInstantiatedError e) {
+                    e.printStackTrace();
+                    Assert.fail();
+                }
+            } while (solver.solve());
+        } else {
+            Assert.fail();
+        }
+        // Now assert that the solver found every solution.
+        ReserveModel unconstrainedReserveModel = new ReserveModel(grid);
+        Solver solver1 = unconstrainedReserveModel.getChocoSolver();
+        int nbNotSol = 0;
+        if (solver1.solve()) {
+            do {
+                try {
+                    int[] nodes = unconstrainedReserveModel.getSelectedPlanningUnits();
+                    double prob = IntStream.of(nodes).mapToDouble(i -> 1 - data[i]).reduce(1, (a, b) -> a * b);
+                    if (prob > 0.2) {
+                        nbNotSol ++;
+                    }
+                } catch (ModelNotInstantiatedError e) {
+                    e.printStackTrace();
+                    Assert.fail();
+                }
+            } while (solver1.solve());
+        }
+        Assert.assertEquals(512, nbNotSol + nbSol);
     }
 
+    /**
+     * Success test case 1:
+     *     - 3x3 4-connected square grid.
+     *     - 2 probabilistic feature (A and B).
+     *     - Must have a minimum probability of presence of 0.8.
+     *
+     *     -----------------     -----------------------
+     *    | 0.1 | 0.2 | 0.1 |   | 0.7  | 0.201  | 0.051 |
+     *     -----------------     -----------------------
+     *    | 0.7 | 0.1 | 0.1 |   | 0.5  |  0.1   | 0.01  |
+     *     -----------------     -----------------------
+     *    | 0.3 | 0.3 | 0.1 |   | 0.25 | 0.333  | 0.21  |
+     *     -----------------     -----------------------
+     */
     @Test
     public void testSuccess2() {
-
+        Grid grid = new FourConnectedSquareGrid(3, 3);
+        double[] dataA = new double[] {0.1, 0.2, 0.1, 0.7, 0.1, 0.1, 0.3, 0.3, 0.1};
+        IProbabilisticFeature featureA = new ProbabilisticArrayFeature("A", dataA);
+        double[] dataB = new double[] {0.7, 0.201, 0.051, 0.5, 0.1, 0.01, 0.25, 0.333, 0.21};
+        IProbabilisticFeature featureB = new ProbabilisticArrayFeature("B", dataB);
+        ReserveModel reserveModel = new ReserveModel(grid);
+        reserveModel.minProbability(0.8, featureA, featureB).post();
+        Solver solver = reserveModel.getChocoSolver();
+        if (solver.solve()) {
+            do {
+                try {
+                    int[] nodes = reserveModel.getSelectedPlanningUnits();
+                    double probA = IntStream.of(nodes).mapToDouble(i -> 1 - dataA[i]).reduce(1, (a, b) -> a * b);
+                    double probB = IntStream.of(nodes).mapToDouble(i -> 1 - dataB[i]).reduce(1, (a, b) -> a * b);
+                    Assert.assertTrue(probA <= 0.2 && probB <= 0.2);
+                } catch (ModelNotInstantiatedError e) {
+                    e.printStackTrace();
+                    Assert.fail();
+                }
+            } while (solver.solve());
+        } else {
+            Assert.fail();
+        }
     }
 
+    /**
+     * Fail test case 1:
+     *     - 3x3 4-connected square grid.
+     *     - 1 probabilistic feature.
+     *     - Must have a minimum probability of presence of 0.99.
+     *     Probability with every planning selected is ~= 0.93.
+     *
+     *     -----------------
+     *    | 0.1 | 0.2 | 0.1 |
+     *     -----------------
+     *    | 0.7 | 0.1 | 0.1 |
+     *     -----------------
+     *    | 0.3 | 0.3 | 0.1 |
+     *     -----------------
+     */
     @Test
     public void testFail() {
-
+        Grid grid = new FourConnectedSquareGrid(3, 3);
+        ReserveModel reserveModel = new ReserveModel(grid);
+        double[] data = new double[] {0.1, 0.2, 0.1, 0.7, 0.1, 0.1, 0.3, 0.3, 0.1};
+        IProbabilisticFeature feature = new ProbabilisticArrayFeature("probabilistic", data);
+        reserveModel.minProbability(0.99, feature).post();
+        Solver solver = reserveModel.getChocoSolver();
+        Assert.assertFalse(solver.solve());
     }
 }

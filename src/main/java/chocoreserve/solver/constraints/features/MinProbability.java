@@ -45,11 +45,11 @@ public class MinProbability extends FeaturesConstraint {
 
     @Override
     public void post() {
+        int scaled = (int) (-1000 * Math.log10(1 - 0.01 * Math.round(100 * alpha)));
         for (IFeature feature : features) {
-            int scaled = (int) (-1000 * Math.log10(1 - (Math.round(100 * alpha) / 2)));
             try {
                 int[] coeffs = Arrays.stream(((IProbabilisticFeature) feature).getProbabilisticData())
-                        .mapToInt(v -> (v == 1) ? 3000 : (int) (-1000 * Math.log10(1 - (Math.round(100 * v) / 2))))
+                        .mapToInt(v -> (v == 1) ? 3000 : (int) (-1000 * Math.log10(1 - 0.01 * Math.round(100 * v))))
                         .toArray();
                 chocoModel.scalar(reserveModel.getPlanningUnits(), coeffs, ">=", scaled).post();
             } catch (IOException e) {
