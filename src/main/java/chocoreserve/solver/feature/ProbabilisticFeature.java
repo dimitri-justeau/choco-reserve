@@ -23,15 +23,26 @@
 
 package chocoreserve.solver.feature;
 
+import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
+
 import java.io.IOException;
 
 /**
- * Interface describing a binary feature.
+ * Interface describing a probabilistic feature.
  */
-public interface IBinaryFeature extends IFeature {
+public interface ProbabilisticFeature extends IFeature {
 
     /**
-     * @return The data associated with the feature as binary data.
+     * @return The data associated with the feature as probabilistic data.
      */
-    int[] getBinaryData() throws IOException;
+    default double[] getProbabilisticData() throws ValueException, IOException {
+        double[] data = getData();
+        for (double d : data) {
+            if (d > 1) {
+                throw new ValueException("There are values strictly greater than 1 describing the feature." +
+                        " They cannot be interpreted as probabilistic data");
+            }
+        }
+        return getData();
+    }
 }

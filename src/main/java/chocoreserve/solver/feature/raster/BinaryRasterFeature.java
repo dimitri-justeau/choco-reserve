@@ -23,14 +23,14 @@
 
 package chocoreserve.solver.feature.raster;
 
-import chocoreserve.solver.feature.IBinaryFeature;
+import chocoreserve.solver.feature.BinaryFeature;
 
 import java.io.IOException;
 
 /**
  * Binary feature loaded from a raster file.
  */
-public class BinaryRasterFeature extends RasterFeature implements IBinaryFeature {
+public class BinaryRasterFeature extends RasterFeature implements BinaryFeature {
 
     public BinaryRasterFeature(String rasterFilePath, String name) throws IOException {
         super(rasterFilePath, name);

@@ -40,7 +40,7 @@ public class TestRasterFeature {
     public void testBinary() {
         String fullPath = getClass().getClassLoader().getResource("raster/test_raster_binary.tif").getPath();
         try {
-            IBinaryFeature feature = new BinaryRasterFeature(fullPath);
+            BinaryFeature feature = new BinaryRasterFeature(fullPath);
             Assert.assertEquals(feature.getName(), "test_raster_binary.tif");
             int[] data = feature.getBinaryData();
             for (int d : data) {
@@ -56,7 +56,7 @@ public class TestRasterFeature {
     public void testGetDataProbabilistic() {
         String fullPath = getClass().getClassLoader().getResource("raster/test_raster_probabilistic.tif").getPath();
         try {
-            IProbabilisticFeature feature = new ProbabilisticRasterFeature(fullPath, "probTest");
+            ProbabilisticFeature feature = new ProbabilisticRasterFeature(fullPath, "probTest");
             Assert.assertEquals(feature.getName(), "probTest");
             double[] data = feature.getProbabilisticData();
             for (double d : data) {
@@ -72,7 +72,7 @@ public class TestRasterFeature {
     public void testGetDataQuantitative() {
         String fullPath = getClass().getClassLoader().getResource("raster/test_raster_quantitative.tif").getPath();
         try {
-            IQuantitativeFeature feature = new QuantitativeRasterFeature(fullPath);
+            QuantitativeFeature feature = new QuantitativeRasterFeature(fullPath);
             int[] data = feature.getQuantitativeData();
         } catch (IOException e) {
             e.printStackTrace();

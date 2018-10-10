@@ -28,6 +28,7 @@ import chocoreserve.grid.IGrid;
 import chocoreserve.solver.constraints.IReserveConstraintFactory;
 import chocoreserve.solver.constraints.choco.graph.PropInducedNeighborhood;
 import chocoreserve.solver.feature.IFeature;
+import chocoreserve.solver.feature.IFeatureFactory;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Constraint;
@@ -45,7 +46,7 @@ import java.util.Map;
  * instance of the problem. Specialization for specific instances is provided by the extra constraints that can
  * be 'posted' to a model.
  */
-public class ReserveModel implements IReserveModel, IReserveConstraintFactory {
+public class ReserveModel implements IReserveModel, IReserveConstraintFactory, IFeatureFactory {
 
     /** The grid on which applies the model */
     private IGrid grid;

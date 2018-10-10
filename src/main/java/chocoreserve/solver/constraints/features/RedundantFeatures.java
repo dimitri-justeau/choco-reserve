@@ -24,7 +24,7 @@
 package chocoreserve.solver.constraints.features;
 
 import chocoreserve.solver.IReserveModel;
-import chocoreserve.solver.feature.IBinaryFeature;
+import chocoreserve.solver.feature.BinaryFeature;
 import chocoreserve.solver.feature.IFeature;
 
 import java.io.IOException;
@@ -36,7 +36,7 @@ public class RedundantFeatures extends FeaturesConstraint {
 
     private int k;
 
-    public RedundantFeatures(IReserveModel reserveModel, int k, IBinaryFeature... features) {
+    public RedundantFeatures(IReserveModel reserveModel, int k, BinaryFeature... features) {
         super(reserveModel, features);
         this.k = k;
     }
@@ -45,7 +45,7 @@ public class RedundantFeatures extends FeaturesConstraint {
     public void post() {
         for (IFeature feature : features) {
             try {
-                int[] coeffs = ((IBinaryFeature) feature).getBinaryData();
+                int[] coeffs = ((BinaryFeature) feature).getBinaryData();
                 chocoModel.scalar(reserveModel.getPlanningUnits(), coeffs, ">=", k).post();
             } catch (IOException e) {
                 e.printStackTrace();

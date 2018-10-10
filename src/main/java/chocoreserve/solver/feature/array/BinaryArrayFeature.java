@@ -23,14 +23,14 @@
 
 package chocoreserve.solver.feature.array;
 
-import chocoreserve.solver.feature.IBinaryFeature;
+import chocoreserve.solver.feature.BinaryFeature;
 
 import java.util.stream.IntStream;
 
 /**
  * Binary feature loaded from an int[].
  */
-public class BinaryArrayFeature extends ArrayFeature implements IBinaryFeature {
+public class BinaryArrayFeature extends ArrayFeature implements BinaryFeature {
 
     protected int[] data;
 

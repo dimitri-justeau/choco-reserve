@@ -25,7 +25,7 @@ package chocoreserve.solver.constraints.features;
 
 import chocoreserve.solver.IReserveModel;
 import chocoreserve.solver.feature.IFeature;
-import chocoreserve.solver.feature.IProbabilisticFeature;
+import chocoreserve.solver.feature.ProbabilisticFeature;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -37,7 +37,7 @@ public class MinProbability extends FeaturesConstraint {
 
     private double alpha;
 
-    public MinProbability(IReserveModel reserveModel, double alpha, IProbabilisticFeature... features) {
+    public MinProbability(IReserveModel reserveModel, double alpha, ProbabilisticFeature... features) {
         super(reserveModel, features);
         assert alpha >= 0 && alpha <= 1;
         this.alpha = alpha;
@@ -48,7 +48,7 @@ public class MinProbability extends FeaturesConstraint {
         int scaled = (int) (-1000 * Math.log10(1 - 0.01 * Math.round(100 * alpha)));
         for (IFeature feature : features) {
             try {
-                int[] coeffs = Arrays.stream(((IProbabilisticFeature) feature).getProbabilisticData())
+                int[] coeffs = Arrays.stream(((ProbabilisticFeature) feature).getProbabilisticData())
                         .mapToInt(v -> (v == 1) ? 3000 : (int) (-1000 * Math.log10(1 - 0.01 * Math.round(100 * v))))
                         .toArray();
                 chocoModel.scalar(reserveModel.getPlanningUnits(), coeffs, ">=", scaled).post();

@@ -27,8 +27,7 @@ import chocoreserve.exception.ModelNotInstantiatedError;
 import chocoreserve.grid.Grid;
 import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
 import chocoreserve.solver.ReserveModel;
-import chocoreserve.solver.feature.IProbabilisticFeature;
-import chocoreserve.solver.feature.array.ProbabilisticArrayFeature;
+import chocoreserve.solver.feature.ProbabilisticFeature;
 import org.chocosolver.solver.Solver;
 import org.junit.Assert;
 import org.junit.Test;
@@ -59,7 +58,7 @@ public class TestMinProbability {
         Grid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
         double[] data = new double[] {0.1, 0.2, 0.1, 0.7, 0.1, 0.1, 0.3, 0.3, 0.1};
-        IProbabilisticFeature feature = new ProbabilisticArrayFeature("probabilistic", data);
+        ProbabilisticFeature feature = reserveModel.probabilisticFeature("probabilistic", data);
         reserveModel.minProbability(0.8, feature).post();
         Solver solver = reserveModel.getChocoSolver();
         int nbSol = 0;
@@ -116,11 +115,11 @@ public class TestMinProbability {
     @Test
     public void testSuccess2() {
         Grid grid = new FourConnectedSquareGrid(3, 3);
-        double[] dataA = new double[] {0.1, 0.2, 0.1, 0.7, 0.1, 0.1, 0.3, 0.3, 0.1};
-        IProbabilisticFeature featureA = new ProbabilisticArrayFeature("A", dataA);
-        double[] dataB = new double[] {0.7, 0.201, 0.051, 0.5, 0.1, 0.01, 0.25, 0.333, 0.21};
-        IProbabilisticFeature featureB = new ProbabilisticArrayFeature("B", dataB);
         ReserveModel reserveModel = new ReserveModel(grid);
+        double[] dataA = new double[] {0.1, 0.2, 0.1, 0.7, 0.1, 0.1, 0.3, 0.3, 0.1};
+        ProbabilisticFeature featureA = reserveModel.probabilisticFeature("A", dataA);
+        double[] dataB = new double[] {0.7, 0.201, 0.051, 0.5, 0.1, 0.01, 0.25, 0.333, 0.21};
+        ProbabilisticFeature featureB = reserveModel.probabilisticFeature("B", dataB);
         reserveModel.minProbability(0.8, featureA, featureB).post();
         Solver solver = reserveModel.getChocoSolver();
         if (solver.solve()) {
@@ -160,7 +159,7 @@ public class TestMinProbability {
         Grid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
         double[] data = new double[] {0.1, 0.2, 0.1, 0.7, 0.1, 0.1, 0.3, 0.3, 0.1};
-        IProbabilisticFeature feature = new ProbabilisticArrayFeature("probabilistic", data);
+        ProbabilisticFeature feature = reserveModel.probabilisticFeature("probabilistic", data);
         reserveModel.minProbability(0.99, feature).post();
         Solver solver = reserveModel.getChocoSolver();
         Assert.assertFalse(solver.solve());

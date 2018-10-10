@@ -23,13 +23,13 @@
 
 package chocoreserve.solver.feature.array;
 
-import chocoreserve.solver.feature.IProbabilisticFeature;
+import chocoreserve.solver.feature.ProbabilisticFeature;
 import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 
 /**
  * Probabilistic feature loaded from an int[].
  */
-public class ProbabilisticArrayFeature extends ArrayFeature implements IProbabilisticFeature {
+public class ProbabilisticArrayFeature extends ArrayFeature implements ProbabilisticFeature {
 
     private double[] data;
 

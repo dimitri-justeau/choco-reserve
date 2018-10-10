@@ -23,14 +23,14 @@
 
 package chocoreserve.solver.feature.raster;
 
-import chocoreserve.solver.feature.IQuantitativeFeature;
+import chocoreserve.solver.feature.QuantitativeFeature;
 
 import java.io.IOException;
 
 /**
  * Quantitative feature loaded from a raster file.
  */
-public class QuantitativeRasterFeature extends RasterFeature implements IQuantitativeFeature {
+public class QuantitativeRasterFeature extends RasterFeature implements QuantitativeFeature {
 
     public QuantitativeRasterFeature(String rasterFilePath, String name) throws IOException {
         super(rasterFilePath, name);

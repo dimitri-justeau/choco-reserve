@@ -23,12 +23,12 @@
 
 package chocoreserve.solver.feature.array;
 
-import chocoreserve.solver.feature.IQuantitativeFeature;
+import chocoreserve.solver.feature.QuantitativeFeature;
 
 /**
  * Quantitative feature loaded from an int[].
  */
-public class QuantitativeArrayFeature extends BinaryArrayFeature implements IQuantitativeFeature {
+public class QuantitativeArrayFeature extends BinaryArrayFeature implements QuantitativeFeature {
 
     public QuantitativeArrayFeature(String name, int[] data) {
         super(name, data);

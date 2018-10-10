@@ -24,7 +24,7 @@
 package chocoreserve.solver.constraints.features;
 
 import chocoreserve.solver.IReserveModel;
-import chocoreserve.solver.feature.IBinaryFeature;
+import chocoreserve.solver.feature.BinaryFeature;
 import chocoreserve.solver.feature.IFeature;
 
 import java.io.IOException;
@@ -34,7 +34,7 @@ import java.io.IOException;
  */
 public class CoveredFeatures extends FeaturesConstraint {
 
-    public CoveredFeatures(IReserveModel reserveModel, IBinaryFeature... features) {
+    public CoveredFeatures(IReserveModel reserveModel, BinaryFeature... features) {
         super(reserveModel, features);
     }
 
@@ -42,7 +42,7 @@ public class CoveredFeatures extends FeaturesConstraint {
     public void post() {
         for (IFeature feature : features) {
             try {
-                int[] coeffs = ((IBinaryFeature) feature).getBinaryData();
+                int[] coeffs = ((BinaryFeature) feature).getBinaryData();
                 chocoModel.scalar(reserveModel.getPlanningUnits(), coeffs, ">=", 1).post();
             } catch (IOException e) {
                 e.printStackTrace();

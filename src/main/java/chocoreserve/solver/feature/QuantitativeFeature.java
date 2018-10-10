@@ -29,7 +29,7 @@ import java.util.stream.IntStream;
 /**
  * Interface describing a quantitative feature.
  */
-public interface IQuantitativeFeature extends IBinaryFeature {
+public interface QuantitativeFeature extends BinaryFeature {
 
     /**
      * @return The data associated with the feature as quantitative data.

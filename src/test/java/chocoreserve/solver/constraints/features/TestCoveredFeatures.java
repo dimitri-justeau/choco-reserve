@@ -27,10 +27,8 @@ import chocoreserve.exception.ModelNotInstantiatedError;
 import chocoreserve.grid.Grid;
 import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
 import chocoreserve.solver.ReserveModel;
-import chocoreserve.solver.feature.IBinaryFeature;
-import chocoreserve.solver.feature.IQuantitativeFeature;
-import chocoreserve.solver.feature.array.BinaryArrayFeature;
-import chocoreserve.solver.feature.array.QuantitativeArrayFeature;
+import chocoreserve.solver.feature.BinaryFeature;
+import chocoreserve.solver.feature.QuantitativeFeature;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.junit.Assert;
@@ -58,7 +56,7 @@ public class TestCoveredFeatures {
     public void testSuccess1() {
         Grid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
-        IBinaryFeature feature = new BinaryArrayFeature(
+        BinaryFeature feature = reserveModel.binaryFeature(
                 "test_binary",
                 new int[] {0, 0, 0, 1, 0, 0, 0, 0, 0 }
         );
@@ -97,11 +95,11 @@ public class TestCoveredFeatures {
     public void testSuccess2() {
         Grid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
-        IBinaryFeature featureA = new BinaryArrayFeature(
+        BinaryFeature featureA = reserveModel.binaryFeature(
                 "A",
                 new int[] {0, 0, 0, 0, 0, 1, 0, 0, 0}
         );
-        IQuantitativeFeature featureB = new QuantitativeArrayFeature(
+        QuantitativeFeature featureB = reserveModel.quantitativeFeature(
                 "B",
                 new int[] {12, 0, 5, 0, 0, 0, 0, 0, 3}
         );
@@ -132,7 +130,7 @@ public class TestCoveredFeatures {
     public void testFail() {
         Grid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
-        IBinaryFeature feature = new BinaryArrayFeature(
+        BinaryFeature feature = reserveModel.binaryFeature(
                 "A",
                 new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0}
         );
