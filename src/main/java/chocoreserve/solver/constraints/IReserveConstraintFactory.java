@@ -45,14 +45,37 @@ public interface IReserveConstraintFactory {
     // Feature representation constraints //
     // ---------------------------------- //
 
+    /**
+     * Creates a coveredFeatures constraint. The coveredFeatures constraint holds iff each feature involved in
+     * the constraint is present in at least one planning unit of the reserve system.
+     *
+     * @param features An array of features.
+     * @return A CoveredFeatures constraint.
+     */
     default IReserveConstraint coveredFeatures(BinaryFeature... features) {
         return new CoveredFeatures(self(), features);
     }
 
+    /**
+     * Creates a redundantFeatures constraint. The redundantFeatures constraint holds iff each feature involved in
+     * the constraint is present in at least k distinct planning units of the reserve system.
+     *
+     * @param k A int representing the minimum number of distinct planning units on which each feature must be present.
+     * @param features An array of features.
+     * @return A RedundantFeatures constraint.
+     */
     default IReserveConstraint redundantFeatures(int k, BinaryFeature... features) {
         return new RedundantFeatures(self(), k, features);
     }
 
+    /**
+     * Creates a minProbability constraint. The minProbability constraint holds iff each feature involved in the
+     * constraint is covered with a minimum probability of alpha in the reserve system.
+     *
+     * @param alpha A double represent the minimum probability of presence for each feature in the reserve system.
+     * @param features An array of features.
+     * @return A MinProbability constraint.
+     */
     default IReserveConstraint minProbability(double alpha, ProbabilisticFeature... features) {
         return new MinProbability(self(), alpha, features);
     }
@@ -61,14 +84,38 @@ public interface IReserveConstraintFactory {
     // Spatial constraints //
     // ------------------- //
 
+    /**
+     * Creates a nbReserves constraint. The nbReserves constraint holds iff the reserve system has a number of
+     * connected components (reserves) between nbMin and nbMax.
+     *
+     * @param nbMin An int representing the minimum number of reserves.
+     * @param nbMax An int representing the maximum number of reserves.
+     * @return A NbReserves constraint.
+     */
     default IReserveConstraint nbReserves(int nbMin, int nbMax) {
         return new NbReserves(self(), nbMin, nbMax);
     }
 
+    /**
+     * Creates an areaReserves constraint. The areaReserves constraints holds iff each reserve of the reserve system
+     * has an area (in number of planning units) between minNCC and maxNCC.
+     *
+     * @param minNCC An IntVar representing the size of the smallest reserve of the reserve system.
+     * @param maxNCC An IntVar representing the size of the largest reserve of the system.
+     * @return An areaReserves constraint.
+     */
     default IReserveConstraint areaReserves(IntVar minNCC, IntVar maxNCC) {
         return new AreaReserves(self(), minNCC, maxNCC);
     }
 
+    /**
+     * Creates an areaReserveSystem constraint. The areaReserveSystem constraint holds iff the total area of the
+     * reserve system (in number of planning units) is between areaMin and areaMax.
+     *
+     * @param areaMin An int representing the minimum total area of the reserve system.
+     * @param areaMax An int representing the maximum total area of the reserve system.
+     * @return An areaReserveSystem constraint.
+     */
     default IReserveConstraint areaReserveSystem(int areaMin, int areaMax){
         return new AreaReserveSystem(self(), areaMin, areaMax);
     }

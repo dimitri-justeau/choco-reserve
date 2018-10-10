@@ -41,14 +41,30 @@ public interface IFeatureFactory {
     // Binary feature makers //
     // --------------------- //
 
+    /**
+     * @param name The name of the feature.
+     * @param data The data representing the feature.
+     * @return A binary feature from an int array.
+     */
     default BinaryFeature binaryFeature(String name, int[] data) {
         return new BinaryArrayFeature(name, data);
     }
 
+    /**
+     * @param rasterFilePath The path to the raster file representing the feature.
+     * @return A binary feature from a raster file. The name of the feature will be the name of the file.
+     * @throws IOException
+     */
     default BinaryFeature binaryFeature(String rasterFilePath) throws IOException {
         return new BinaryRasterFeature(rasterFilePath);
     }
 
+    /**
+     * @param name The name of the feature.
+     * @param rasterFilePath The path to the raster file representing the feature.
+     * @return A binary feature from a raster file.
+     * @throws IOException
+     */
     default BinaryFeature binaryFeature(String name, String rasterFilePath) throws IOException {
         return new BinaryRasterFeature(rasterFilePath, name);
     }
@@ -57,14 +73,30 @@ public interface IFeatureFactory {
     // Quantitative feature makers //
     // --------------------------- //
 
+    /**
+     * @param name The name of the feature.
+     * @param data The data representing the feature.
+     * @return A quantitative feature from an int array.
+     */
     default QuantitativeFeature quantitativeFeature(String name, int[] data) {
         return new QuantitativeArrayFeature(name, data);
     }
 
+    /**
+     * @param rasterFilePath The path to the raster file representing the feature.
+     * @return A quantitative feature from a raster file. The name of the feature will be the name of the file.
+     * @throws IOException
+     */
     default QuantitativeFeature quantitativeFeature(String rasterFilePath) throws IOException {
         return new QuantitativeRasterFeature(rasterFilePath);
     }
 
+    /**
+     * @param name The name of the feature.
+     * @param rasterFilePath The path to the raster file representing the feature.
+     * @return A quantitative feature from a raster file.
+     * @throws IOException
+     */
     default QuantitativeFeature quantitativeFeature(String name, String rasterFilePath) throws IOException {
         return new QuantitativeRasterFeature(rasterFilePath, name);
     }
@@ -73,14 +105,30 @@ public interface IFeatureFactory {
     // Probabilistic feature makers //
     // ---------------------------- //
 
+    /**
+     * @param name The name of the feature.
+     * @param data The data representing the feature.
+     * @return A probabilistic feature from an int array.
+     */
     default ProbabilisticFeature probabilisticFeature(String name, double[] data) {
         return new ProbabilisticArrayFeature(name, data);
     }
 
+    /**
+     * @param rasterFilePath The path to the raster file representing the feature.
+     * @return A probabilistic feature from a raster file. The name of the feature will be the name of the file.
+     * @throws IOException
+     */
     default ProbabilisticFeature probabilisticFeature(String rasterFilePath) throws IOException {
         return new ProbabilisticRasterFeature(rasterFilePath);
     }
 
+    /**
+     * @param name The name of the feature.
+     * @param rasterFilePath The path to the raster file representing the feature.
+     * @return A probabilistic feature from a raster file.
+     * @throws IOException
+     */
     default ProbabilisticFeature probabilisticFeature(String name, String rasterFilePath) throws IOException {
         return new ProbabilisticRasterFeature(rasterFilePath, name);
     }
