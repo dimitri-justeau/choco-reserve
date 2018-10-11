@@ -28,7 +28,6 @@ import chocoreserve.grid.IGrid;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.constraints.IReserveConstraintFactory;
 import chocoreserve.solver.constraints.choco.graph.PropInducedNeighborhood;
-import chocoreserve.solver.feature.Feature;
 import chocoreserve.solver.feature.IFeature;
 import chocoreserve.solver.feature.IFeatureFactory;
 import org.chocosolver.graphsolver.GraphModel;
@@ -45,7 +44,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.IntStream;
 
 /**
  * Base model for the Nature Reserve Problem. Defines the variables and constraints that are common to every
