@@ -23,25 +23,16 @@
 
 package chocoreserve.grid.regular.square;
 
-import chocoreserve.grid.Grid;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * 8-connected regular square grid.
  */
-public class HeightConnectedSquareGrid extends Grid {
-
-    private int nbRows, nbCols;
+public class HeightConnectedSquareGrid extends RegularSquareGrid {
 
     public HeightConnectedSquareGrid(int nbRows, int nbCols) {
-        this.nbRows = nbRows;
-        this.nbCols = nbCols;
-    }
-    @Override
-    public int getNbCells() {
-        return nbRows * nbCols;
+        super(nbRows, nbCols);
     }
 
     @Override

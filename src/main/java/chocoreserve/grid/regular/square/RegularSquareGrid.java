@@ -23,33 +23,30 @@
 
 package chocoreserve.grid.regular.square;
 
-import java.util.ArrayList;
-import java.util.List;
+import chocoreserve.grid.Grid;
 
 /**
- * 4-connected regular square grid.
+ * Abstract base class for regular square grids.
  */
-public class FourConnectedSquareGrid extends RegularSquareGrid {
+public abstract class RegularSquareGrid extends Grid {
 
-    public FourConnectedSquareGrid(int nbRows, int nbCols) {
-        super(nbRows, nbCols);
+    protected int nbRows, nbCols;
+
+    public RegularSquareGrid(int nbRows, int nbCols) {
+        this.nbRows = nbRows;
+        this.nbCols = nbCols;
     }
 
     @Override
-    public int[] getNeighbors(int i) {
-        List<Integer> neighbors = new ArrayList<Integer>();
-        if (i % nbCols != 0) {
-            neighbors.add(i - 1);
-        }
-        if ((i + 1) % nbCols != 0) {
-            neighbors.add(i + 1);
-        }
-        if (i >= nbCols) {
-            neighbors.add(i - nbCols);
-        }
-        if (i < nbCols * (nbRows - 1)) {
-            neighbors.add(i + nbCols);
-        }
-        return neighbors.stream().mapToInt(v -> v).toArray();
+    public int getNbCells() {
+        return nbRows * nbCols;
+    }
+
+    public int getNbRows() {
+        return nbRows;
+    }
+
+    public int getNbCols() {
+        return nbCols;
     }
 }

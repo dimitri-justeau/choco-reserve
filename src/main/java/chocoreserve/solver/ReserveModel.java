@@ -25,8 +25,10 @@ package chocoreserve.solver;
 
 import chocoreserve.exception.ModelNotInstantiatedError;
 import chocoreserve.grid.IGrid;
+import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.constraints.IReserveConstraintFactory;
 import chocoreserve.solver.constraints.choco.graph.PropInducedNeighborhood;
+import chocoreserve.solver.feature.Feature;
 import chocoreserve.solver.feature.IFeature;
 import chocoreserve.solver.feature.IFeatureFactory;
 import org.chocosolver.graphsolver.GraphModel;
@@ -38,8 +40,12 @@ import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.IntStream;
 
 /**
  * Base model for the Nature Reserve Problem. Defines the variables and constraints that are common to every
@@ -150,6 +156,49 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
             throw new ModelNotInstantiatedError();
         }
         return g.getMandatoryNodes();
+    }
+
+    public void printSolution(boolean showPlanningUnits) {
+        if (!(grid instanceof RegularSquareGrid)) {
+            return;
+        }
+        RegularSquareGrid rGrid = (RegularSquareGrid) grid;
+        System.out.println("\nSolution:");
+        System.out.println("   " + new String(new char[rGrid.getNbCols()]).replace("\0", "_"));
+        ArrayList<Integer> selectedParcels = new ArrayList<>();
+        for (int i = 0; i < rGrid.getNbRows(); i++) {
+            System.out.printf("  |");
+            for (int j = 0; j < rGrid.getNbCols(); j++) {
+                if (this.planningUnits[j + rGrid.getNbCols() * i].getValue() == 1) {
+                    System.out.printf("#");
+                    selectedParcels.add(j + rGrid.getNbCols() * i);
+                } else {
+                    System.out.printf(" ");
+                }
+            }
+            System.out.printf("\n");
+        }
+        System.out.println("\nNumber of reserves: " + getNbConnectedComponents());
+        System.out.println("Number of parcels: " + getNbPlanningUnits());
+        if (showPlanningUnits) {
+            System.out.println("Selected parcels:");
+            for (int i : selectedParcels) {
+                List<String> covered = new ArrayList<>();
+                for (IFeature f : features.values()) {
+                    try {
+                        if (f.getData()[i] > 0) {
+                            covered.add(String.format("%1$4s", f.getName()));
+                        } else {
+                            covered.add(String.format("%1$4s", ""));
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                System.out.println(String.format(" Parcel %1$4s: ", i) + String.join(" ", covered));
+            }
+        }
+        System.out.printf("\n");
     }
 
     // For constraint factory
