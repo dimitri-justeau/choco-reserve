@@ -23,6 +23,7 @@
 
 package chocoreserve.solver.feature;
 
+import chocoreserve.solver.IReserveModel;
 import chocoreserve.solver.feature.array.BinaryArrayFeature;
 import chocoreserve.solver.feature.array.ProbabilisticArrayFeature;
 import chocoreserve.solver.feature.array.QuantitativeArrayFeature;
@@ -37,6 +38,9 @@ import java.io.IOException;
  */
 public interface IFeatureFactory {
 
+    IReserveModel self();
+
+
     // --------------------- //
     // Binary feature makers //
     // --------------------- //
@@ -47,7 +51,9 @@ public interface IFeatureFactory {
      * @return A binary feature from an int array.
      */
     default BinaryFeature binaryFeature(String name, int[] data) {
-        return new BinaryArrayFeature(name, data);
+        BinaryFeature f = new BinaryArrayFeature(name, data);
+        self().addFeature(f);
+        return f;
     }
 
     /**
@@ -56,7 +62,9 @@ public interface IFeatureFactory {
      * @throws IOException
      */
     default BinaryFeature binaryFeature(String rasterFilePath) throws IOException {
-        return new BinaryRasterFeature(rasterFilePath);
+        BinaryFeature f = new BinaryRasterFeature(rasterFilePath);
+        self().addFeature(f);
+        return f;
     }
 
     /**
@@ -66,7 +74,9 @@ public interface IFeatureFactory {
      * @throws IOException
      */
     default BinaryFeature binaryFeature(String name, String rasterFilePath) throws IOException {
-        return new BinaryRasterFeature(rasterFilePath, name);
+        BinaryFeature f = new BinaryRasterFeature(rasterFilePath, name);
+        self().addFeature(f);
+        return f;
     }
 
     // --------------------------- //
@@ -79,7 +89,9 @@ public interface IFeatureFactory {
      * @return A quantitative feature from an int array.
      */
     default QuantitativeFeature quantitativeFeature(String name, int[] data) {
-        return new QuantitativeArrayFeature(name, data);
+        QuantitativeFeature f = new QuantitativeArrayFeature(name, data);
+        self().addFeature(f);
+        return f;
     }
 
     /**
@@ -88,7 +100,9 @@ public interface IFeatureFactory {
      * @throws IOException
      */
     default QuantitativeFeature quantitativeFeature(String rasterFilePath) throws IOException {
-        return new QuantitativeRasterFeature(rasterFilePath);
+        QuantitativeFeature f = new QuantitativeRasterFeature(rasterFilePath);
+        self().addFeature(f);
+        return f;
     }
 
     /**
@@ -98,7 +112,9 @@ public interface IFeatureFactory {
      * @throws IOException
      */
     default QuantitativeFeature quantitativeFeature(String name, String rasterFilePath) throws IOException {
-        return new QuantitativeRasterFeature(rasterFilePath, name);
+        QuantitativeFeature f = new QuantitativeRasterFeature(rasterFilePath, name);
+        self().addFeature(f);
+        return f;
     }
 
     // ---------------------------- //
@@ -111,7 +127,9 @@ public interface IFeatureFactory {
      * @return A probabilistic feature from an int array.
      */
     default ProbabilisticFeature probabilisticFeature(String name, double[] data) {
-        return new ProbabilisticArrayFeature(name, data);
+        ProbabilisticFeature f = new ProbabilisticArrayFeature(name, data);
+        self().addFeature(f);
+        return f;
     }
 
     /**
@@ -120,7 +138,9 @@ public interface IFeatureFactory {
      * @throws IOException
      */
     default ProbabilisticFeature probabilisticFeature(String rasterFilePath) throws IOException {
-        return new ProbabilisticRasterFeature(rasterFilePath);
+        ProbabilisticFeature f = new ProbabilisticRasterFeature(rasterFilePath);
+        self().addFeature(f);
+        return f;
     }
 
     /**
@@ -130,6 +150,8 @@ public interface IFeatureFactory {
      * @throws IOException
      */
     default ProbabilisticFeature probabilisticFeature(String name, String rasterFilePath) throws IOException {
-        return new ProbabilisticRasterFeature(rasterFilePath, name);
+        ProbabilisticFeature f = new ProbabilisticRasterFeature(rasterFilePath, name);
+        self().addFeature(f);
+        return f;
     }
 }

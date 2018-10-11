@@ -23,6 +23,12 @@
 
 package chocoreserve.solver.search;
 
+import chocoreserve.grid.Grid;
+import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
+import chocoreserve.solver.ReserveModel;
+import chocoreserve.solver.feature.BinaryFeature;
+import org.chocosolver.solver.Solver;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -30,18 +36,40 @@ import org.junit.Test;
  */
 public class TestReserveSearchFactory {
 
-    @Test
-    public void testMakeScores() {
 
+    @Test
+    public void testDiscardPoor() {
+        Grid grid = new FourConnectedSquareGrid(3, 3);
+        ReserveModel reserveModel = new ReserveModel(grid);
+        BinaryFeature featureA = reserveModel.binaryFeature(
+                "A",
+                new int[] {1, 1, 0, 0, 0, 0, 0, 0, 0}
+        );
+        BinaryFeature featureB = reserveModel.binaryFeature(
+                "B",
+                new int[] {1, 0, 1, 0, 1, 0, 1, 0, 0}
+        );
+        reserveModel.redundantFeatures(2, featureA, featureB).post();
+        Solver solver = reserveModel.getChocoSolver();
+        solver.setSearch(ReserveSearchFactory.discardPoor(reserveModel, 0));
+        Assert.assertTrue(solver.solve());
     }
 
     @Test
-    public void testMakeRanking() {
-
-    }
-
-    @Test
-    public void testMakeRankingProbabilistic() {
-
+    public void testDiscardPoorDeterministic() {
+        Grid grid = new FourConnectedSquareGrid(3, 3);
+        ReserveModel reserveModel = new ReserveModel(grid);
+        BinaryFeature featureA = reserveModel.binaryFeature(
+                "A",
+                new int[] {1, 1, 0, 0, 0, 0, 0, 0, 0}
+        );
+        BinaryFeature featureB = reserveModel.binaryFeature(
+                "B",
+                new int[] {1, 0, 1, 0, 1, 0, 1, 0, 0}
+        );
+        reserveModel.redundantFeatures(2, featureA, featureB).post();
+        Solver solver = reserveModel.getChocoSolver();
+        solver.setSearch(ReserveSearchFactory.discardPoorDeterministic(reserveModel, 0));
+        Assert.assertTrue(solver.solve());
     }
 }
