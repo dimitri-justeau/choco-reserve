@@ -10,6 +10,14 @@ It is based on the [Choco](https://github.com/chocoteam/choco-solver) Constraint
 
 Choco-reserve implements the model described in [Justeau-Allaire, Birnbaum and Lorca 2018](https://link.springer.com/chapter/10.1007/978-3-319-98334-9_33) (available for free download [here](https://www.researchgate.net/publication/327167708_Unifying_Reserve_Design_Strategies_with_Graph_Theory_and_Constraint_Programming_24th_International_Conference_CP_2018_Lille_France_August_27-31_2018_Proceedings)).
 
+## Build from sources ##
+
+Clone the github repository and install using Maven:
+
+```shell
+mvn install
+```
+
 ## Quick start ##
 
 First, create a grid representing the discretized geographical space you are working on:

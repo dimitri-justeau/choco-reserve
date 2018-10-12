@@ -52,6 +52,17 @@ public class TestFourConnectedSquareGrid {
     }
 
     @Test
+    public void testCoordinatesConversions() {
+        FourConnectedSquareGrid grid = new FourConnectedSquareGrid(5, 5);
+        Assert.assertEquals(5, grid.getIndexFromCoordinates(1, 0));
+        Assert.assertTrue(Arrays.equals(new int[] {1, 0}, grid.getCoordinatesFromIndex(5)));
+        Assert.assertEquals(18, grid.getIndexFromCoordinates(3, 3));
+        Assert.assertTrue(Arrays.equals(new int[] {3, 3}, grid.getCoordinatesFromIndex(18)));
+        Assert.assertEquals(11, grid.getIndexFromCoordinates(2, 1));
+        Assert.assertTrue(Arrays.equals(new int[] {2, 1}, grid.getCoordinatesFromIndex(11)));
+    }
+
+    @Test
     public void testGetNeighbors() {
         FourConnectedSquareGrid grid = new FourConnectedSquareGrid(5, 5);
         // Cell in the middle: 12

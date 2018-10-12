@@ -42,6 +42,25 @@ public abstract class RegularSquareGrid extends Grid {
         return nbRows * nbCols;
     }
 
+    /**
+     * @param row The row.
+     * @param col The column.
+     * @return The flattened index of a cell from its grid coordinates.
+     */
+    public int getIndexFromCoordinates(int row, int col) {
+        return getNbCols() * row + col;
+    }
+
+    /**
+     * @param index The flattened index of a cell.
+     * @return The grid coordinates [row, col] from its flattened index.
+     */
+    public int[] getCoordinatesFromIndex(int index) {
+        int row = Math.floorDiv(index, getNbCols());
+        int col = index % getNbRows();
+        return new int[] {row, col};
+    }
+
     public int getNbRows() {
         return nbRows;
     }
