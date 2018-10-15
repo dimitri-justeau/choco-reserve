@@ -77,8 +77,13 @@ public interface IReserveConstraintFactory {
      * @return A MinProbability constraint.
      */
     default IReserveConstraint minProbability(double alpha, ProbabilisticFeature... features) {
-        return new MinProbability(self(), alpha, features);
+        return minProbability(alpha, true, features);
     }
+
+    default IReserveConstraint minProbability(double alpha, boolean postCovered, ProbabilisticFeature... features) {
+        return new MinProbability(self(), postCovered, alpha, features);
+    }
+
 
     // ------------------- //
     // Spatial constraints //

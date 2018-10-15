@@ -30,7 +30,7 @@ import java.io.IOException;
 /**
  * Interface describing a probabilistic feature.
  */
-public interface ProbabilisticFeature extends IFeature {
+public interface ProbabilisticFeature extends Feature {
 
     /**
      * @return The data associated with the feature as probabilistic data.

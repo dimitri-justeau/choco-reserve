@@ -24,7 +24,7 @@
 package chocoreserve.solver.search;
 
 import chocoreserve.solver.ReserveModel;
-import chocoreserve.solver.feature.IFeature;
+import chocoreserve.solver.feature.Feature;
 import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.search.strategy.strategy.IntStrategy;
 import org.chocosolver.solver.variables.IntVar;
@@ -106,7 +106,7 @@ public class ReserveSearchFactory {
         int nbPlanningUnits = reserveModel.getGrid().getNbCells();
         // Compute scores
         double[] scores = new double[nbPlanningUnits];
-        for (IFeature f : reserveModel.getFeatures().values()) {
+        for (Feature f : reserveModel.getFeatures().values()) {
             try {
                 double[] data = f.getData();
                 for (int i = 0; i < nbPlanningUnits; i++) {

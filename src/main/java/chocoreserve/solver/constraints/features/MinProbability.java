@@ -24,7 +24,7 @@
 package chocoreserve.solver.constraints.features;
 
 import chocoreserve.solver.IReserveModel;
-import chocoreserve.solver.feature.IFeature;
+import chocoreserve.solver.feature.Feature;
 import chocoreserve.solver.feature.ProbabilisticFeature;
 
 import java.io.IOException;
@@ -36,17 +36,24 @@ import java.util.Arrays;
 public class MinProbability extends FeaturesConstraint {
 
     private double alpha;
+    private boolean postCovered;
 
-    public MinProbability(IReserveModel reserveModel, double alpha, ProbabilisticFeature... features) {
+    public MinProbability(IReserveModel reserveModel, boolean postCovered, double alpha,
+                          ProbabilisticFeature... features) {
         super(reserveModel, features);
-        assert alpha >= 0 && alpha <= 1;
+        assert alpha > 0 && alpha < 1;
         this.alpha = alpha;
+        this.postCovered = postCovered;
     }
 
     @Override
     public void post() {
+        if (postCovered) {
+            new CoveredFeatures(reserveModel, true, features).post();
+        }
+        // Constraint
         int scaled = (int) (-1000 * Math.log10(1 - 0.01 * Math.round(100 * alpha)));
-        for (IFeature feature : features) {
+        for (Feature feature : features) {
             try {
                 int[] coeffs = Arrays.stream(((ProbabilisticFeature) feature).getProbabilisticData())
                         .mapToInt(v -> (v == 1) ? 3000 : (int) (-1000 * Math.log10(1 - 0.01 * Math.round(100 * v))))

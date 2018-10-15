@@ -25,19 +25,19 @@ package chocoreserve.solver.constraints.features;
 
 import chocoreserve.solver.IReserveModel;
 import chocoreserve.solver.constraints.ReserveConstraint;
-import chocoreserve.solver.feature.IFeature;
+import chocoreserve.solver.feature.Feature;
 
 /**
  * Abstract base class for features representation constraints.
  */
 public abstract class FeaturesConstraint extends ReserveConstraint {
 
-    protected IFeature[] features;
+    protected Feature[] features;
 
-    public FeaturesConstraint(IReserveModel reserveModel, IFeature... features) {
+    public FeaturesConstraint(IReserveModel reserveModel, Feature... features) {
         super(reserveModel);
         this.features = features;
-        for (IFeature feature : features) {
+        for (Feature feature : features) {
             if (!reserveModel.getFeatures().containsKey(feature.getName())) {
                 reserveModel.addFeature(feature);
             }

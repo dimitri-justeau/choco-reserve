@@ -24,29 +24,35 @@
 package chocoreserve.solver.constraints.features;
 
 import chocoreserve.solver.IReserveModel;
-import chocoreserve.solver.feature.BinaryFeature;
 import chocoreserve.solver.feature.Feature;
+import chocoreserve.solver.feature.ProbabilisticFeature;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
- * Redundant features constraint.
+ * Minimum probability of presence constraint.
  */
-public class RedundantFeatures extends FeaturesConstraint {
+public class MinProbabilityReal extends FeaturesConstraint {
 
-    private int k;
+    private double alpha;
 
-    public RedundantFeatures(IReserveModel reserveModel, int k, BinaryFeature... features) {
+    public MinProbabilityReal(IReserveModel reserveModel, double alpha, ProbabilisticFeature... features) {
         super(reserveModel, features);
-        this.k = k;
+        assert alpha >= 0 && alpha <= 1;
+        this.alpha = alpha;
     }
 
     @Override
     public void post() {
+        // Constraint
+        double bound = Math.log10(1 - alpha);
         for (Feature feature : features) {
             try {
-                int[] coeffs = ((BinaryFeature) feature).getBinaryData();
-                chocoModel.scalar(reserveModel.getPlanningUnits(), coeffs, ">=", k).post();
+                double[] coeffs = Arrays.stream(((ProbabilisticFeature) feature).getProbabilisticData())
+                        .map(v -> Math.log10(1 - v))
+                        .toArray();
+                chocoModel.scalar(reserveModel.getPlanningUnits(), coeffs, "<=", bound).post();
             } catch (IOException e) {
                 e.printStackTrace();
             }

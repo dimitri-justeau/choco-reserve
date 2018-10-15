@@ -29,9 +29,16 @@ import chocoreserve.solver.feature.Feature;
 /**
  * Feature based on direct array input.
  */
-public abstract class ArrayFeature extends Feature {
+public abstract class ArrayFeature implements Feature {
+
+    protected String name;
 
     public ArrayFeature(String name) {
-        super(name);
+        this.name = name;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 }

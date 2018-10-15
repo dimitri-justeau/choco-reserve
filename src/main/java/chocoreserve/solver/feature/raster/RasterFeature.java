@@ -32,13 +32,14 @@ import java.io.IOException;
 /**
  * Feature based on a raster file.
  */
-public abstract class RasterFeature extends Feature {
+public abstract class RasterFeature implements Feature {
 
+    protected String name;
     protected String rasterFilePath;
     protected RasterReader rasterReader;
 
     public RasterFeature(String rasterFilePath, String name) throws IOException {
-        super(name);
+        this.name = name;
         this.rasterFilePath = rasterFilePath;
         this.rasterReader = new RasterReader(rasterFilePath);
     }
@@ -49,5 +50,10 @@ public abstract class RasterFeature extends Feature {
 
     public double[] getData() throws IOException {
         return rasterReader.readAsDoubleArray();
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 }

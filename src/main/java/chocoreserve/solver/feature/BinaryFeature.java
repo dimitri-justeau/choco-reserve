@@ -28,7 +28,7 @@ import java.io.IOException;
 /**
  * Interface describing a binary feature.
  */
-public interface BinaryFeature extends IFeature {
+public interface BinaryFeature extends Feature {
 
     /**
      * @return The data associated with the feature as binary data.

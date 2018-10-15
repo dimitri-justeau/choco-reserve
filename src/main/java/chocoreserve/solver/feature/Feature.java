@@ -23,18 +23,20 @@
 
 package chocoreserve.solver.feature;
 
+import java.io.IOException;
+
 /**
- * Abstract base class for feature.
+ * Interface describing a feature.
  */
-public abstract class Feature implements IFeature {
+public interface Feature {
 
-    protected String name;
+    /**
+     * @return The raw data associated with the feature.
+     */
+    double[] getData() throws IOException;
 
-    public Feature(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
+    /**
+     * @return The name of the feature.
+     */
+    String getName();
 }

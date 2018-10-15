@@ -28,7 +28,7 @@ import chocoreserve.grid.IGrid;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.constraints.IReserveConstraintFactory;
 import chocoreserve.solver.constraints.choco.graph.PropInducedNeighborhood;
-import chocoreserve.solver.feature.IFeature;
+import chocoreserve.solver.feature.Feature;
 import chocoreserve.solver.feature.IFeatureFactory;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
@@ -56,7 +56,7 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
     private IGrid grid;
 
     /** The features referenced by the model */
-    private Map<String, IFeature> features;
+    private Map<String, Feature> features;
 
     /** The choco model */
     private GraphModel model;
@@ -100,12 +100,12 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
 
 
     @Override
-    public void addFeature(IFeature feature) {
+    public void addFeature(Feature feature) {
         this.features.put(feature.getName(), feature);
     }
 
     @Override
-    public Map<String, IFeature> getFeatures() {
+    public Map<String, Feature> getFeatures() {
         return features;
     }
 
@@ -182,7 +182,7 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
             System.out.println("Selected parcels:");
             for (int i : selectedParcels) {
                 List<String> covered = new ArrayList<>();
-                for (IFeature f : features.values()) {
+                for (Feature f : features.values()) {
                     try {
                         if (f.getData()[i] > 0) {
                             covered.add(String.format("%1$4s", f.getName()));

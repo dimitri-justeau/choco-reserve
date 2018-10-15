@@ -29,6 +29,7 @@ import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.feature.ProbabilisticFeature;
 import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.search.strategy.Search;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -61,6 +62,7 @@ public class TestMinProbability {
         ProbabilisticFeature feature = reserveModel.probabilisticFeature("probabilistic", data);
         reserveModel.minProbability(0.8, feature).post();
         Solver solver = reserveModel.getChocoSolver();
+        solver.setSearch(Search.inputOrderLBSearch(reserveModel.getPlanningUnits()));
         int nbSol = 0;
         if (solver.solve()) {
             do {
@@ -80,6 +82,7 @@ public class TestMinProbability {
         // Now assert that the solver found every solution.
         ReserveModel unconstrainedReserveModel = new ReserveModel(grid);
         Solver solver1 = unconstrainedReserveModel.getChocoSolver();
+        solver.setSearch(Search.inputOrderLBSearch(reserveModel.getPlanningUnits()));
         int nbNotSol = 0;
         if (solver1.solve()) {
             do {

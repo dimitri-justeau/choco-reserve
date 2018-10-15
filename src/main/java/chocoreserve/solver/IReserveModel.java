@@ -25,7 +25,7 @@ package chocoreserve.solver;
 
 import chocoreserve.exception.ModelNotInstantiatedError;
 import chocoreserve.grid.IGrid;
-import chocoreserve.solver.feature.IFeature;
+import chocoreserve.solver.feature.Feature;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.Solver;
@@ -50,12 +50,12 @@ public interface IReserveModel {
     /**
      * Add a feature to the model.
      */
-    void addFeature(IFeature feature);
+    void addFeature(Feature feature);
 
     /**
      * @return A map of the features referenced by the model.
      */
-    Map<String, IFeature> getFeatures();
+    Map<String, Feature> getFeatures();
 
     // --------------------- //
     // Choco related methods //
