@@ -40,44 +40,6 @@
         <geotools.version>20-SNAPSHOT</geotools.version>
     </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.choco-solver</groupId>
-            <artifactId>choco-solver</artifactId>
-            <version>4.0.9-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.choco-solver</groupId>
-            <artifactId>choco-graph</artifactId>
-            <version>4.2.2</version>
-        </dependency>
-        <!--<dependency>-->
-            <!--<groupId>com.github.chocoteam</groupId>-->
-            <!--<artifactId>choco-graph</artifactId>-->
-            <!--<version>a98a35e8c8ab054e556a7a86a8436174b60a1927</version>-->
-        <!--</dependency>-->
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-epsg-hsql</artifactId>
-            <version>${geotools.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.geotools</groupId>
-            <artifactId>gt-geotiff</artifactId>
-            <version>${geotools.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-            <version>2.3</version>
-        </dependency>
-        <dependency>
-            <groupId>com.googlecode.json-simple</groupId>
-            <artifactId>json-simple</artifactId>
-            <version>1.1.1</version>
-        </dependency>
-    </dependencies>
-
     <repositories>
         <repository>
             <id>maven2-repository.dev.java.net</id>
@@ -102,4 +64,47 @@
             <url>https://jitpack.io</url>
         </repository>
     </repositories>
+
+    <dependencies>
+        <!--<dependency>-->
+            <!--<groupId>org.choco-solver</groupId>-->
+            <!--<artifactId>choco-solver</artifactId>-->
+            <!--<version>4.0.9-SNAPSHOT</version>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.choco-solver</groupId>-->
+            <!--<artifactId>choco-graph</artifactId>-->
+            <!--<version>4.2.2</version>-->
+        <!--</dependency>-->
+        <dependency>
+            <groupId>com.github.chocoteam</groupId>
+            <artifactId>choco-solver</artifactId>
+            <version>master</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.dimitri-justeau</groupId>
+            <artifactId>choco-graph</artifactId>
+            <version>master</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-epsg-hsql</artifactId>
+            <version>${geotools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-geotiff</artifactId>
+            <version>${geotools.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+    </dependencies>
 </project>
