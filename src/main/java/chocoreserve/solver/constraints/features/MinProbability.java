@@ -49,7 +49,7 @@ public class MinProbability extends FeaturesConstraint {
     @Override
     public void post() {
         if (postCovered) {
-            new CoveredFeatures(reserveModel, true, features).post();
+            new CoveredFeatures(reserveModel, features).post();
         }
         // Constraint
         int scaled = (int) (-1000 * Math.log10(1 - 0.01 * Math.round(100 * alpha)));
@@ -58,7 +58,7 @@ public class MinProbability extends FeaturesConstraint {
                 int[] coeffs = Arrays.stream(((ProbabilisticFeature) feature).getProbabilisticData())
                         .mapToInt(v -> (v == 1) ? 3000 : (int) (-1000 * Math.log10(1 - 0.01 * Math.round(100 * v))))
                         .toArray();
-                chocoModel.scalar(reserveModel.getPlanningUnits(), coeffs, ">=", scaled).post();
+                chocoModel.scalar(reserveModel.getSites(), coeffs, ">=", scaled).post();
             } catch (IOException e) {
                 e.printStackTrace();
             }

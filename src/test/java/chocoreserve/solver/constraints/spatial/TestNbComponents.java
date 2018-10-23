@@ -23,8 +23,8 @@
 
 package chocoreserve.solver.constraints.spatial;
 
-import chocoreserve.grid.Grid;
 import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
+import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.ReserveModel;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
@@ -52,7 +52,7 @@ public class TestNbComponents {
      */
     @Test
     public void testNbComponentsSuccessCase1() {
-        Grid grid = new FourConnectedSquareGrid(3, 3);
+        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
         reserveModel.nbReserves(5, 5).post();
         Solver solver = reserveModel.getChocoSolver();
@@ -78,7 +78,7 @@ public class TestNbComponents {
      */
     @Test
     public void testNbComponentsSuccessCase2() {
-        Grid grid = new FourConnectedSquareGrid(2, 2);
+        RegularSquareGrid grid = new FourConnectedSquareGrid(2, 2);
         ReserveModel reserveModel = new ReserveModel(grid);
         reserveModel.nbReserves(2, 2).post();
         Solver solver = reserveModel.getChocoSolver();
@@ -94,7 +94,7 @@ public class TestNbComponents {
      */
     @Test
     public void testNbComponentsSuccessCase3() {
-        Grid grid = new FourConnectedSquareGrid(1, 2);
+        RegularSquareGrid grid = new FourConnectedSquareGrid(1, 2);
         ReserveModel reserveModel = new ReserveModel(grid);
         reserveModel.nbReserves(0, 1).post();
         Solver solver = reserveModel.getChocoSolver();
@@ -115,7 +115,7 @@ public class TestNbComponents {
      */
     @Test
     public void testNbComponentsFailCase1() {
-        Grid grid = new FourConnectedSquareGrid(3, 3);
+        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
         reserveModel.nbReserves(6, 6).post();
         Solver solver = reserveModel.getChocoSolver();

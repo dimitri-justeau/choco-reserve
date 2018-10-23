@@ -49,7 +49,7 @@ public class ReserveSearchFactory {
         return Search.intVarSearch(
                 variables -> {
                     for (int i = ranking.length - 1; i >=0; i--) {
-                        IntVar var = reserveModel.getPlanningUnits()[ranking[i]];
+                        IntVar var = reserveModel.getSites()[ranking[i]];
                         if (!var.isInstantiated()) {
                             return var;
                         }
@@ -57,7 +57,7 @@ public class ReserveSearchFactory {
                     return null;
                 },
                 variable -> variable.getLB(),
-                reserveModel.getPlanningUnits()
+                reserveModel.getSites()
         );
     }
 

@@ -24,8 +24,8 @@
 package chocoreserve.solver.constraints.spatial;
 
 import chocoreserve.exception.ModelNotInstantiatedError;
-import chocoreserve.grid.Grid;
 import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
+import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.ReserveModel;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
@@ -55,7 +55,7 @@ public class TestAreaReserveSystem {
      */
     @Test
     public void testAreaReserveSystemSuccess1() {
-        Grid grid = new FourConnectedSquareGrid(3, 3);
+        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
         reserveModel.areaReserveSystem(9, 9).post();
         Solver solver = reserveModel.getChocoSolver();
@@ -84,14 +84,14 @@ public class TestAreaReserveSystem {
      */
     @Test
     public void testAreaReserveSystemSuccess2() {
-        Grid grid = new FourConnectedSquareGrid(3, 3);
+        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
         reserveModel.areaReserveSystem(2, 4).post();
         Solver solver = reserveModel.getChocoSolver();
         if (solver.solve()) {
             do {
                 try {
-                    int n = reserveModel.getSelectedPlanningUnits().length;
+                    int n = reserveModel.getSelectedSites().length;
                     Assert.assertTrue(n >= 2 && n <= 4);
                 } catch (ModelNotInstantiatedError modelNotInstantiatedError) {
                     modelNotInstantiatedError.printStackTrace();
@@ -116,7 +116,7 @@ public class TestAreaReserveSystem {
      */
     @Test
     public void testAreaReserveSystemFail() {
-        Grid grid = new FourConnectedSquareGrid(3, 3);
+        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
         reserveModel.areaReserveSystem(10, 20).post();
         Solver solver = reserveModel.getChocoSolver();

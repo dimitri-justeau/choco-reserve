@@ -40,7 +40,7 @@ public class AreaReserveSystem extends SpatialConstraint {
 
     @Override
     public void post() {
-        chocoModel.arithm(reserveModel.getNbPlanningUnits(), ">=", areaMin).post();
-        chocoModel.arithm(reserveModel.getNbPlanningUnits(), "<=", areaMax).post();
+        chocoModel.arithm(reserveModel.getNbSites(), ">=", areaMin).post();
+        chocoModel.arithm(reserveModel.getNbSites(), "<=", areaMax).post();
     }
 }

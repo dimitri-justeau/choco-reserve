@@ -79,10 +79,15 @@ public interface IReserveModel {
     UndirectedGraphVar getSpatialGraphVar();
 
     /**
-     * @return The decision variables of the model, which are the planning units.
-     *         Each planning unit is associated to a cell of the grid.
+     * @return The decision variables of the model, which are the sites.
+     *         Each site is associated to a cell of the grid.
      */
-    BoolVar[] getPlanningUnits();
+    BoolVar[] getSites();
+
+    BoolVar[][] getSitesMatrix();
+
+    BoolVar[] getBufferSites();
+
 
     /**
      * @return The IntVar corresponding to the number of connected components of the spatial graph.
@@ -90,23 +95,23 @@ public interface IReserveModel {
     IntVar getNbConnectedComponents();
 
     /**
-     * @return The IntVar corresponding to the number of selected planning units.
+     * @return The IntVar corresponding to the number of selected sites.
      */
-    IntVar getNbPlanningUnits();
+    IntVar getNbSites();
 
     // -------------------------- //
     // Solution retrieval methods //
     // -------------------------- //
 
     /**
-     * @return The indices of the selected planning units as an int array.
+     * @return The indices of the selected sites as an int array.
      * @throws ModelNotInstantiatedError If the solver is not at a solution state.
      */
-    int[] getSelectedPlanningUnits() throws ModelNotInstantiatedError;
+    int[] getSelectedSites() throws ModelNotInstantiatedError;
 
     /**
-     * @return The indices of the selected planning units as an integer set.
+     * @return The indices of the selected sites as an integer set.
      * @throws ModelNotInstantiatedError If the solver is not at a solution state.
      */
-    ISet getSelectedPlanningUnitsAsSet() throws ModelNotInstantiatedError;
+    ISet getSelectedSitesAsSet() throws ModelNotInstantiatedError;
 }

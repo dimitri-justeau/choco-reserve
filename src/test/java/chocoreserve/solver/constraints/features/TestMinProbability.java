@@ -24,8 +24,8 @@
 package chocoreserve.solver.constraints.features;
 
 import chocoreserve.exception.ModelNotInstantiatedError;
-import chocoreserve.grid.Grid;
 import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
+import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.feature.ProbabilisticFeature;
 import org.chocosolver.solver.Solver;
@@ -56,19 +56,19 @@ public class TestMinProbability {
      */
     @Test
     public void testSuccess1() {
-        Grid grid = new FourConnectedSquareGrid(3, 3);
+        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
         double[] data = new double[] {0.1, 0.2, 0.1, 0.7, 0.1, 0.1, 0.3, 0.3, 0.1};
         ProbabilisticFeature feature = reserveModel.probabilisticFeature("probabilistic", data);
         reserveModel.minProbability(0.8, feature).post();
         Solver solver = reserveModel.getChocoSolver();
-        solver.setSearch(Search.inputOrderLBSearch(reserveModel.getPlanningUnits()));
+        solver.setSearch(Search.inputOrderLBSearch(reserveModel.getSites()));
         int nbSol = 0;
         if (solver.solve()) {
             do {
                 nbSol ++;
                 try {
-                    int[] nodes = reserveModel.getSelectedPlanningUnits();
+                    int[] nodes = reserveModel.getSelectedSites();
                     double prob = IntStream.of(nodes).mapToDouble(i -> 1 - data[i]).reduce(1, (a, b) -> a * b);
                     Assert.assertTrue(prob <= 0.2);
                 } catch (ModelNotInstantiatedError e) {
@@ -82,12 +82,12 @@ public class TestMinProbability {
         // Now assert that the solver found every solution.
         ReserveModel unconstrainedReserveModel = new ReserveModel(grid);
         Solver solver1 = unconstrainedReserveModel.getChocoSolver();
-        solver.setSearch(Search.inputOrderLBSearch(reserveModel.getPlanningUnits()));
+        solver.setSearch(Search.inputOrderLBSearch(reserveModel.getSites()));
         int nbNotSol = 0;
         if (solver1.solve()) {
             do {
                 try {
-                    int[] nodes = unconstrainedReserveModel.getSelectedPlanningUnits();
+                    int[] nodes = unconstrainedReserveModel.getSelectedSites();
                     double prob = IntStream.of(nodes).mapToDouble(i -> 1 - data[i]).reduce(1, (a, b) -> a * b);
                     if (prob > 0.2) {
                         nbNotSol ++;
@@ -117,7 +117,7 @@ public class TestMinProbability {
      */
     @Test
     public void testSuccess2() {
-        Grid grid = new FourConnectedSquareGrid(3, 3);
+        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
         double[] dataA = new double[] {0.1, 0.2, 0.1, 0.7, 0.1, 0.1, 0.3, 0.3, 0.1};
         ProbabilisticFeature featureA = reserveModel.probabilisticFeature("A", dataA);
@@ -128,7 +128,7 @@ public class TestMinProbability {
         if (solver.solve()) {
             do {
                 try {
-                    int[] nodes = reserveModel.getSelectedPlanningUnits();
+                    int[] nodes = reserveModel.getSelectedSites();
                     double probA = IntStream.of(nodes).mapToDouble(i -> 1 - dataA[i]).reduce(1, (a, b) -> a * b);
                     double probB = IntStream.of(nodes).mapToDouble(i -> 1 - dataB[i]).reduce(1, (a, b) -> a * b);
                     Assert.assertTrue(probA <= 0.2 && probB <= 0.2);
@@ -159,7 +159,7 @@ public class TestMinProbability {
      */
     @Test
     public void testFail() {
-        Grid grid = new FourConnectedSquareGrid(3, 3);
+        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
         double[] data = new double[] {0.1, 0.2, 0.1, 0.7, 0.1, 0.1, 0.3, 0.3, 0.1};
         ProbabilisticFeature feature = reserveModel.probabilisticFeature("probabilistic", data);

@@ -24,8 +24,8 @@
 package chocoreserve.solver.constraints.features;
 
 import chocoreserve.exception.ModelNotInstantiatedError;
-import chocoreserve.grid.Grid;
 import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
+import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.feature.BinaryFeature;
 import chocoreserve.solver.feature.QuantitativeFeature;
@@ -54,7 +54,7 @@ public class TestCoveredFeatures {
      */
     @Test
     public void testSuccess1() {
-        Grid grid = new FourConnectedSquareGrid(3, 3);
+        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
         BinaryFeature feature = reserveModel.binaryFeature(
                 "test_binary",
@@ -65,7 +65,7 @@ public class TestCoveredFeatures {
         if (solver.solve()) {
             do {
                 try {
-                    ISet nodes = reserveModel.getSelectedPlanningUnitsAsSet();
+                    ISet nodes = reserveModel.getSelectedSitesAsSet();
                     Assert.assertTrue(nodes.contains(3));
                 } catch (ModelNotInstantiatedError modelNotInstantiatedError) {
                     modelNotInstantiatedError.printStackTrace();
@@ -93,7 +93,7 @@ public class TestCoveredFeatures {
      */
     @Test
     public void testSuccess2() {
-        Grid grid = new FourConnectedSquareGrid(3, 3);
+        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
         BinaryFeature featureA = reserveModel.binaryFeature(
                 "A",
@@ -108,7 +108,7 @@ public class TestCoveredFeatures {
         if (solver.solve()) {
             do {
                 try {
-                    ISet nodes = reserveModel.getSelectedPlanningUnitsAsSet();
+                    ISet nodes = reserveModel.getSelectedSitesAsSet();
                     Assert.assertTrue(nodes.contains(5));
                     Assert.assertTrue(nodes.contains(0) || nodes.contains(2) || nodes.contains(8));
                 } catch (ModelNotInstantiatedError modelNotInstantiatedError) {
@@ -128,7 +128,7 @@ public class TestCoveredFeatures {
      */
     @Test
     public void testFail() {
-        Grid grid = new FourConnectedSquareGrid(3, 3);
+        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
         BinaryFeature feature = reserveModel.binaryFeature(
                 "A",

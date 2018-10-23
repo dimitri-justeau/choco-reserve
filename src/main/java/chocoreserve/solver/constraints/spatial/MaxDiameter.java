@@ -23,32 +23,33 @@
 
 package chocoreserve.solver.constraints.spatial;
 
+import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.IReserveModel;
+import chocoreserve.solver.constraints.choco.PropSmallestEnclosingCircle;
+import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.variables.IntVar;
 
 /**
- * Number of reserves constraint.
+ * MaxDiameter constraint
  */
-public class NbReserves extends SpatialConstraint {
+public class MaxDiameter extends SpatialConstraint {
 
-    private int nbMin, nbMax;
+    private IntVar maxDiameter;
 
-    public NbReserves(IReserveModel reserveModel, int nbMin, int nbMax) {
+    public MaxDiameter(IReserveModel reserveModel, IntVar maxDiameter) {
         super(reserveModel);
-        this.nbMin = nbMin;
-        this.nbMax = nbMax;
+        this.maxDiameter = maxDiameter;
     }
 
     @Override
     public void post() {
-        if (nbMin == nbMax) {
-            // Not very efficient
-//            if (nbMax == 1) {
-//                chocoModel.connected(g).post();
-//            }
-            chocoModel.arithm(nbCC, "=", nbMin).post();
-        } else {
-            chocoModel.arithm(nbCC, ">=", nbMin).post();
-            chocoModel.arithm(nbCC, "<=", nbMax).post();
-        }
+        RegularSquareGrid grid = (RegularSquareGrid) reserveModel.getGrid();
+//        int nbRows = grid.getNbRows();
+//        int nbCols = grid.getNbCols();
+//        Constraint maxDiam = new Constraint(
+//                "maxDiameter",
+//                new PropSmallestEnclosingCircle(reserveModel.getSitesMatrix(), maxDiameter, nbRows, nbCols)
+//        );
+//        chocoModel.post(maxDiam);
     }
 }

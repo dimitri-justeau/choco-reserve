@@ -52,7 +52,7 @@ public class MinProbabilityReal extends FeaturesConstraint {
                 double[] coeffs = Arrays.stream(((ProbabilisticFeature) feature).getProbabilisticData())
                         .map(v -> Math.log10(1 - v))
                         .toArray();
-                chocoModel.scalar(reserveModel.getPlanningUnits(), coeffs, "<=", bound).post();
+                chocoModel.scalar(reserveModel.getSites(), coeffs, "<=", bound).post();
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -23,8 +23,8 @@
 
 package chocoreserve.solver;
 
-import chocoreserve.grid.Grid;
 import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
+import chocoreserve.grid.regular.square.RegularSquareGrid;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -35,9 +35,9 @@ public class TestReserveModel {
 
     @Test
     public void testReserveModelBasic() {
-        Grid grid = new FourConnectedSquareGrid(5, 5);
+        RegularSquareGrid grid = new FourConnectedSquareGrid(5, 5);
         IReserveModel reserveModel = new ReserveModel(grid);
-        Assert.assertEquals(grid.getNbCells(), reserveModel.getPlanningUnits().length);
+        Assert.assertEquals(grid.getNbCells(), reserveModel.getSites().length);
         Assert.assertEquals(grid.getNbCells(), reserveModel.getSpatialGraphVar().getPotentialNodes().size());
     }
 }

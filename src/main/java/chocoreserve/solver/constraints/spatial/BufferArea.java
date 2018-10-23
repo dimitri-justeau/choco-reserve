@@ -24,31 +24,28 @@
 package chocoreserve.solver.constraints.spatial;
 
 import chocoreserve.solver.IReserveModel;
+import org.chocosolver.solver.variables.BoolVar;
 
 /**
- * Number of reserves constraint.
+ *
  */
-public class NbReserves extends SpatialConstraint {
+public class BufferArea extends SpatialConstraint {
 
-    private int nbMin, nbMax;
-
-    public NbReserves(IReserveModel reserveModel, int nbMin, int nbMax) {
+    public BufferArea(IReserveModel reserveModel) {
         super(reserveModel);
-        this.nbMin = nbMin;
-        this.nbMax = nbMax;
     }
 
     @Override
     public void post() {
-        if (nbMin == nbMax) {
-            // Not very efficient
-//            if (nbMax == 1) {
-//                chocoModel.connected(g).post();
-//            }
-            chocoModel.arithm(nbCC, "=", nbMin).post();
-        } else {
-            chocoModel.arithm(nbCC, ">=", nbMin).post();
-            chocoModel.arithm(nbCC, "<=", nbMax).post();
+        BoolVar[] buffer = reserveModel.getBufferSites();
+        BoolVar[] sites = reserveModel.getSites();
+        for (int i = 0; i < buffer.length; i++) {
+            chocoModel.not(chocoModel.and(buffer[i], sites[i])).post();
+            int[] neigh = reserveModel.getGrid().getNeighbors(i);
+            for (int j : neigh) {
+                BoolVar b = chocoModel.and(sites[i], chocoModel.boolNotView(sites[j])).reify();
+                chocoModel.ifThen(b, chocoModel.arithm(buffer[j], "=", 1));
+            }
         }
     }
 }

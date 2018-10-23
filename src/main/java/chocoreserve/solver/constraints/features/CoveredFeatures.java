@@ -24,12 +24,18 @@
 package chocoreserve.solver.constraints.features;
 
 import chocoreserve.solver.IReserveModel;
+import chocoreserve.solver.constraints.choco.PropSetCovering;
 import chocoreserve.solver.feature.BinaryFeature;
 import chocoreserve.solver.feature.Feature;
+import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -37,28 +43,40 @@ import java.util.stream.IntStream;
  */
 public class CoveredFeatures extends FeaturesConstraint {
 
+    public enum CoveredImplementations {
+        ARITHMETICS,
+        AMOSTN,
+        SC;
+    }
+
     /** IntVar representing the size of the minimum size covering */
     private IntVar N;
 
-    private boolean atmost;
+    private CoveredImplementations implementation;
 
-    public CoveredFeatures(IReserveModel reserveModel, boolean atmost, Feature... features) {
+    public CoveredFeatures(IReserveModel reserveModel, CoveredImplementations implementation, Feature... features) {
         super(reserveModel, features);
-        this.atmost = atmost;
+        this.implementation = implementation;
         this.N = chocoModel.intVar(0, reserveModel.getGrid().getNbCells());
     }
 
     public CoveredFeatures(IReserveModel reserveModel, Feature... features) {
-        this(reserveModel, true, features);
+        this(reserveModel, CoveredImplementations.AMOSTN, features);
         this.N = chocoModel.intVar(0, reserveModel.getGrid().getNbCells());
     }
 
     @Override
     public void post() {
-        if (atmost) {
-            post_atmostnvalues();
-        } else {
-            post_arithm();
+        switch (implementation) {
+            case ARITHMETICS:
+                post_arithm();
+                break;
+            case AMOSTN:
+                post_atmostnvalues();
+                break;
+            case SC:
+                post_SC();
+                break;
         }
     }
 
@@ -66,7 +84,7 @@ public class CoveredFeatures extends FeaturesConstraint {
         for (Feature feature : features) {
             try {
                 int[] coeffs = ((BinaryFeature) feature).getBinaryData();
-                chocoModel.scalar(reserveModel.getPlanningUnits(), coeffs, ">=", 1).post();
+                chocoModel.scalar(reserveModel.getSites(), coeffs, ">=", 1).post();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -92,7 +110,7 @@ public class CoveredFeatures extends FeaturesConstraint {
                 }
                 // Channelling with the boolvars
                 for (int i : sites) {
-                    BoolVar notI = chocoModel.boolNotView(reserveModel.getPlanningUnits()[i]);
+                    BoolVar notI = chocoModel.boolNotView(reserveModel.getSites()[i]);
                     chocoModel.ifThen(notI, chocoModel.arithm(vars[f], "!=", i));
                 }
             } catch (IOException e) {
@@ -102,6 +120,38 @@ public class CoveredFeatures extends FeaturesConstraint {
         // At most constraint
         chocoModel.atMostNValues(vars, N, true).post();
         // N is a lower bound for the number of sites
-        chocoModel.arithm(reserveModel.getNbPlanningUnits(), ">=", N).post();
+        chocoModel.arithm(reserveModel.getNbSites(), ">=", N).post();
+    }
+
+    private void post_SC() {
+        int nbCells = reserveModel.getGrid().getNbCells();
+        Set<Integer> U = IntStream.range(0, features.length).boxed().collect(Collectors.toSet());
+        int[] C = IntStream.range(0, nbCells).map(i -> 1).toArray();
+        Set<Integer>[] X = new Set[nbCells];
+        IntStream.range(0, nbCells).forEach(i -> X[i] = new HashSet<Integer>());
+        for (int f = 0; f < features.length; f++) {
+            Feature feature = features[f];
+            try {
+                double[] data = feature.getData();
+                int[] sites = IntStream.range(0, nbCells)
+                        .filter(i -> data[i] > 0)
+                        .toArray();
+                if (sites.length > 0) {
+                    for (int i : sites) {
+                        X[i].add(f);
+                    }
+                } else {
+                    // Forces the solver to fail -- To make more explicit.
+                    chocoModel.arithm(chocoModel.intVar(1), "=", 0).post();
+                    return;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        SetVar T = chocoModel.setVar(new int[] {}, IntStream.range(0, nbCells).toArray());
+        chocoModel.setBoolsChanneling(reserveModel.getSites(), T).post();
+        Constraint SC = new Constraint("SC", new PropSetCovering(reserveModel.getNbSites(), T, U, X, C));
+        chocoModel.post(SC);
     }
 }

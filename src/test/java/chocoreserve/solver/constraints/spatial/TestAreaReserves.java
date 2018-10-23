@@ -23,8 +23,8 @@
 
 package chocoreserve.solver.constraints.spatial;
 
-import chocoreserve.grid.Grid;
 import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
+import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.ReserveModel;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
@@ -57,7 +57,7 @@ public class TestAreaReserves {
      */
     @Test
     public void testAreaComponentsSuccess1() {
-        Grid grid = new FourConnectedSquareGrid(3, 3);
+        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
         reserveModel.nbReserves(2, 2).post();
         IntVar minNCC = reserveModel.getChocoModel().intVar(3, 4);
@@ -81,7 +81,7 @@ public class TestAreaReserves {
      */
     @Test
     public void testAreaComponentsSuccess2() {
-        Grid grid = new FourConnectedSquareGrid(1, 4);
+        RegularSquareGrid grid = new FourConnectedSquareGrid(1, 4);
         ReserveModel reserveModel = new ReserveModel(grid);
         reserveModel.nbReserves(1, 1).post();
         IntVar minNCC = reserveModel.getChocoModel().intVar("minNCC", 3, 4);

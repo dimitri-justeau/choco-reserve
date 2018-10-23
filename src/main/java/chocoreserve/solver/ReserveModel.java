@@ -38,6 +38,7 @@ import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.chocosolver.util.objects.setDataStructures.SetType;
+import org.chocosolver.util.tools.ArrayUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -64,33 +65,35 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
     /** The spatial graph variable associated to the model */
     private UndirectedGraphVar g;
 
-    /** The decision variables, one for each planning unit (each planning unit correspond to a cell of the grid */
-    private BoolVar[] planningUnits;
+    /** The decision variables, one for each site (each site correspond to a cell of the grid */
+    private BoolVar[][] sites;
+
+    private BoolVar[] bufferSites;
 
     /** Number of connected components of g */
     private IntVar nbCC;
 
-    /** Number of planning units */
-    private IntVar nbPlanningUnits;
+    /** Number of sitess */
+    private IntVar nbSites;
 
-    public ReserveModel(IGrid grid) {
+    public ReserveModel(RegularSquareGrid grid) {
         this.grid = grid;
         this.features = new HashMap<>();
         // Init Choco model
         this.model = new GraphModel("Nature Reserve Problem");
-        this.planningUnits = model.boolVarArray("planningUnits", this.grid.getNbCells());
+        this.sites = model.boolVarMatrix("sites", grid.getNbRows(), grid.getNbCols());
         this.g = model.graphVar(
                 "spatialGraph",
                 new UndirectedGraph(model, grid.getNbCells(), SetType.BIPARTITESET, false),
                 grid.getFullGraph(model, SetType.BIPARTITESET)
         );
         this.nbCC = this.model.intVar("nbCC", 0, this.grid.getNbCells());
-        this.nbPlanningUnits = this.model.intVar("nbPlanningUnits", 0, this.grid.getNbCells());
+        this.nbSites = this.model.intVar("nbSites", 0, this.grid.getNbCells());
         // Post necessary constraints
-        this.model.nodesChanneling(this.g, this.planningUnits).post();
+        this.model.nodesChanneling(this.g, getSites()).post();
         this.model.post(new Constraint("inducedNeighborhood", new PropInducedNeighborhood(this.g)));
         this.model.nbConnectedComponents(this.g, this.nbCC).post();
-        this.model.sum(this.planningUnits, "=", this.nbPlanningUnits).post();
+        this.model.sum(getSites(), "=", this.nbSites).post();
     }
 
     @Override
@@ -124,8 +127,20 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
     }
 
     @Override
-    public BoolVar[] getPlanningUnits() {
-        return planningUnits;
+    public BoolVar[] getSites() {
+        return ArrayUtils.flatten(sites);
+    }
+
+    public BoolVar[][] getSitesMatrix() {
+        return sites;
+    }
+
+    @Override
+    public BoolVar[] getBufferSites() {
+        if (bufferSites == null) {
+            this.bufferSites = model.boolVarArray("bufferSites", this.grid.getNbCells());
+        }
+        return bufferSites;
     }
 
     @Override
@@ -134,8 +149,8 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
     }
 
     @Override
-    public IntVar getNbPlanningUnits() {
-        return nbPlanningUnits;
+    public IntVar getNbSites() {
+        return nbSites;
     }
 
     // -------------------------- //
@@ -143,12 +158,12 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
     // -------------------------- //
 
     @Override
-    public int[] getSelectedPlanningUnits() throws ModelNotInstantiatedError {
-        return getSelectedPlanningUnitsAsSet().toArray();
+    public int[] getSelectedSites() throws ModelNotInstantiatedError {
+        return getSelectedSitesAsSet().toArray();
     }
 
     @Override
-    public ISet getSelectedPlanningUnitsAsSet() throws ModelNotInstantiatedError {
+    public ISet getSelectedSitesAsSet() throws ModelNotInstantiatedError {
         UndirectedGraphVar g = getSpatialGraphVar();
         if (!g.isInstantiated()) {
             throw new ModelNotInstantiatedError();
@@ -167,17 +182,21 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
         for (int i = 0; i < rGrid.getNbRows(); i++) {
             System.out.printf("  |");
             for (int j = 0; j < rGrid.getNbCols(); j++) {
-                if (this.planningUnits[j + rGrid.getNbCols() * i].getValue() == 1) {
+                if (getSitesMatrix()[i][j].getValue() == 1) {
                     System.out.printf("#");
                     selectedParcels.add(j + rGrid.getNbCols() * i);
                 } else {
-                    System.out.printf(" ");
+                    if (this.bufferSites != null && this.bufferSites[j + rGrid.getNbCols() * i].getValue() == 1){
+                        System.out.printf("+");
+                    } else {
+                        System.out.printf(" ");
+                    }
                 }
             }
             System.out.printf("\n");
         }
         System.out.println("\nNumber of reserves: " + getNbConnectedComponents());
-        System.out.println("Number of parcels: " + getNbPlanningUnits());
+        System.out.println("Number of parcels: " + getNbSites());
         if (showPlanningUnits) {
             System.out.println("Selected parcels:");
             for (int i : selectedParcels) {

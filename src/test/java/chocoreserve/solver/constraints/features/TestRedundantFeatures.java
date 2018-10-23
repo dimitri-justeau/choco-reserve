@@ -24,8 +24,8 @@
 package chocoreserve.solver.constraints.features;
 
 import chocoreserve.exception.ModelNotInstantiatedError;
-import chocoreserve.grid.Grid;
 import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
+import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.feature.BinaryFeature;
 import org.chocosolver.solver.Solver;
@@ -54,7 +54,7 @@ public class TestRedundantFeatures {
      */
     @Test
     public void testSuccess1() {
-        Grid grid = new FourConnectedSquareGrid(3, 3);
+        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
         BinaryFeature feature = reserveModel.binaryFeature(
                 "binary",
@@ -65,7 +65,7 @@ public class TestRedundantFeatures {
         if (solver.solve()) {
             do {
                 try {
-                    ISet nodes = reserveModel.getSelectedPlanningUnitsAsSet();
+                    ISet nodes = reserveModel.getSelectedSitesAsSet();
                     Assert.assertTrue(nodes.contains(0) && nodes.contains(1) && nodes.contains(2));
                 } catch (ModelNotInstantiatedError e) {
                     e.printStackTrace();
@@ -92,7 +92,7 @@ public class TestRedundantFeatures {
      */
     @Test
     public void testSuccess2() {
-        Grid grid = new FourConnectedSquareGrid(3, 3);
+        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
         BinaryFeature featureA = reserveModel.binaryFeature(
                 "A",
@@ -107,7 +107,7 @@ public class TestRedundantFeatures {
         if (solver.solve()) {
             do {
                 try {
-                    ISet nodes = reserveModel.getSelectedPlanningUnitsAsSet();
+                    ISet nodes = reserveModel.getSelectedSitesAsSet();
                     Assert.assertTrue(nodes.contains(0) && nodes.contains(1) &&
                             (nodes.contains(2) || nodes.contains(4) || nodes.contains(6)));
                 } catch (ModelNotInstantiatedError e) {
@@ -126,7 +126,7 @@ public class TestRedundantFeatures {
      */
     @Test
     public void testFail() {
-        Grid grid = new FourConnectedSquareGrid(3, 3);
+        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
         BinaryFeature feature = reserveModel.binaryFeature(
                 "binary",

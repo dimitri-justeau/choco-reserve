@@ -23,8 +23,8 @@
 
 package chocoreserve.solver.search;
 
-import chocoreserve.grid.Grid;
 import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
+import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.feature.BinaryFeature;
 import org.chocosolver.solver.Solver;
@@ -39,7 +39,7 @@ public class TestReserveSearchFactory {
 
     @Test
     public void testDiscardPoor() {
-        Grid grid = new FourConnectedSquareGrid(3, 3);
+        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
         BinaryFeature featureA = reserveModel.binaryFeature(
                 "A",
@@ -58,7 +58,7 @@ public class TestReserveSearchFactory {
 
     @Test
     public void testDiscardPoorDeterministic() {
-        Grid grid = new FourConnectedSquareGrid(3, 3);
+        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
         BinaryFeature featureA = reserveModel.binaryFeature(
                 "A",

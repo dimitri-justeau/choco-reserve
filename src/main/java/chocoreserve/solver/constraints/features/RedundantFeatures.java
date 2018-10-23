@@ -46,7 +46,7 @@ public class RedundantFeatures extends FeaturesConstraint {
         for (Feature feature : features) {
             try {
                 int[] coeffs = ((BinaryFeature) feature).getBinaryData();
-                chocoModel.scalar(reserveModel.getPlanningUnits(), coeffs, ">=", k).post();
+                chocoModel.scalar(reserveModel.getSites(), coeffs, ">=", k).post();
             } catch (IOException e) {
                 e.printStackTrace();
             }
