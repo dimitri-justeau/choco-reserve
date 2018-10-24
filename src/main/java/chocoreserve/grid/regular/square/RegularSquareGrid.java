@@ -61,6 +61,15 @@ public abstract class RegularSquareGrid extends Grid {
         return new int[] {row, col};
     }
 
+    public int[][] getMatrixNeighbors(int i, int j) {
+        int[] indexNeighbors = getNeighbors(getIndexFromCoordinates(i, j));
+        int[][] matrixNeighbors = new int[indexNeighbors.length][];
+        for (int k = 0; k < indexNeighbors.length; k++) {
+            matrixNeighbors[k] = getCoordinatesFromIndex(indexNeighbors[k]);
+        }
+        return matrixNeighbors;
+    }
+
     /**
      * @return The number of rows.
      */

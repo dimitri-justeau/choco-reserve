@@ -86,8 +86,7 @@ public interface IReserveModel {
 
     BoolVar[][] getSitesMatrix();
 
-    BoolVar[] getBufferSites();
-
+    BoolVar[][] getBufferSites();
 
     /**
      * @return The IntVar corresponding to the number of connected components of the spatial graph.

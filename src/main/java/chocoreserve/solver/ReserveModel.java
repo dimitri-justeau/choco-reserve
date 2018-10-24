@@ -24,7 +24,6 @@
 package chocoreserve.solver;
 
 import chocoreserve.exception.ModelNotInstantiatedError;
-import chocoreserve.grid.IGrid;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.constraints.IReserveConstraintFactory;
 import chocoreserve.solver.constraints.choco.graph.PropInducedNeighborhood;
@@ -68,7 +67,7 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
     /** The decision variables, one for each site (each site correspond to a cell of the grid */
     private BoolVar[][] sites;
 
-    private BoolVar[] bufferSites;
+    private BoolVar[][] bufferSites;
 
     /** Number of connected components of g */
     private IntVar nbCC;
@@ -136,9 +135,9 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
     }
 
     @Override
-    public BoolVar[] getBufferSites() {
+    public BoolVar[][] getBufferSites() {
         if (bufferSites == null) {
-            this.bufferSites = model.boolVarArray("bufferSites", this.grid.getNbCells());
+            this.bufferSites = model.boolVarMatrix("bufferSites", grid.getNbRows(), grid.getNbCols());
         }
         return bufferSites;
     }
@@ -186,7 +185,7 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
                     System.out.printf("#");
                     selectedParcels.add(j + rGrid.getNbCols() * i);
                 } else {
-                    if (this.bufferSites != null && this.bufferSites[j + rGrid.getNbCols() * i].getValue() == 1){
+                    if (this.bufferSites != null && this.bufferSites[i][j].getValue() == 1){
                         System.out.printf("+");
                     } else {
                         System.out.printf(" ");
