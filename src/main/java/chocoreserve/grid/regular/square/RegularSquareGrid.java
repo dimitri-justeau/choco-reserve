@@ -61,11 +61,30 @@ public abstract class RegularSquareGrid extends Grid {
         return new int[] {row, col};
     }
 
+    /**
+     * @return The number of rows.
+     */
     public int getNbRows() {
         return nbRows;
     }
 
+    /**
+     * @return The number of columns.
+     */
     public int getNbCols() {
         return nbCols;
+    }
+
+    /**
+     * @return The cartesian coordinates of the pixels of the grid.
+     */
+    public double[][][] getCoordinates() {
+        double[][][] coords = new double[getNbRows()][getNbCols()][];
+        for (int y = 0; y < getNbRows(); y++) {
+            for (int x = 0; x < getNbCols(); x++) {
+                coords[y][x] = new double[] {x, y};
+            }
+        }
+        return coords;
     }
 }

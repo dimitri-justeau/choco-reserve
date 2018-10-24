@@ -31,6 +31,7 @@ import org.chocosolver.solver.variables.RealVar;
 import org.chocosolver.solver.variables.Variable;
 import org.chocosolver.util.ESat;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -107,15 +108,13 @@ public class PropSmallestEnclosingCircle extends Propagator<Variable> {
             double[] minidisk = minidisk(ker);
             double[] cker = new double[] {minidisk[0], minidisk[1]};
             double rker = minidisk[2];
-            if (rker > (radius.getUB() +radius.getPrecision())) {
-//                System.out.println("Fail " + Arrays.toString(minidisk));
+            if (rker > (radius.getUB() + radius.getPrecision())) {
                 fails();
             }
             for (int i : getEnvelopeMinusKernelPoints()) {
                 if (distance(cker, coordinates[i]) > rker) {
                     double[] b_disk = minidisk(IntStream.concat(IntStream.of(ker), IntStream.of(i)).toArray());
                     if (b_disk[2] > (radius.getUB() + radius.getPrecision())) {
-//                        System.out.println("Filter " + i + " " + Arrays.toString(b_disk));
                         pointBools[i].setToFalse(this);
                     }
                 }
@@ -125,6 +124,7 @@ public class PropSmallestEnclosingCircle extends Propagator<Variable> {
 
     @Override
     public ESat isEntailed() {
+
         int[] ker = getKernelPoints();
         int[] env = getEnvelopePoints();
         if (env.length == 0){
@@ -159,15 +159,13 @@ public class PropSmallestEnclosingCircle extends Propagator<Variable> {
                 if (r_lb > (radius.getUB() + radius.getPrecision())
                         || x_lb > (centerX.getUB() + centerX.getPrecision())
                         || y_lb > (centerY.getUB() + centerY.getPrecision())) {
-                    System.out.println(r_lb + " - " + radius.getUB());
-                    System.out.println(r_lb > radius.getUB());
-                    System.out.println(x_lb > centerX.getUB());
-                    System.out.println(y_lb > centerY.getUB());
                     return ESat.FALSE;
                 }
+
                 return ESat.TRUE;
             }
         }
+
         return ESat.UNDEFINED;
     }
 

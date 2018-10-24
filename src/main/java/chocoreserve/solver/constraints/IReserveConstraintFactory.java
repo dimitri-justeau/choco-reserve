@@ -24,15 +24,21 @@
 package chocoreserve.solver.constraints;
 
 import chocoreserve.solver.IReserveModel;
+import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.constraints.features.CoveredFeatures;
 import chocoreserve.solver.constraints.features.MinProbability;
 import chocoreserve.solver.constraints.features.RedundantFeatures;
 import chocoreserve.solver.constraints.spatial.AreaReserveSystem;
 import chocoreserve.solver.constraints.spatial.AreaReserves;
 import chocoreserve.solver.constraints.spatial.NbReserves;
+import chocoreserve.solver.constraints.spatial.Radius;
 import chocoreserve.solver.feature.BinaryFeature;
 import chocoreserve.solver.feature.ProbabilisticFeature;
+import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
+
+import java.util.Arrays;
+import java.util.stream.IntStream;
 
 /**
  * Interface for constraints over the Nature Reserve Problem.
@@ -40,6 +46,17 @@ import org.chocosolver.solver.variables.IntVar;
 public interface IReserveConstraintFactory {
 
     IReserveModel self();
+
+    // ---- //
+    // Misc //
+    // ---- //
+
+    default IReserveConstraint mandatorySites(int... sites) {
+        return () -> {
+            BoolVar[] force = IntStream.of(sites).mapToObj(i -> self().getSites()[i]).toArray(BoolVar[]::new);
+            self().getChocoModel().and(force).post();
+        };
+    }
 
     // ---------------------------------- //
     // Feature representation constraints //
@@ -123,5 +140,16 @@ public interface IReserveConstraintFactory {
      */
     default IReserveConstraint areaReserveSystem(int areaMin, int areaMax){
         return new AreaReserveSystem(self(), areaMin, areaMax);
+    }
+
+    /**
+     * Creates a maxDiameter constraint. The maxDiameter constraint holds iff the maximum distance between the centers
+     * of the sites is <= maxDiameter.
+     *
+     * @param maxDiameter The maximum diameter.
+     * @return A maxDiameter constraint.
+     */
+    default IReserveConstraint maxDiameter(double maxDiameter) {
+        return new Radius((ReserveModel) self(), self().getChocoModel().realVar("radius", 0, 0.5 * maxDiameter, 1e-5));
     }
 }

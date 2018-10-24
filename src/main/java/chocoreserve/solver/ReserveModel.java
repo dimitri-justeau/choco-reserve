@@ -54,7 +54,7 @@ import java.util.Map;
 public class ReserveModel implements IReserveModel, IReserveConstraintFactory, IFeatureFactory {
 
     /** The grid on which applies the model */
-    private IGrid grid;
+    private RegularSquareGrid grid;
 
     /** The features referenced by the model */
     private Map<String, Feature> features;
@@ -97,7 +97,7 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
     }
 
     @Override
-    public IGrid getGrid() {
+    public RegularSquareGrid getGrid() {
         return grid;
     }
 
@@ -216,6 +216,14 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
             }
         }
         System.out.printf("\n");
+    }
+
+    public int getNbCols() {
+        return grid.getNbCols();
+    }
+
+    public int getNbRows() {
+        return grid.getNbRows();
     }
 
     // For constraint factory
