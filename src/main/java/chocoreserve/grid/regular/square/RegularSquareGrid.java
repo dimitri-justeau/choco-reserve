@@ -25,6 +25,8 @@ package chocoreserve.grid.regular.square;
 
 import chocoreserve.grid.Grid;
 
+import java.util.Arrays;
+
 /**
  * Abstract base class for regular square grids.
  */
@@ -57,7 +59,7 @@ public abstract class RegularSquareGrid extends Grid {
      */
     public int[] getCoordinatesFromIndex(int index) {
         int row = Math.floorDiv(index, getNbCols());
-        int col = index % getNbRows();
+        int col = index % getNbCols();
         return new int[] {row, col};
     }
 

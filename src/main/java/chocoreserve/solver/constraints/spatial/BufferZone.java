@@ -23,29 +23,33 @@
 
 package chocoreserve.solver.constraints.spatial;
 
-import chocoreserve.solver.IReserveModel;
+import chocoreserve.grid.regular.square.HeightConnectedSquareGrid;
+import chocoreserve.grid.regular.square.RegularSquareGrid;
+import chocoreserve.solver.ReserveModel;
+import chocoreserve.solver.constraints.choco.PropBufferZone;
+import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.BoolVar;
 
 /**
  *
  */
-public class BufferArea extends SpatialConstraint {
+public class BufferZone extends SpatialConstraint {
 
-    public BufferArea(IReserveModel reserveModel) {
+    private int nbRows, nbCols;
+
+    public BufferZone(ReserveModel reserveModel) {
         super(reserveModel);
+        this.nbRows = reserveModel.getNbRows();
+        this.nbCols = reserveModel.getNbCols();
     }
 
     @Override
     public void post() {
-        BoolVar[] buffer = reserveModel.getBufferSites();
-        BoolVar[] sites = reserveModel.getSites();
-        for (int i = 0; i < buffer.length; i++) {
-            chocoModel.not(chocoModel.and(buffer[i], sites[i])).post();
-            int[] neigh = reserveModel.getGrid().getNeighbors(i);
-            for (int j : neigh) {
-                BoolVar b = chocoModel.and(sites[i], chocoModel.boolNotView(sites[j])).reify();
-                chocoModel.ifThen(b, chocoModel.arithm(buffer[j], "=", 1));
-            }
-        }
+        BoolVar[][] buffer = reserveModel.getBufferSites();
+        BoolVar[][] core = reserveModel.getSitesMatrix();
+        RegularSquareGrid grid = new HeightConnectedSquareGrid(nbRows, nbCols);
+        PropBufferZone bufferZone = new PropBufferZone(core, buffer, grid);
+        Constraint c = new Constraint("bufferZone", bufferZone);
+        chocoModel.post(c);
     }
 }

@@ -28,10 +28,7 @@ import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.constraints.features.CoveredFeatures;
 import chocoreserve.solver.constraints.features.MinProbability;
 import chocoreserve.solver.constraints.features.RedundantFeatures;
-import chocoreserve.solver.constraints.spatial.AreaReserveSystem;
-import chocoreserve.solver.constraints.spatial.AreaReserves;
-import chocoreserve.solver.constraints.spatial.NbReserves;
-import chocoreserve.solver.constraints.spatial.Radius;
+import chocoreserve.solver.constraints.spatial.*;
 import chocoreserve.solver.feature.BinaryFeature;
 import chocoreserve.solver.feature.ProbabilisticFeature;
 import org.chocosolver.solver.variables.BoolVar;
@@ -151,5 +148,9 @@ public interface IReserveConstraintFactory {
      */
     default IReserveConstraint maxDiameter(double maxDiameter) {
         return new Radius((ReserveModel) self(), self().getChocoModel().realVar("radius", 0, 0.5 * maxDiameter, 1e-5));
+    }
+
+    default IReserveConstraint bufferZone() {
+        return new BufferZone((ReserveModel) self());
     }
 }
