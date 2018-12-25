@@ -23,24 +23,32 @@
 
 package chocoreserve.solver.constraints.spatial;
 
-import chocoreserve.solver.IReserveModel;
+import chocoreserve.solver.ReserveModel;
 
 /**
- * Area of reserve_system constraint.
+ * Number of reserves constraint.
  */
-public class AreaReserveSystem extends SpatialConstraint {
+public class NbReserves extends SpatialConstraint {
 
-    private int areaMin, areaMax;
+    private int nbMin, nbMax;
 
-    public AreaReserveSystem(IReserveModel reserveModel, int areaMin, int areaMax) {
+    public NbReserves(ReserveModel reserveModel, int nbMin, int nbMax) {
         super(reserveModel);
-        this.areaMin = areaMin;
-        this.areaMax = areaMax;
+        this.nbMin = nbMin;
+        this.nbMax = nbMax;
     }
 
     @Override
     public void post() {
-        chocoModel.arithm(reserveModel.getNbSites(), ">=", areaMin).post();
-        chocoModel.arithm(reserveModel.getNbSites(), "<=", areaMax).post();
+        if (nbMin == nbMax) {
+            // Not very efficient
+//            if (nbMax == 1) {
+//                chocoModel.connected(g).post();
+//            }
+            chocoModel.arithm(nbCC, "=", nbMin).post();
+        } else {
+            chocoModel.arithm(nbCC, ">=", nbMin).post();
+            chocoModel.arithm(nbCC, "<=", nbMax).post();
+        }
     }
 }

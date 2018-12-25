@@ -23,7 +23,6 @@
 
 package chocoreserve.solver.constraints.spatial;
 
-import chocoreserve.solver.IReserveModel;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.constraints.choco.PropSmallestEnclosingCircle;
 import org.chocosolver.solver.constraints.Constraint;
@@ -35,12 +34,12 @@ import org.chocosolver.util.tools.ArrayUtils;
  */
 public class Radius extends SpatialConstraint {
 
-    private RealVar radius;
-    private RealVar centerX;
-    private RealVar centerY;
-    private double[][] coordinates;
+    public RealVar radius;
+    public RealVar centerX;
+    public RealVar centerY;
+    public double[][] coordinates;
 
-    public Radius(IReserveModel reserveModel, double[][] coordinates, RealVar radius,
+    public Radius(ReserveModel reserveModel, double[][] coordinates, RealVar radius,
                   RealVar centerX, RealVar centerY) {
         super(reserveModel);
         this.radius = radius;

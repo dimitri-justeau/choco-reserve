@@ -23,7 +23,7 @@
 
 package chocoreserve.solver.constraints.features;
 
-import chocoreserve.solver.IReserveModel;
+import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.constraints.choco.PropSetCovering;
 import chocoreserve.solver.feature.BinaryFeature;
 import chocoreserve.solver.feature.Feature;
@@ -49,18 +49,18 @@ public class CoveredFeatures extends FeaturesConstraint {
         SC;
     }
 
-    /** IntVar representing the size of the minimum size covering */
+    /** IntVar representing the size of the minimum covering */
     private IntVar N;
 
     private CoveredImplementations implementation;
 
-    public CoveredFeatures(IReserveModel reserveModel, CoveredImplementations implementation, Feature... features) {
+    public CoveredFeatures(ReserveModel reserveModel, CoveredImplementations implementation, Feature... features) {
         super(reserveModel, features);
         this.implementation = implementation;
         this.N = chocoModel.intVar(0, reserveModel.getGrid().getNbCells());
     }
 
-    public CoveredFeatures(IReserveModel reserveModel, Feature... features) {
+    public CoveredFeatures(ReserveModel reserveModel, Feature... features) {
         this(reserveModel, CoveredImplementations.AMOSTN, features);
         this.N = chocoModel.intVar(0, reserveModel.getGrid().getNbCells());
     }

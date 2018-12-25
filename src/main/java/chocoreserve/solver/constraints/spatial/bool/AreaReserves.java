@@ -21,35 +21,26 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.constraints.features;
+package chocoreserve.solver.constraints.spatial;
 
-import chocoreserve.solver.IReserveModel;
-import chocoreserve.solver.feature.BinaryFeature;
-import chocoreserve.solver.feature.Feature;
-
-import java.io.IOException;
+import chocoreserve.solver.ReserveModel;
+import org.chocosolver.solver.variables.IntVar;
 
 /**
- * Redundant features constraint.
+ * Area of reserves constraint.
  */
-public class RedundantFeatures extends FeaturesConstraint {
+public class AreaReserves extends SpatialConstraint {
 
-    private int k;
+    private IntVar minNCC, maxNCC;
 
-    public RedundantFeatures(IReserveModel reserveModel, int k, BinaryFeature... features) {
-        super(reserveModel, features);
-        this.k = k;
+    public AreaReserves(ReserveModel reserveModel, IntVar minNCC, IntVar maxNCC) {
+        super(reserveModel);
+        this.minNCC = minNCC;
+        this.maxNCC = maxNCC;
     }
 
     @Override
     public void post() {
-        for (Feature feature : features) {
-            try {
-                int[] coeffs = ((BinaryFeature) feature).getBinaryData();
-                chocoModel.scalar(reserveModel.getSites(), coeffs, ">=", k).post();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        chocoModel.sizeConnectedComponents(g, minNCC, maxNCC).post();
     }
 }

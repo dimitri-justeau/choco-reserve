@@ -21,26 +21,24 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.constraints.features;
+package chocoreserve.solver.constraints.spatial;
 
-import chocoreserve.solver.IReserveModel;
+import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.constraints.ReserveConstraint;
-import chocoreserve.solver.feature.Feature;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
+import org.chocosolver.solver.variables.IntVar;
 
 /**
- * Abstract base class for features representation constraints.
+ * Abstract base class for spatial constraints
  */
-public abstract class FeaturesConstraint extends ReserveConstraint {
+public abstract class SpatialConstraint extends ReserveConstraint {
 
-    protected Feature[] features;
+    protected UndirectedGraphVar g;
+    protected IntVar nbCC;
 
-    public FeaturesConstraint(IReserveModel reserveModel, Feature... features) {
+    public SpatialConstraint(ReserveModel reserveModel) {
         super(reserveModel);
-        this.features = features;
-        for (Feature feature : features) {
-            if (!reserveModel.getFeatures().containsKey(feature.getName())) {
-                reserveModel.addFeature(feature);
-            }
-        }
+        this.g = reserveModel.getSpatialGraphVar();
+        this.nbCC = reserveModel.getNbConnectedComponents();
     }
 }

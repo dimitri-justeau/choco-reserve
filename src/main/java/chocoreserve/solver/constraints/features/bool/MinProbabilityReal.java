@@ -23,7 +23,7 @@
 
 package chocoreserve.solver.constraints.features;
 
-import chocoreserve.solver.IReserveModel;
+import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.feature.Feature;
 import chocoreserve.solver.feature.ProbabilisticFeature;
 
@@ -37,7 +37,7 @@ public class MinProbabilityReal extends FeaturesConstraint {
 
     private double alpha;
 
-    public MinProbabilityReal(IReserveModel reserveModel, double alpha, ProbabilisticFeature... features) {
+    public MinProbabilityReal(ReserveModel reserveModel, double alpha, ProbabilisticFeature... features) {
         super(reserveModel, features);
         assert alpha >= 0 && alpha <= 1;
         this.alpha = alpha;

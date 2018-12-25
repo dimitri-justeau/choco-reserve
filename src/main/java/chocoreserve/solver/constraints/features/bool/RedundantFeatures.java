@@ -23,42 +23,30 @@
 
 package chocoreserve.solver.constraints.features;
 
-import chocoreserve.solver.IReserveModel;
+import chocoreserve.solver.ReserveModel;
+import chocoreserve.solver.feature.BinaryFeature;
 import chocoreserve.solver.feature.Feature;
-import chocoreserve.solver.feature.ProbabilisticFeature;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
- * Minimum probability of presence constraint.
+ * Redundant features constraint.
  */
-public class MinProbability extends FeaturesConstraint {
+public class RedundantFeatures extends FeaturesConstraint {
 
-    private double alpha;
-    private boolean postCovered;
+    private int k;
 
-    public MinProbability(IReserveModel reserveModel, boolean postCovered, double alpha,
-                          ProbabilisticFeature... features) {
+    public RedundantFeatures(ReserveModel reserveModel, int k, BinaryFeature... features) {
         super(reserveModel, features);
-        assert alpha > 0 && alpha < 1;
-        this.alpha = alpha;
-        this.postCovered = postCovered;
+        this.k = k;
     }
 
     @Override
     public void post() {
-        if (postCovered) {
-            new CoveredFeatures(reserveModel, features).post();
-        }
-        // Constraint
-        int scaled = (int) (-1000 * Math.log10(1 - 0.01 * Math.round(100 * alpha)));
         for (Feature feature : features) {
             try {
-                int[] coeffs = Arrays.stream(((ProbabilisticFeature) feature).getProbabilisticData())
-                        .mapToInt(v -> (v == 1) ? 3000 : (int) (-1000 * Math.log10(1 - 0.01 * Math.round(100 * v))))
-                        .toArray();
-                chocoModel.scalar(reserveModel.getSites(), coeffs, ">=", scaled).post();
+                int[] coeffs = ((BinaryFeature) feature).getBinaryData();
+                chocoModel.scalar(reserveModel.getSites(), coeffs, ">=", k).post();
             } catch (IOException e) {
                 e.printStackTrace();
             }
