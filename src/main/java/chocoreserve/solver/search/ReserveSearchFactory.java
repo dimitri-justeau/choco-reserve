@@ -23,6 +23,8 @@
 
 package chocoreserve.solver.search;
 
+import chocoreserve.grid.regular.square.RegularSquareGrid;
+import chocoreserve.solver.IReserveModel;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.feature.Feature;
 import org.chocosolver.solver.search.strategy.Search;
@@ -101,14 +103,15 @@ public class ReserveSearchFactory {
      * @param probabilityThreshold A threshold to use in case of probabilistic features.
      * @return The scores.
      */
-    private static double[] makeScores(ReserveModel reserveModel, double probabilityThreshold) {
+    public static double[] makeScores(IReserveModel reserveModel, double probabilityThreshold) {
         assert probabilityThreshold >=0 && probabilityThreshold <= 1;
+        RegularSquareGrid grid = (RegularSquareGrid) reserveModel.getGrid();
         int nbPlanningUnits = reserveModel.getGrid().getNbCells();
         // Compute scores
         double[] scores = new double[nbPlanningUnits];
         for (Feature f : reserveModel.getFeatures().values()) {
             try {
-                double[] data = f.getData();
+                double[] data = grid.getBordered(f.getData());
                 for (int i = 0; i < nbPlanningUnits; i++) {
                     double v = data[i] >= probabilityThreshold ? data[i] : 0;
                     scores[i] += v;
@@ -127,7 +130,7 @@ public class ReserveSearchFactory {
      * @param scores The scores.
      * @return The ranking.
      */
-    private static int[] makeRanking(ReserveModel reserveModel, double[] scores) {
+    public static int[] makeRanking(IReserveModel reserveModel, double[] scores) {
         int nbPlanningUnits = reserveModel.getGrid().getNbCells();
         List<Integer> planningUnits = IntStream.range(0, nbPlanningUnits)
                 .boxed()

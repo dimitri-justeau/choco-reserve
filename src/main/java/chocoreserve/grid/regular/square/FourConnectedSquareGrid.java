@@ -35,6 +35,10 @@ public class FourConnectedSquareGrid extends RegularSquareGrid {
         super(nbRows, nbCols);
     }
 
+    public FourConnectedSquareGrid(int nbRows, int nbCols, int border) {
+        super(nbRows, nbCols, border);
+    }
+
     @Override
     public int[] getNeighbors(int i) {
         List<Integer> neighbors = new ArrayList<Integer>();

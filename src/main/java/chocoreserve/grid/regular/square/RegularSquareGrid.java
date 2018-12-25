@@ -24,6 +24,7 @@
 package chocoreserve.grid.regular.square;
 
 import chocoreserve.grid.Grid;
+import org.chocosolver.util.tools.ArrayUtils;
 
 import java.util.Arrays;
 
@@ -33,15 +34,29 @@ import java.util.Arrays;
 public abstract class RegularSquareGrid extends Grid {
 
     protected int nbRows, nbCols;
+    protected int border;
+
+    public RegularSquareGrid(int nbRows, int nbCols, int border) {
+        assert nbCols > 0;
+        assert nbRows > 0;
+        assert border >= 0;
+        this.nbRows = nbRows + 2 * border;
+        this.nbCols = nbCols + 2 * border;
+        this.border = border;
+    }
 
     public RegularSquareGrid(int nbRows, int nbCols) {
-        this.nbRows = nbRows;
-        this.nbCols = nbCols;
+        this(nbRows, nbCols, 0);
     }
 
     @Override
     public int getNbCells() {
-        return nbRows * nbCols;
+        return getNbCells(false);
+    }
+
+    public int getNbCells(boolean ignoreBorder) {
+        int offset = ignoreBorder ? 2 * border : 0;
+        return (nbRows - offset) * (nbCols - offset);
     }
 
     /**
@@ -50,7 +65,16 @@ public abstract class RegularSquareGrid extends Grid {
      * @return The flattened index of a cell from its grid coordinates.
      */
     public int getIndexFromCoordinates(int row, int col) {
-        return getNbCols() * row + col;
+        return getIndexFromCoordinates(row, col, false);
+    }
+
+    public int getIndexFromCoordinates(int row, int col, boolean ignoreBorder) {
+        int offset = ignoreBorder ? border : 0;
+        assert row >= 0;
+        assert row < nbRows - offset;
+        assert col >= 0;
+        assert col < nbCols - offset;
+        return getNbCols(false) * (row + offset) + (col + offset);
     }
 
     /**
@@ -58,8 +82,12 @@ public abstract class RegularSquareGrid extends Grid {
      * @return The grid coordinates [row, col] from its flattened index.
      */
     public int[] getCoordinatesFromIndex(int index) {
-        int row = Math.floorDiv(index, getNbCols());
-        int col = index % getNbCols();
+        return getCoordinatesFromIndex(index, false);
+    }
+
+    public int[] getCoordinatesFromIndex(int index, boolean ignoreBorder) {
+        int row = Math.floorDiv(index, getNbCols(ignoreBorder));
+        int col = index % getNbCols(ignoreBorder);
         return new int[] {row, col};
     }
 
@@ -76,20 +104,83 @@ public abstract class RegularSquareGrid extends Grid {
      * @return The number of rows.
      */
     public int getNbRows() {
-        return nbRows;
+        return getNbRows(false);
+    }
+
+    public int getNbRows(boolean ignoreBorder) {
+        int offset = ignoreBorder ? 2 * border : 0;
+        return nbRows - offset;
     }
 
     /**
      * @return The number of columns.
      */
     public int getNbCols() {
-        return nbCols;
+        return getNbCols(false);
+    }
+
+    public int getNbCols(boolean ignoreBorder) {
+        int offset = ignoreBorder ? 2 * border : 0;
+        return nbCols - offset;
+    }
+
+    public int getBorder() {
+        return border;
+    }
+
+    public boolean isInBorder(int index) {
+        int[] coord = getCoordinatesFromIndex(index, false);
+        int i = coord[0];
+        int j = coord[1];
+        return  (i < border || i > getNbRows(true) + border || j < border || j >= getNbCols(true) + border);
+    }
+
+    public int[] getBordered(int[] array) {
+        if (border == 0) {
+            assert array.length == getNbCells(false);
+            return array;
+        }
+        assert array.length == getNbCells(true);
+        int[] bordered = new int[getNbCells(false)];
+        for (int i = 0; i < getNbRows(false); i++) {
+            for (int j = 0; j < getNbCols(false); j++) {
+                // If in border of last line val = 0
+                if (i < border || i >= getNbRows(true) + border || j < border || j >= getNbCols(true) + border) {
+                    bordered[getIndexFromCoordinates(i, j, false)] = 0;
+                    continue;
+                } else {
+                    bordered[getIndexFromCoordinates(i, j, false)] = array[getIndexFromCoordinates(i, j, true)];
+                }
+            }
+        }
+        return bordered;
+    }
+
+    public double[] getBordered(double[] array) {
+        if (border == 0) {
+            assert array.length == getNbCells(false);
+            return array;
+        }
+        assert array.length == getNbCells(true);
+        double[] bordered = new double[getNbCells(false)];
+        for (int i = 0; i < getNbRows(false); i++) {
+            for (int j = 0; j < getNbCols(false); j++) {
+                // If in border of last line val = 0
+                if (i < border || i >= getNbRows(true) + border || j < border || j >= getNbCols(true) + border) {
+                    bordered[getIndexFromCoordinates(i, j, false)] = 0;
+                    continue;
+                } else {
+                    bordered[getIndexFromCoordinates(i, j, false)] = array[getIndexFromCoordinates(i, j, true)];
+                }
+            }
+        }
+        return bordered;
     }
 
     /**
      * @return The cartesian coordinates of the pixels of the grid.
      */
-    public double[][][] getCoordinates() {
+    public double[][][] getCartesianCoordinates() {
         double[][][] coords = new double[getNbRows()][getNbCols()][];
         for (int y = 0; y < getNbRows(); y++) {
             for (int x = 0; x < getNbCols(); x++) {

@@ -36,7 +36,7 @@ public class TestReserveModel {
     @Test
     public void testReserveModelBasic() {
         RegularSquareGrid grid = new FourConnectedSquareGrid(5, 5);
-        IReserveModel reserveModel = new ReserveModel(grid);
+        ReserveModel reserveModel = new ReserveModel(grid);
         Assert.assertEquals(grid.getNbCells(), reserveModel.getSites().length);
         Assert.assertEquals(grid.getNbCells(), reserveModel.getSpatialGraphVar().getPotentialNodes().size());
     }

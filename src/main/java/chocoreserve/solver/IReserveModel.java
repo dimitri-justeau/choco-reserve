@@ -73,44 +73,4 @@ public interface IReserveModel {
         return getChocoModel().getSolver();
     }
 
-    /**
-     * @return The graph variable representing the spatial graph.
-     */
-    UndirectedGraphVar getSpatialGraphVar();
-
-    /**
-     * @return The decision variables of the model, which are the sites.
-     *         Each site is associated to a cell of the grid.
-     */
-    BoolVar[] getSites();
-
-    BoolVar[][] getSitesMatrix();
-
-    BoolVar[][] getBufferSites();
-
-    /**
-     * @return The IntVar corresponding to the number of connected components of the spatial graph.
-     */
-    IntVar getNbConnectedComponents();
-
-    /**
-     * @return The IntVar corresponding to the number of selected sites.
-     */
-    IntVar getNbSites();
-
-    // -------------------------- //
-    // Solution retrieval methods //
-    // -------------------------- //
-
-    /**
-     * @return The indices of the selected sites as an int array.
-     * @throws ModelNotInstantiatedError If the solver is not at a solution state.
-     */
-    int[] getSelectedSites() throws ModelNotInstantiatedError;
-
-    /**
-     * @return The indices of the selected sites as an integer set.
-     * @throws ModelNotInstantiatedError If the solver is not at a solution state.
-     */
-    ISet getSelectedSitesAsSet() throws ModelNotInstantiatedError;
 }

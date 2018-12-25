@@ -32,6 +32,7 @@ import chocoreserve.solver.feature.IFeatureFactory;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
@@ -93,6 +94,8 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
         this.model.post(new Constraint("inducedNeighborhood", new PropInducedNeighborhood(this.g)));
         this.model.nbConnectedComponents(this.g, this.nbCC).post();
         this.model.sum(getSites(), "=", this.nbSites).post();
+        // Set default search
+        this.model.getSolver().setSearch(Search.domOverWDegSearch(getSites()));
     }
 
     @Override
@@ -120,12 +123,12 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
         return model;
     }
 
-    @Override
+//    @Override
     public UndirectedGraphVar getSpatialGraphVar() {
         return g;
     }
 
-    @Override
+//    @Override
     public BoolVar[] getSites() {
         return ArrayUtils.flatten(sites);
     }
@@ -134,7 +137,7 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
         return sites;
     }
 
-    @Override
+//    @Override
     public BoolVar[][] getBufferSites() {
         if (bufferSites == null) {
             this.bufferSites = model.boolVarMatrix("bufferSites", grid.getNbRows(), grid.getNbCols());
@@ -142,12 +145,12 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
         return bufferSites;
     }
 
-    @Override
+//    @Override
     public IntVar getNbConnectedComponents() {
         return nbCC;
     }
 
-    @Override
+//    @Override
     public IntVar getNbSites() {
         return nbSites;
     }
@@ -156,12 +159,12 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
     // Solution retrieval methods //
     // -------------------------- //
 
-    @Override
+//    @Override
     public int[] getSelectedSites() throws ModelNotInstantiatedError {
         return getSelectedSitesAsSet().toArray();
     }
 
-    @Override
+//    @Override
     public ISet getSelectedSitesAsSet() throws ModelNotInstantiatedError {
         UndirectedGraphVar g = getSpatialGraphVar();
         if (!g.isInstantiated()) {
@@ -228,7 +231,7 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
     // For constraint factory
 
     @Override
-    public IReserveModel self() {
+    public ReserveModel self() {
         return this;
     }
 }

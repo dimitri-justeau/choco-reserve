@@ -21,26 +21,44 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.constraints.spatial.bool;
+package chocoreserve.solver.constraints.spatial.set;
 
-import chocoreserve.solver.ReserveModel;
+import chocoreserve.solver.SetReserveModel;
 import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
 
 /**
- * Area of reserves constraint.
+ * Number of reserves constraint.
  */
-public class AreaReserves extends SpatialConstraint {
+public class NbConnectedComponents extends SetSpatialConstraint {
 
-    private IntVar minNCC, maxNCC;
+    private SetVar set;
+    private int nbMin, nbMax;
 
-    public AreaReserves(ReserveModel reserveModel, IntVar minNCC, IntVar maxNCC) {
+    public NbConnectedComponents(SetReserveModel reserveModel, SetVar set, int nbMin, int nbMax) {
         super(reserveModel);
-        this.minNCC = minNCC;
-        this.maxNCC = maxNCC;
+        this.set = set;
+        this.nbMin = nbMin;
+        this.nbMax = nbMax;
     }
 
     @Override
     public void post() {
-        chocoModel.sizeConnectedComponents(g, minNCC, maxNCC).post();
+        IntVar nbCC;
+        if (set == reserveModel.getCore()) {
+            nbCC = nbCcCore;
+        } else {
+            if (set == reserveModel.getBuffer()) {
+                nbCC = nbCcBuffer;
+            } else {
+                nbCC = nbCcOut;
+            }
+        }
+        if (nbMin == nbMax) {
+            chocoModel.arithm(nbCC, "=", nbMin).post();
+        } else {
+            chocoModel.arithm(nbCC, ">=", nbMin).post();
+            chocoModel.arithm(nbCC, "<=", nbMax).post();
+        }
     }
 }

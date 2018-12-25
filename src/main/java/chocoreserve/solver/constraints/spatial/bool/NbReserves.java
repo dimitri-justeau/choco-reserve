@@ -21,7 +21,7 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.constraints.spatial;
+package chocoreserve.solver.constraints.spatial.bool;
 
 import chocoreserve.solver.ReserveModel;
 

@@ -21,7 +21,7 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.constraints.features;
+package chocoreserve.solver.constraints.features.bool;
 
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.feature.Feature;

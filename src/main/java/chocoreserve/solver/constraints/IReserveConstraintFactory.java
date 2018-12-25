@@ -23,18 +23,20 @@
 
 package chocoreserve.solver.constraints;
 
-import chocoreserve.solver.IReserveModel;
 import chocoreserve.solver.ReserveModel;
-import chocoreserve.solver.constraints.features.CoveredFeatures;
-import chocoreserve.solver.constraints.features.MinProbability;
-import chocoreserve.solver.constraints.features.RedundantFeatures;
-import chocoreserve.solver.constraints.spatial.*;
+import chocoreserve.solver.constraints.features.bool.CoveredFeatures;
+import chocoreserve.solver.constraints.features.bool.MinProbability;
+import chocoreserve.solver.constraints.features.bool.RedundantFeatures;
+import chocoreserve.solver.constraints.spatial.bool.AreaReserveSystem;
+import chocoreserve.solver.constraints.spatial.bool.AreaReserves;
+import chocoreserve.solver.constraints.spatial.bool.NbReserves;
+import chocoreserve.solver.constraints.spatial.bool.Radius;
 import chocoreserve.solver.feature.BinaryFeature;
 import chocoreserve.solver.feature.ProbabilisticFeature;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.util.tools.ArrayUtils;
 
-import java.util.Arrays;
 import java.util.stream.IntStream;
 
 /**
@@ -42,7 +44,7 @@ import java.util.stream.IntStream;
  */
 public interface IReserveConstraintFactory {
 
-    IReserveModel self();
+    ReserveModel self();
 
     // ---- //
     // Misc //
@@ -52,6 +54,18 @@ public interface IReserveConstraintFactory {
         return () -> {
             BoolVar[] force = IntStream.of(sites).mapToObj(i -> self().getSites()[i]).toArray(BoolVar[]::new);
             self().getChocoModel().and(force).post();
+        };
+    }
+
+    default IReserveConstraint mandatorySitesCoreOrBuffer(int... sites) {
+        return () -> {
+            BoolVar[] buffer = ArrayUtils.flatten(self().getBufferSites());
+            BoolVar[] or = new BoolVar[sites.length];
+            for (int i = 0; i < sites.length; i ++) {
+                or[i] = self().getChocoModel().boolVar();
+                self().getChocoModel().or(self().getSites()[sites[i]], buffer[sites[i]]).post();
+            }
+            self().getChocoModel().and(or).post();
         };
     }
 
@@ -147,10 +161,6 @@ public interface IReserveConstraintFactory {
      * @return A maxDiameter constraint.
      */
     default IReserveConstraint maxDiameter(double maxDiameter) {
-        return new Radius((ReserveModel) self(), self().getChocoModel().realVar("radius", 0, 0.5 * maxDiameter, 1e-5));
-    }
-
-    default IReserveConstraint bufferZone() {
-        return new BufferZone((ReserveModel) self());
+        return new Radius(self(), self().getChocoModel().realVar("radius", 0, 0.5 * maxDiameter, 1e-5));
     }
 }

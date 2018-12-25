@@ -21,11 +21,12 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.constraints.features.bool;
+package chocoreserve.solver.constraints.features.set;
 
-import chocoreserve.solver.ReserveModel;
-import chocoreserve.solver.feature.Feature;
+import chocoreserve.solver.SetReserveModel;
 import chocoreserve.solver.feature.ProbabilisticFeature;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -33,32 +34,32 @@ import java.util.Arrays;
 /**
  * Minimum probability of presence constraint.
  */
-public class MinProbability extends FeaturesConstraint {
+public class SetMinProbability extends SetFeaturesConstraint {
 
     private double alpha;
-    private boolean postCovered;
+    private SetVar set;
+    private IntVar[] N;
 
-    public MinProbability(ReserveModel reserveModel, boolean postCovered, double alpha,
-                          ProbabilisticFeature... features) {
+    public SetMinProbability(SetReserveModel reserveModel, SetVar set, double alpha,
+                             ProbabilisticFeature... features) {
         super(reserveModel, features);
         assert alpha > 0 && alpha < 1;
+        this.set = set;
         this.alpha = alpha;
-        this.postCovered = postCovered;
+        this.N = reserveModel.getChocoModel().intVarArray(features.length, 0, reserveModel.getGrid().getNbCells() * 3000);
     }
 
     @Override
     public void post() {
-        if (postCovered) {
-            new CoveredFeatures(reserveModel, features).post();
-        }
-        // Constraint
         int scaled = (int) (-1000 * Math.log10(1 - 0.01 * Math.round(100 * alpha)));
-        for (Feature feature : features) {
+        for (int i = 0; i < features.length; i++) {
             try {
-                int[] coeffs = Arrays.stream(((ProbabilisticFeature) feature).getProbabilisticData())
+                int[] data = Arrays.stream(((ProbabilisticFeature) features[i]).getProbabilisticData())
                         .mapToInt(v -> (v == 1) ? 3000 : (int) (-1000 * Math.log10(1 - 0.01 * Math.round(100 * v))))
                         .toArray();
-                chocoModel.scalar(reserveModel.getSites(), coeffs, ">=", scaled).post();
+                int[] coeffs = reserveModel.getGrid().getBordered(data);
+                chocoModel.sumElements(set, coeffs, N[i]).post();
+                chocoModel.arithm(N[i], ">=", scaled).post();
             } catch (IOException e) {
                 e.printStackTrace();
             }
