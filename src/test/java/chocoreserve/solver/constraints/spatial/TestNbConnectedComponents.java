@@ -38,7 +38,7 @@ import java.util.List;
 /**
  * Test for NbReserves constraint.
  */
-public class TestNbComponents {
+public class TestNbConnectedComponents {
 
     /**
      * Test case 1: 3x3 4-connected square grid, 5 CC -> 1 solution (0, 2, 4, 6, 8).
@@ -51,10 +51,11 @@ public class TestNbComponents {
      *     -----------
      */
     @Test
-    public void testNbComponentsSuccessCase1() {
+    public void testNbConnectedComponentsSuccessCase1() {
         RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.nbReserves(5, 5).post();
+        reserveModel.nbConnectedComponents(reserveModel.getCore(), 5, 5).post();
+        reserveModel.getChocoModel().arithm(reserveModel.getNbSitesBuffer(), "=", 0).post();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();
         Assert.assertEquals(1, solutions.size());
@@ -63,7 +64,7 @@ public class TestNbComponents {
         } catch (ContradictionException e) {
             e.printStackTrace();
         }
-        int[] nodes = reserveModel.getSpatialGraphVar().getMandatoryNodes().toArray();
+        int[] nodes = reserveModel.getGraphCore().getMandatoryNodes().toArray();
         Arrays.sort(nodes);
         Assert.assertTrue(Arrays.equals(nodes, new int[] {0, 2, 4, 6, 8}));
     }
@@ -77,10 +78,11 @@ public class TestNbComponents {
      *     -------
      */
     @Test
-    public void testNbComponentsSuccessCase2() {
+    public void testNbConnectedComponentsSuccessCase2() {
         RegularSquareGrid grid = new FourConnectedSquareGrid(2, 2);
         ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.nbReserves(2, 2).post();
+        reserveModel.nbConnectedComponents(reserveModel.getCore(), 2, 2).post();
+        reserveModel.getChocoModel().arithm(reserveModel.getNbSitesBuffer(), "=", 0).post();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();
         Assert.assertEquals(2, solutions.size());
@@ -93,10 +95,11 @@ public class TestNbComponents {
      *     -------
      */
     @Test
-    public void testNbComponentsSuccessCase3() {
+    public void testNbConnectedComponentsSuccessCase3() {
         RegularSquareGrid grid = new FourConnectedSquareGrid(1, 2);
         ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.nbReserves(0, 1).post();
+        reserveModel.nbConnectedComponents(reserveModel.getCore(), 0, 1).post();
+        reserveModel.getChocoModel().arithm(reserveModel.getNbSitesBuffer(), "=", 0).post();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();
         Assert.assertEquals(4, solutions.size());
@@ -114,10 +117,11 @@ public class TestNbComponents {
      *     -----------
      */
     @Test
-    public void testNbComponentsFailCase1() {
+    public void testNbConnectedComponentsFailCase1() {
         RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.nbReserves(6, 6).post();
+        reserveModel.nbConnectedComponents(reserveModel.getCore(), 6, 6).post();
+        reserveModel.getChocoModel().arithm(reserveModel.getNbSitesBuffer(), "=", 0).post();
         Solver solver = reserveModel.getChocoSolver();
         boolean solution = solver.solve();
         Assert.assertFalse(solution);

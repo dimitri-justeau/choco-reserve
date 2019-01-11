@@ -21,26 +21,41 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.constraints.features.bool;
+package chocoreserve.solver.constraints.spatial;
 
 import chocoreserve.solver.ReserveModel;
-import chocoreserve.solver.constraints.ReserveConstraint;
-import chocoreserve.solver.feature.Feature;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
 
 /**
- * Abstract base class for features representation constraints.
+ * Size of a region's connected components.
  */
-public abstract class FeaturesConstraint extends ReserveConstraint {
+public class SizeRegion extends SpatialConstraint {
 
-    protected Feature[] features;
+    private SetVar set;
+    private int minSize, maxSize;
 
-    public FeaturesConstraint(ReserveModel reserveModel, Feature... features) {
+    public SizeRegion(ReserveModel reserveModel, SetVar set, int minSize, int maxSize) {
         super(reserveModel);
-        this.features = features;
-        for (Feature feature : features) {
-            if (!reserveModel.getFeatures().containsKey(feature.getName())) {
-                reserveModel.addFeature(feature);
+        this.set = set;
+        this.minSize = minSize;
+        this.maxSize = maxSize;
+    }
+
+    @Override
+    public void post() {
+        IntVar nbNodes;
+        if (set == reserveModel.getCore()) {
+            nbNodes = reserveModel.getNbSitesCore();
+        } else {
+            if (set == reserveModel.getBuffer()) {
+                nbNodes = reserveModel.getNbSitesBuffer();
+            } else {
+                nbNodes = reserveModel.getNbSitesOut();
             }
         }
+        chocoModel.arithm(nbNodes, ">=", minSize).post();
+        chocoModel.arithm(nbNodes, "<=", maxSize).post();
     }
 }

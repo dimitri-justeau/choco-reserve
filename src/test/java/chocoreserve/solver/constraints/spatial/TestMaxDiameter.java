@@ -46,7 +46,8 @@ public class TestMaxDiameter {
     public void testSuccess1() {
         RegularSquareGrid grid = new FourConnectedSquareGrid(3, 2);
         ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.maxDiameter(3).post();
+        reserveModel.maxDiameter(reserveModel.getCore(), 3).post();
+        reserveModel.getChocoModel().arithm(reserveModel.getNbSitesBuffer(), "=", 0).post();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();
         Assert.assertEquals((int)(Math.pow(2, 6) - 1), solutions.size());
@@ -59,8 +60,9 @@ public class TestMaxDiameter {
     public void testSuccess2() {
         RegularSquareGrid grid = new FourConnectedSquareGrid(3, 2);
         ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.mandatorySites(0).post();
-        reserveModel.maxDiameter(0.5).post();
+        reserveModel.mandatorySites(reserveModel.getCore(), 0).post();
+        reserveModel.getChocoModel().arithm(reserveModel.getNbSitesBuffer(), "=", 0).post();
+        reserveModel.maxDiameter(reserveModel.getCore(), 0.5).post();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();
         Assert.assertEquals(1, solutions.size());
@@ -73,8 +75,9 @@ public class TestMaxDiameter {
     public void testFail1() throws ContradictionException {
         RegularSquareGrid grid = new FourConnectedSquareGrid(3, 2);
         ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.maxDiameter(1).post();
-        reserveModel.mandatorySites(0, 5).post();
+        reserveModel.maxDiameter(reserveModel.getCore(), 1).post();
+        reserveModel.getChocoModel().arithm(reserveModel.getNbSitesBuffer(), "=", 0).post();
+        reserveModel.mandatorySites(reserveModel.getCore(), 0, 5).post();
         Solver solver = reserveModel.getChocoSolver();
         if (solver.solve()) {
             reserveModel.printSolution(false);

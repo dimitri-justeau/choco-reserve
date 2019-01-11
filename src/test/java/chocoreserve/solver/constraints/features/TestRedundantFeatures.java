@@ -23,7 +23,6 @@
 
 package chocoreserve.solver.constraints.features;
 
-import chocoreserve.exception.ModelNotInstantiatedError;
 import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.ReserveModel;
@@ -60,17 +59,12 @@ public class TestRedundantFeatures {
                 "binary",
                 new int[] {1, 1, 1, 0, 0, 0, 0, 0, 0}
         );
-        reserveModel.redundantFeatures(3, feature).post();
+        reserveModel.redundantFeatures(reserveModel.getCore(), 3, feature).post();
         Solver solver = reserveModel.getChocoSolver();
         if (solver.solve()) {
             do {
-                try {
-                    ISet nodes = reserveModel.getSelectedSitesAsSet();
-                    Assert.assertTrue(nodes.contains(0) && nodes.contains(1) && nodes.contains(2));
-                } catch (ModelNotInstantiatedError e) {
-                    e.printStackTrace();
-                    Assert.fail();
-                }
+                ISet nodes = reserveModel.getCore().getLB();
+                Assert.assertTrue(nodes.contains(0) && nodes.contains(1) && nodes.contains(2));
             } while (solver.solve());
         }
     }
@@ -102,18 +96,13 @@ public class TestRedundantFeatures {
                 "B",
                 new int[] {1, 0, 1, 0, 1, 0, 1, 0, 0}
         );
-        reserveModel.redundantFeatures(2, featureA, featureB).post();
+        reserveModel.redundantFeatures(reserveModel.getCore(), 2, featureA, featureB).post();
         Solver solver = reserveModel.getChocoSolver();
         if (solver.solve()) {
             do {
-                try {
-                    ISet nodes = reserveModel.getSelectedSitesAsSet();
-                    Assert.assertTrue(nodes.contains(0) && nodes.contains(1) &&
-                            (nodes.contains(2) || nodes.contains(4) || nodes.contains(6)));
-                } catch (ModelNotInstantiatedError e) {
-                    e.printStackTrace();
-                    Assert.fail();
-                }
+                ISet nodes = reserveModel.getCore().getLB();
+                Assert.assertTrue(nodes.contains(0) && nodes.contains(1) &&
+                        (nodes.contains(2) || nodes.contains(4) || nodes.contains(6)));
             } while (solver.solve());
         }
     }
@@ -132,7 +121,7 @@ public class TestRedundantFeatures {
                 "binary",
                 new int[] {1, 1, 0, 0, 0, 0, 0, 0, 0}
         );
-        reserveModel.redundantFeatures(3, feature).post();
+        reserveModel.redundantFeatures(reserveModel.getCore(), 3, feature).post();
         Solver solver = reserveModel.getChocoSolver();
         Assert.assertFalse(solver.solve());
     }

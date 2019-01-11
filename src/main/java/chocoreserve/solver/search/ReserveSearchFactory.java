@@ -148,7 +148,7 @@ public class ReserveSearchFactory {
      * @param scores The scores.
      * @return The ranking.
      */
-    private static int[] makeRankingDeterministic(ReserveModel reserveModel, double[] scores) {
+    public static int[] makeRankingDeterministic(IReserveModel reserveModel, double[] scores) {
         int nbPlanningUnits = reserveModel.getGrid().getNbCells();
         List<Integer> planningUnits = IntStream.range(0, nbPlanningUnits)
                 .boxed()

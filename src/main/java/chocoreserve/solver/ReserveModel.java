@@ -33,18 +33,13 @@ import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.search.strategy.Search;
-import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
-import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.chocosolver.util.objects.setDataStructures.SetType;
-import org.chocosolver.util.tools.ArrayUtils;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.IntStream;
 
 /**
  * Base model for the Nature Reserve Problem. Defines the variables and constraints that are common to every
@@ -62,54 +57,93 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
     /** The choco model */
     private GraphModel model;
 
-    /** The spatial graph variable associated to the model */
-    private UndirectedGraphVar g;
+    /** Decision variables */
+    private IntVar[] sites;
 
-    /** The decision variables, one for each site (each site correspond to a cell of the grid */
-    private BoolVar[][] sites;
+    /** The spatial graph variables associated to the model */
+    private UndirectedGraphVar graphCore, graphBuffer, graphOut;
 
-    private BoolVar[][] bufferSites;
+    private SetVar core, buffer, out;
 
-    /** Number of connected components of g */
-    private IntVar nbCC;
+    /** Number of connected components of graphs */
+    private IntVar nbCcCore, nbCcBuffer, nbCcOut;
 
-    /** Number of sitess */
-    private IntVar nbSites;
+    /** Number of sites */
+    private IntVar nbSitesCore, nbSitesBuffer, nbSitesOut;
 
     public ReserveModel(RegularSquareGrid grid) {
         this.grid = grid;
+        int nbCells = this.grid.getNbCells(false);
         this.features = new HashMap<>();
         // Init Choco model
         this.model = new GraphModel("Nature Reserve Problem");
-        this.sites = model.boolVarMatrix("sites", grid.getNbRows(), grid.getNbCols());
-        this.g = model.graphVar(
-                "spatialGraph",
-                new UndirectedGraph(model, grid.getNbCells(), SetType.BIPARTITESET, false),
+
+        // Init decision variables
+        this.sites = this.model.intVarArray(
+                "sites",
+                this.grid.getNbCells(),
+                new int[] {0, 1, 2}
+        );
+
+        // Init graph variables
+        this.graphCore = model.graphVar(
+                "graphCore",
+                new UndirectedGraph(model, nbCells, SetType.BIPARTITESET, false),
                 grid.getFullGraph(model, SetType.BIPARTITESET)
         );
-        this.nbCC = this.model.intVar("nbCC", 0, this.grid.getNbCells());
-        this.nbSites = this.model.intVar("nbSites", 0, this.grid.getNbCells());
-        // Post necessary constraints
-        this.model.nodesChanneling(this.g, getSites()).post();
-        this.model.post(new Constraint("inducedNeighborhood", new PropInducedNeighborhood(this.g)));
-        this.model.nbConnectedComponents(this.g, this.nbCC).post();
-        this.model.sum(getSites(), "=", this.nbSites).post();
+        this.graphBuffer = model.graphVar(
+                "graphBuffer",
+                new UndirectedGraph(model, nbCells, SetType.BIPARTITESET, false),
+                grid.getFullGraph(model, SetType.BIPARTITESET)
+        );
+        this.graphOut = model.graphVar(
+                "graphOut",
+                new UndirectedGraph(model, nbCells, SetType.BIPARTITESET, false),
+                grid.getFullGraph(model, SetType.BIPARTITESET)
+        );
+
+        // Set vars
+        this.core = model.setVar("core", new int[] {}, IntStream.range(0, nbCells).filter(i -> !grid.isInBorder(i)).toArray());
+        this.buffer = model.setVar("buffer", new int[] {}, IntStream.range(0, nbCells).toArray());
+        this.out = model.setVar("out", new int[] {}, IntStream.range(0, nbCells).toArray());
+        // Nb CC
+        this.nbCcCore = this.model.intVar("nbCcCore", 0, nbCells);
+        this.nbCcBuffer = this.model.intVar("nbCcBuffer", 0, nbCells);
+        this.nbCcOut = this.model.intVar("nbCcOut", 0, nbCells);
+        // Nb sites
+        this.nbSitesCore = this.model.intVar("nbSitesCore", 0, nbCells);
+        this.nbSitesBuffer = this.model.intVar("nbSitesBuffer", 0, nbCells);
+        this.nbSitesOut = this.model.intVar("nbSitesOut", 0, nbCells);
+        // Sets <-> Decision variables channeling
+        this.model.setsIntsChanneling(new SetVar[] {this.out, this.buffer, this.core}, this.sites).post();
+        // Sets <-> Graphs nodes channeling
+        this.model.nodesChanneling(this.graphCore, this.core).post();
+        this.model.nodesChanneling(this.graphBuffer, this.buffer).post();
+        this.model.nodesChanneling(this.graphOut, this.out).post();
+        // Induced neighborhood constraint on graphs
+        this.model.post(new Constraint("inducedNeighborhoodCore", new PropInducedNeighborhood(this.graphCore)));
+        this.model.post(new Constraint("inducedNeighborhoodBuffer", new PropInducedNeighborhood(this.graphBuffer)));
+        this.model.post(new Constraint("inducedNeighborhoodOut", new PropInducedNeighborhood(this.graphOut)));
+        // CC constraints
+        this.model.nbConnectedComponents(this.graphCore, this.nbCcCore).post();
+        this.model.nbConnectedComponents(this.graphBuffer, this.nbCcBuffer).post();
+        this.model.nbConnectedComponents(this.graphOut, this.nbCcOut).post();
+        // Nb sites constraint
+        this.model.nbNodes(this.graphCore, this.nbSitesCore).post();
+        this.model.nbNodes(this.graphBuffer, this.nbSitesBuffer).post();
+        this.model.nbNodes(this.graphOut, this.nbSitesOut).post();
         // Set default search
-        this.model.getSolver().setSearch(Search.domOverWDegSearch(getSites()));
+        this.model.getSolver().setSearch(Search.domOverWDegSearch(sites));
     }
 
-    @Override
     public RegularSquareGrid getGrid() {
         return grid;
     }
 
-
-    @Override
     public void addFeature(Feature feature) {
         this.features.put(feature.getName(), feature);
     }
 
-    @Override
     public Map<String, Feature> getFeatures() {
         return features;
     }
@@ -118,105 +152,130 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
     // Choco related methods //
     // --------------------- //
 
-    @Override
     public GraphModel getChocoModel() {
         return model;
     }
 
-//    @Override
-    public UndirectedGraphVar getSpatialGraphVar() {
-        return g;
-    }
-
-//    @Override
-    public BoolVar[] getSites() {
-        return ArrayUtils.flatten(sites);
-    }
-
-    public BoolVar[][] getSitesMatrix() {
+    public IntVar[] getSites() {
         return sites;
     }
 
-//    @Override
-    public BoolVar[][] getBufferSites() {
-        if (bufferSites == null) {
-            this.bufferSites = model.boolVarMatrix("bufferSites", grid.getNbRows(), grid.getNbCols());
-        }
-        return bufferSites;
+    public SetVar getCore() {
+        return core;
     }
 
-//    @Override
-    public IntVar getNbConnectedComponents() {
-        return nbCC;
+    public SetVar getBuffer() {
+        return buffer;
     }
 
-//    @Override
-    public IntVar getNbSites() {
-        return nbSites;
+    public SetVar getOut() {
+        return out;
+    }
+
+    public UndirectedGraphVar getGraphCore() {
+        return graphCore;
+    }
+
+    public UndirectedGraphVar getGraphBuffer() {
+        return graphBuffer;
+    }
+
+    public UndirectedGraphVar getGraphOut() {
+        return graphOut;
+    }
+
+    public IntVar getNbCcCore() {
+        return nbCcCore;
+    }
+
+    public IntVar getNbCcBuffer() {
+        return nbCcBuffer;
+    }
+
+    public IntVar getNbCcOut() {
+        return nbCcOut;
+    }
+
+    public IntVar getNbSitesCore() {
+        return nbSitesCore;
+    }
+
+    public IntVar getNbSitesBuffer() {
+        return nbSitesBuffer;
+    }
+
+    public IntVar getNbSitesOut() {
+        return nbSitesOut;
     }
 
     // -------------------------- //
     // Solution retrieval methods //
     // -------------------------- //
 
-//    @Override
-    public int[] getSelectedSites() throws ModelNotInstantiatedError {
-        return getSelectedSitesAsSet().toArray();
-    }
-
-//    @Override
-    public ISet getSelectedSitesAsSet() throws ModelNotInstantiatedError {
-        UndirectedGraphVar g = getSpatialGraphVar();
-        if (!g.isInstantiated()) {
+    public int[] getSelectedCoreSites() throws ModelNotInstantiatedError {
+        if (!core.isInstantiated()) {
             throw new ModelNotInstantiatedError();
         }
-        return g.getMandatoryNodes();
+        return core.getLB().toArray();
     }
 
-    public void printSolution(boolean showPlanningUnits) {
+    public int[] getSelectedBufferSites() throws ModelNotInstantiatedError {
+        if (!buffer.isInstantiated()) {
+            throw new ModelNotInstantiatedError();
+        }
+        return buffer.getLB().toArray();
+    }
+
+    public int[] getSelectedOutSites() throws ModelNotInstantiatedError {
+        if (!out.isInstantiated()) {
+            throw new ModelNotInstantiatedError();
+        }
+        return out.getLB().toArray();
+    }
+
+    public void printSolution() {
+        printSolution(true);
+    }
+
+    public void printSolution(boolean ignoreBorder) {
         if (!(grid instanceof RegularSquareGrid)) {
             return;
         }
-        RegularSquareGrid rGrid = (RegularSquareGrid) grid;
         System.out.println("\nSolution:");
-        System.out.println("   " + new String(new char[rGrid.getNbCols()]).replace("\0", "_"));
-        ArrayList<Integer> selectedParcels = new ArrayList<>();
-        for (int i = 0; i < rGrid.getNbRows(); i++) {
+        System.out.println("   " + new String(new char[grid.getNbCols(ignoreBorder) + 2]).replace("\0", "_"));
+        for (int i = 0; i < grid.getNbRows(ignoreBorder); i++) {
+            if (!ignoreBorder && (i == grid.getBorder() || i == grid.getNbRows() - grid.getBorder())) {
+                System.out.println("  |"
+                        + new String(new char[grid.getBorder()]).replace("\0", " ")
+                        + new String(new char[grid.getNbRows() - grid.getBorder()]).replace("\0", "-"));
+            }
             System.out.printf("  |");
-            for (int j = 0; j < rGrid.getNbCols(); j++) {
-                if (getSitesMatrix()[i][j].getValue() == 1) {
-                    System.out.printf("#");
-                    selectedParcels.add(j + rGrid.getNbCols() * i);
-                } else {
-                    if (this.bufferSites != null && this.bufferSites[i][j].getValue() == 1){
-                        System.out.printf("+");
-                    } else {
-                        System.out.printf(" ");
-                    }
+            for (int j = 0; j < grid.getNbCols(ignoreBorder); j++) {
+                if (!ignoreBorder && (j == grid.getBorder() || j == grid.getNbRows() - grid.getBorder())) {
+                    System.out.printf("|");
                 }
+                if (core.getLB().contains(grid.getIndexFromCoordinates(i, j))) {
+                    System.out.printf("#");
+                    continue;
+                }
+                if (buffer.getLB().contains(grid.getIndexFromCoordinates(i, j))) {
+                    System.out.printf("+");
+                    continue;
+                }
+                if (out.getLB().contains(grid.getIndexFromCoordinates(i, j))) {
+                    System.out.printf(" ");
+                    continue;
+                }
+                System.out.printf("?");
             }
             System.out.printf("\n");
         }
-        System.out.println("\nNumber of reserves: " + getNbConnectedComponents());
-        System.out.println("Number of parcels: " + getNbSites());
-        if (showPlanningUnits) {
-            System.out.println("Selected parcels:");
-            for (int i : selectedParcels) {
-                List<String> covered = new ArrayList<>();
-                for (Feature f : features.values()) {
-                    try {
-                        if (f.getData()[i] > 0) {
-                            covered.add(String.format("%1$4s", f.getName()));
-                        } else {
-                            covered.add(String.format("%1$4s", ""));
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                System.out.println(String.format(" Parcel %1$4s: ", i) + String.join(" ", covered));
-            }
-        }
+        System.out.println("\nNb CC core: " + getNbCcCore());
+        System.out.println("Nb CC buffer: " + getNbCcBuffer());
+        System.out.println("Nb CC out: " + getNbCcOut());
+        System.out.println("Nb sites core: " + getNbSitesCore());
+        System.out.println("Nb sites buffer: " + getNbSitesBuffer());
+        System.out.println("Nb sites out: " + getNbSitesOut());
         System.out.printf("\n");
     }
 

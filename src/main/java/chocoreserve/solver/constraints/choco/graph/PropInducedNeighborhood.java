@@ -70,15 +70,12 @@ public class PropInducedNeighborhood extends Propagator<UndirectedGraphVar> {
     public void propagate(int evtmask) throws ContradictionException {
         for (int i : g.getLB().getNodes()) {
             for (int j : initialGUB.getSuccOrNeighOf(i)) {
-                if (g.getMandatoryNodes().contains(j)) {
-                    if (!g.getMandNeighOf(i).contains(j)) {
+                if (g.getMandatoryNodes().contains(j))
+                    if (!g.getMandNeighOf(i).contains(j))
                         g.enforceArc(i, j, this);
-                    }
-                } else {
-                    if (!g.getPotNeighOf(i).contains(j)) {
+                else
+                    if (!g.getPotNeighOf(i).contains(j))
                         g.removeNode(j, this);
-                    }
-                }
             }
         }
     }

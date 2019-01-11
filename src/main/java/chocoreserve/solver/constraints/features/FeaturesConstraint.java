@@ -21,21 +21,26 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.constraints;
+package chocoreserve.solver.constraints.features;
 
-import chocoreserve.solver.SetReserveModel;
-import org.chocosolver.graphsolver.GraphModel;
+import chocoreserve.solver.ReserveModel;
+import chocoreserve.solver.constraints.ReserveConstraint;
+import chocoreserve.solver.feature.Feature;
 
 /**
- * Abstract base class for reserve constraints.
+ * Abstract base class for features representation constraints.
  */
-public abstract class SetReserveConstraint implements IReserveConstraint {
+public abstract class FeaturesConstraint extends ReserveConstraint {
 
-    protected SetReserveModel reserveModel;
-    protected GraphModel chocoModel;
+    protected Feature[] features;
 
-    public SetReserveConstraint(SetReserveModel reserveModel) {
-        this.reserveModel = reserveModel;
-        this.chocoModel = reserveModel.getChocoModel();
+    public FeaturesConstraint(ReserveModel reserveModel, Feature... features) {
+        super(reserveModel);
+        this.features = features;
+        for (Feature feature : features) {
+            if (!reserveModel.getFeatures().containsKey(feature.getName())) {
+                reserveModel.addFeature(feature);
+            }
+        }
     }
 }

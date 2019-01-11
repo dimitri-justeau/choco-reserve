@@ -21,26 +21,18 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.constraints.spatial.bool;
+package chocoreserve.solver.constraints.features;
 
 import chocoreserve.solver.ReserveModel;
+import chocoreserve.solver.feature.Feature;
+import org.chocosolver.solver.variables.SetVar;
 
 /**
- * Area of reserve_system constraint.
+ *
  */
-public class AreaReserveSystem extends SpatialConstraint {
+public class CoveredFeatures extends RedundantFeatures {
 
-    private int areaMin, areaMax;
-
-    public AreaReserveSystem(ReserveModel reserveModel, int areaMin, int areaMax) {
-        super(reserveModel);
-        this.areaMin = areaMin;
-        this.areaMax = areaMax;
-    }
-
-    @Override
-    public void post() {
-        chocoModel.arithm(reserveModel.getNbSites(), ">=", areaMin).post();
-        chocoModel.arithm(reserveModel.getNbSites(), "<=", areaMax).post();
+    public CoveredFeatures(ReserveModel reserveModel, SetVar set, Feature... features) {
+        super(reserveModel, set, 1, features);
     }
 }

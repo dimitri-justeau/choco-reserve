@@ -37,7 +37,7 @@ import java.util.List;
 /**
  * Test for AreaReserves constraint.
  */
-public class TestAreaReserves {
+public class TestSizeConnectedComponents {
 
     /**
      * Success test case 1: 3x3 4-connected square grid, 2 CC of size 3 -> 4 solutions :
@@ -56,13 +56,14 @@ public class TestAreaReserves {
      *     -----------
      */
     @Test
-    public void testAreaComponentsSuccess1() {
+    public void testSizeConnectedComponentsSuccess1() {
         RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.nbReserves(2, 2).post();
+        reserveModel.nbConnectedComponents(reserveModel.getCore(), 2, 2).post();
+        reserveModel.getChocoModel().arithm(reserveModel.getNbSitesBuffer(), "=", 0).post();
         IntVar minNCC = reserveModel.getChocoModel().intVar(3, 4);
         IntVar maxNCC = reserveModel.getChocoModel().intVar(3, 4);
-        reserveModel.areaReserves(minNCC, maxNCC).post();
+        reserveModel.sizeConnectedComponents(reserveModel.getCore(), minNCC, maxNCC).post();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();
         Assert.assertEquals(4, solutions.size());
@@ -80,13 +81,14 @@ public class TestAreaReserves {
      *     ---------------
      */
     @Test
-    public void testAreaComponentsSuccess2() {
+    public void testSizeConnectedComponentsSuccess2() {
         RegularSquareGrid grid = new FourConnectedSquareGrid(1, 4);
         ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.nbReserves(1, 1).post();
+        reserveModel.nbConnectedComponents(reserveModel.getCore(), 1, 1).post();
+        reserveModel.getChocoModel().arithm(reserveModel.getNbSitesBuffer(), "=", 0).post();
         IntVar minNCC = reserveModel.getChocoModel().intVar("minNCC", 3, 4);
         IntVar maxNCC = reserveModel.getChocoModel().intVar("maxNCC", 3, 4);
-        reserveModel.areaReserves(minNCC, maxNCC).post();
+        reserveModel.sizeConnectedComponents(reserveModel.getCore(), minNCC, maxNCC).post();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();
         Assert.assertEquals(3, solutions.size());

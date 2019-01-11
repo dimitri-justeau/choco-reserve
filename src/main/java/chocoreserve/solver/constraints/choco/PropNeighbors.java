@@ -12,7 +12,8 @@ import org.chocosolver.util.ESat;
 import org.chocosolver.util.procedure.IntProcedure;
 
 /**
- * @author P. Vismara (2018) <a href="mailto:philippe.vismara@supagro.fr">philippe.vismara@supagro.fr</a><br/>
+ * @author P. Vismara (2018) <a href=
+ *         "mailto:philippe.vismara@supagro.fr">philippe.vismara@supagro.fr</a><br/>
  *         Ensures that N = Neighbors(X) <br/>
  *         where Neighbors(X) = U_{x in X} adjList[x]<br/>
  *         Caution: X and Neighbors(X) are generally not disjoined
@@ -29,9 +30,8 @@ public class PropNeighbors extends Propagator<SetVar> {
     int[][] adjLists;
 
     //***********************************************************************************
-    // CONSTRUCTORS
+    // CONSTRUCTOR
     //***********************************************************************************
-
     /**
      * Ensures that N = Neighbors(X) <br/>
      * where Neighbors(X) = U_{x in X} adjList[x]
@@ -41,7 +41,10 @@ public class PropNeighbors extends Propagator<SetVar> {
      * @param N
      *            a set variable
      * @param adjLists
-     *            = adjacent list. For example, <code>adjLists[x][0] = y</code> means that <code>y</code> is the first neighbor of <code>x</code> and <code>adjLists[x].length</code> is the degree of vertex <code>x</code>.
+     *            = adjacency list. For example, <code>adjLists[x][0] = y</code>
+     *            means that <code>y</code> is the first neighbor of
+     *            <code>x</code> and <code>adjLists[x].length</code> is the
+     *            degree of vertex <code>x</code>.
      */
     public PropNeighbors(SetVar X, SetVar N, int[][] adjLists) {
         super(new SetVar[] { X, N }, PropagatorPriority.LINEAR, false);
@@ -56,6 +59,7 @@ public class PropNeighbors extends Propagator<SetVar> {
         // adding an element to X
         elementForcedX = element -> {
             // on ajoute a N les voisins de element
+            // c'est idempotent puisque elementForcedN ne va rien faire dans ce cas
             for (int v : this.adjLists[element]) {
                 vars[1].force(v, this);
             }
@@ -74,8 +78,11 @@ public class PropNeighbors extends Propagator<SetVar> {
                         }
                     }
                     // on supprime v de N s'il n'a plus aucun voisin dans UB(X)
-                    if (neighborsOfVInX == 0)
+                    if (neighborsOfVInX == 0) {
                         vars[1].remove(v, this);
+                        // pour l'idempotence il faut retirer de X tous les voisins de v
+                        elementRemovedN.execute(v);
+                    }
                 }
             }
         };
@@ -91,18 +98,21 @@ public class PropNeighbors extends Propagator<SetVar> {
                     nbUBX++;
                     if (nbUBX > 1) {
                         break;
-                    }
-                    else if (vars[0].getLB().contains(v)) {
+                    } else if (vars[0].getLB().contains(v)) {
                         inLBX = true;
                         break;
                     }
                 }
             }
             if (!inLBX) {
-                if (nbUBX == 0)
+                if (nbUBX == 0) {
                     this.fails(); // no neighbor in X
-                else if (nbUBX == 1)
-                    vars[0].force(x, this); // only one neighbor in X
+                } else if (nbUBX == 1) { // only one neighbor in UB(X)\LB(X)
+                    // x n'est pas dans vars[0]
+                    vars[0].force(x, this);
+                    // pour l'idempotence il faut ajouter les voisins de x à N
+                    elementForcedX.execute(x);
+                }
             }
         };
 
@@ -111,6 +121,8 @@ public class PropNeighbors extends Propagator<SetVar> {
             for (int v : this.adjLists[element]) {
                 if (vars[0].getUB().contains(v)) {
                     vars[0].remove(v, this);
+                    // pour l'idempotence il faut retirer de N les voisins de v n'ayant pas d'autre voisin dans X
+                    elementRemovedX.execute(v);
                 }
             }
         };
@@ -127,14 +139,30 @@ public class PropNeighbors extends Propagator<SetVar> {
 
     @Override
     public void propagate(int evtmask) throws ContradictionException {
-        int n = this.adjLists.length;
-        // on force les voisins de LB(X)
-        for (int x : vars[0].getLB()) {
-            elementForcedX.execute(x);
+        // liste elements a supprimer
+        HashSet<Integer> toRemove = new HashSet<Integer>();
+
+        for (int x : vars[0].getUB()) {
+            if (vars[0].getLB().contains(x)) {
+                // on force les voisins de LB(X)
+                elementForcedX.execute(x);
+            } else {
+                // on verifie que chaque elements de UB(X) a tous ses voisins dans UB(N)
+                for (int w : this.adjLists[x]) {
+                    if (!vars[1].getUB().contains(w)) {
+                        toRemove.add(x);
+                        break;
+                    }
+                }
+            }
+        }
+        // suppression
+        for (int x : toRemove) {
+            vars[0].remove(x, this);
         }
         // on teste les élements de UB(N)
         // liste des elements a supprimer
-        HashSet<Integer> toRemove = new HashSet<Integer>();
+        toRemove.clear();
 
         for (int z : vars[1].getUB()) {
             if (vars[1].getLB().contains(z))
@@ -156,8 +184,9 @@ public class PropNeighbors extends Propagator<SetVar> {
         // suppression
         for (int z : toRemove) {
             vars[1].remove(z, this);
+            // pour l'idempotence il faut retirer de X tous les voisins de z
+            elementRemovedN.execute(z);
         }
-
         sdm[0].unfreeze();
         sdm[1].unfreeze();
     }
@@ -209,8 +238,10 @@ public class PropNeighbors extends Propagator<SetVar> {
                     return ESat.UNDEFINED;
             }
         }
-        if (vars[0].getLB().size() < vars[0].getUB().size()) return ESat.UNDEFINED;
-        if (vars[1].getLB().size() < vars[1].getUB().size()) return ESat.UNDEFINED;
+        if (vars[0].getLB().size() < vars[0].getUB().size())
+            return ESat.UNDEFINED;
+        if (vars[1].getLB().size() < vars[1].getUB().size())
+            return ESat.UNDEFINED;
         return ESat.TRUE;
     }
 

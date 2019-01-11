@@ -21,26 +21,28 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.constraints.spatial.bool;
+package chocoreserve.solver.constraints.spatial;
 
 import chocoreserve.solver.ReserveModel;
+import chocoreserve.solver.constraints.ReserveConstraint;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.variables.IntVar;
 
 /**
- * Area of reserves constraint.
+ * Abstract base class for spatial constraints
  */
-public class AreaReserves extends SpatialConstraint {
+public abstract class SpatialConstraint extends ReserveConstraint {
 
-    private IntVar minNCC, maxNCC;
+    protected UndirectedGraphVar graphCore, graphBuffer, graphOut;
+    protected IntVar nbCcCore, nbCcBuffer, nbCcOut;
 
-    public AreaReserves(ReserveModel reserveModel, IntVar minNCC, IntVar maxNCC) {
+    public SpatialConstraint(ReserveModel reserveModel) {
         super(reserveModel);
-        this.minNCC = minNCC;
-        this.maxNCC = maxNCC;
-    }
-
-    @Override
-    public void post() {
-        chocoModel.sizeConnectedComponents(g, minNCC, maxNCC).post();
+        this.graphCore = reserveModel.getGraphCore();
+        this.graphBuffer = reserveModel.getGraphBuffer();
+        this.graphOut = reserveModel.getGraphOut();
+        this.nbCcCore = reserveModel.getNbCcCore();
+        this.nbCcBuffer = reserveModel.getNbCcBuffer();
+        this.nbCcOut = reserveModel.getNbCcOut();
     }
 }

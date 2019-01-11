@@ -21,10 +21,9 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.constraints.spatial.set;
+package chocoreserve.solver.constraints.spatial;
 
 import chocoreserve.solver.ReserveModel;
-import chocoreserve.solver.SetReserveModel;
 import chocoreserve.solver.constraints.choco.PropSmallestEnclosingCircle;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.BoolVar;
@@ -35,7 +34,7 @@ import org.chocosolver.util.tools.ArrayUtils;
 /**
  *
  */
-public class SetRadius extends SetSpatialConstraint{
+public class Radius extends SpatialConstraint {
 
     private SetVar set;
     public RealVar radius;
@@ -43,8 +42,8 @@ public class SetRadius extends SetSpatialConstraint{
     public RealVar centerY;
     public double[][] coordinates;
 
-    public SetRadius(SetReserveModel reserveModel, SetVar set, double[][] coordinates, RealVar radius,
-                     RealVar centerX, RealVar centerY) {
+    public Radius(ReserveModel reserveModel, SetVar set, double[][] coordinates, RealVar radius,
+                  RealVar centerX, RealVar centerY) {
         super(reserveModel);
         this.set = set;
         this.radius = radius;
@@ -53,7 +52,7 @@ public class SetRadius extends SetSpatialConstraint{
         this.coordinates = coordinates;
     }
 
-    public SetRadius(SetReserveModel reserveModel, SetVar set, RealVar radius) {
+    public Radius(ReserveModel reserveModel, SetVar set, RealVar radius) {
         this(
                 reserveModel,
                 set,

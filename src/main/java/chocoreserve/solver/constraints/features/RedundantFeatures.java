@@ -21,32 +21,39 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.constraints.features.bool;
+package chocoreserve.solver.constraints.features;
 
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.feature.BinaryFeature;
 import chocoreserve.solver.feature.Feature;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
 
 import java.io.IOException;
 
 /**
- * Redundant features constraint.
+ *
  */
 public class RedundantFeatures extends FeaturesConstraint {
 
-    private int k;
+    protected SetVar set;
+    protected int k;
+    protected IntVar[] N;
 
-    public RedundantFeatures(ReserveModel reserveModel, int k, BinaryFeature... features) {
+    public RedundantFeatures(ReserveModel reserveModel, SetVar set, int k, Feature... features) {
         super(reserveModel, features);
+        this.set = set;
         this.k = k;
+        this.N = reserveModel.getChocoModel().intVarArray(features.length, k, reserveModel.getGrid().getNbCells());
     }
 
     @Override
     public void post() {
-        for (Feature feature : features) {
+        for (int i = 0; i < features.length; i++) {
             try {
-                int[] coeffs = ((BinaryFeature) feature).getBinaryData();
-                chocoModel.scalar(reserveModel.getSites(), coeffs, ">=", k).post();
+                int[] data = ((BinaryFeature) features[i]).getBinaryData();
+                int[] coeffs = reserveModel.getGrid().getBordered(data);
+                chocoModel.sumElements(set, coeffs, N[i]).post();
             } catch (IOException e) {
                 e.printStackTrace();
             }

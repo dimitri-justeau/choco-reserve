@@ -21,28 +21,41 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.constraints.spatial.set;
+package chocoreserve.solver.constraints.spatial;
 
-import chocoreserve.solver.SetReserveModel;
-import chocoreserve.solver.constraints.SetReserveConstraint;
+import chocoreserve.solver.ReserveModel;
+import org.chocosolver.graphsolver.variables.GraphVar;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
 
 /**
- * Abstract base class for spatial constraints
+ * Size of a region's connected components.
  */
-public abstract class SetSpatialConstraint extends SetReserveConstraint {
+public class SizeConnectedComponents extends SpatialConstraint {
 
-    protected UndirectedGraphVar graphCore, graphBuffer, graphOut;
-    protected IntVar nbCcCore, nbCcBuffer, nbCcOut;
+    private SetVar set;
+    private IntVar minSizeCC, maxSizeCC;
 
-    public SetSpatialConstraint(SetReserveModel reserveModel) {
+    public SizeConnectedComponents(ReserveModel reserveModel, SetVar set, IntVar minSizeCC, IntVar maxSizeCC) {
         super(reserveModel);
-        this.graphCore = reserveModel.getGraphCore();
-        this.graphBuffer = reserveModel.getGraphBuffer();
-        this.graphOut = reserveModel.getGraphOut();
-        this.nbCcCore = reserveModel.getNbCcCore();
-        this.nbCcBuffer = reserveModel.getNbCcBuffer();
-        this.nbCcOut = reserveModel.getNbCcOut();
+        this.set = set;
+        this.minSizeCC = minSizeCC;
+        this.maxSizeCC = maxSizeCC;
+    }
+
+    @Override
+    public void post() {
+        UndirectedGraphVar g;
+        if (set == reserveModel.getCore()) {
+            g = reserveModel.getGraphCore();
+        } else {
+            if (set == reserveModel.getBuffer()) {
+                g = reserveModel.getGraphBuffer();
+            } else {
+                g = reserveModel.getGraphOut();
+            }
+        }
+        chocoModel.sizeConnectedComponents(g, minSizeCC, maxSizeCC).post();
     }
 }

@@ -21,11 +21,11 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.constraints.spatial.set;
+package chocoreserve.solver.constraints.spatial;
 
 import chocoreserve.grid.Grid;
 import chocoreserve.grid.regular.square.HeightConnectedSquareGrid;
-import chocoreserve.solver.SetReserveModel;
+import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.constraints.choco.PropNeighbors;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.SetVar;
@@ -35,11 +35,11 @@ import java.util.stream.IntStream;
 /**
  *
  */
-public class SetBufferZone extends SetSpatialConstraint {
+public class BufferZone extends SpatialConstraint {
 
     private SetVar neighCore, neighOut;
 
-    public SetBufferZone(SetReserveModel reserveModel) {
+    public BufferZone(ReserveModel reserveModel) {
         super(reserveModel);
         int nbCells = reserveModel.getGrid().getNbCells();
         this.neighCore = chocoModel.setVar("neighCore", new int[] {}, IntStream.range(0, nbCells).toArray());
@@ -64,8 +64,8 @@ public class SetBufferZone extends SetSpatialConstraint {
         );
         chocoModel.post(consNeighCore);
         chocoModel.post(consNeighOut);
-        chocoModel.allDisjoint(neighCore, reserveModel.getOut()).post();
-        chocoModel.allDisjoint(neighOut, reserveModel.getCore()).post();
+        chocoModel.disjoint(neighCore, reserveModel.getOut()).post();
+        chocoModel.disjoint(neighOut, reserveModel.getCore()).post();
         chocoModel.intersection(new SetVar[]{neighOut, neighCore}, reserveModel.getBuffer()).post();
     }
 }

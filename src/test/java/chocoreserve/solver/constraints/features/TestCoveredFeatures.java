@@ -23,7 +23,6 @@
 
 package chocoreserve.solver.constraints.features;
 
-import chocoreserve.exception.ModelNotInstantiatedError;
 import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.ReserveModel;
@@ -60,17 +59,12 @@ public class TestCoveredFeatures {
                 "test_binary",
                 new int[] {0, 0, 0, 1, 0, 0, 0, 0, 0 }
         );
-        reserveModel.coveredFeatures(feature).post();
+        reserveModel.coveredFeatures(reserveModel.getCore(), feature).post();
         Solver solver = reserveModel.getChocoSolver();
         if (solver.solve()) {
             do {
-                try {
-                    ISet nodes = reserveModel.getSelectedSitesAsSet();
-                    Assert.assertTrue(nodes.contains(3));
-                } catch (ModelNotInstantiatedError modelNotInstantiatedError) {
-                    modelNotInstantiatedError.printStackTrace();
-                    Assert.fail();
-                }
+                ISet nodes = reserveModel.getCore().getLB();
+                Assert.assertTrue(nodes.contains(3));
             } while (solver.solve());
         } else {
             Assert.fail();
@@ -103,18 +97,13 @@ public class TestCoveredFeatures {
                 "B",
                 new int[] {12, 0, 5, 0, 0, 0, 0, 0, 3}
         );
-        reserveModel.coveredFeatures(featureA, featureB).post();
+        reserveModel.coveredFeatures(reserveModel.getCore(), featureA, featureB).post();
         Solver solver = reserveModel.getChocoSolver();
         if (solver.solve()) {
             do {
-                try {
-                    ISet nodes = reserveModel.getSelectedSitesAsSet();
-                    Assert.assertTrue(nodes.contains(5));
-                    Assert.assertTrue(nodes.contains(0) || nodes.contains(2) || nodes.contains(8));
-                } catch (ModelNotInstantiatedError modelNotInstantiatedError) {
-                    modelNotInstantiatedError.printStackTrace();
-                    Assert.fail();
-                }
+                ISet nodes = reserveModel.getCore().getLB();
+                Assert.assertTrue(nodes.contains(5));
+                Assert.assertTrue(nodes.contains(0) || nodes.contains(2) || nodes.contains(8));
             } while (solver.solve());
         } else {
             Assert.fail();
@@ -134,7 +123,7 @@ public class TestCoveredFeatures {
                 "A",
                 new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0}
         );
-        reserveModel.coveredFeatures(feature).post();
+        reserveModel.coveredFeatures(reserveModel.getCore(), feature).post();
         Solver solver = reserveModel.getChocoSolver();
         Assert.assertFalse(solver.solve());
     }

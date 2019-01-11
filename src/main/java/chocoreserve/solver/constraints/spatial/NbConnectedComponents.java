@@ -21,30 +21,40 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.constraints.spatial.bool;
+package chocoreserve.solver.constraints.spatial;
 
 import chocoreserve.solver.ReserveModel;
+import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
 
 /**
  * Number of reserves constraint.
  */
-public class NbReserves extends SpatialConstraint {
+public class NbConnectedComponents extends SpatialConstraint {
 
+    private SetVar set;
     private int nbMin, nbMax;
 
-    public NbReserves(ReserveModel reserveModel, int nbMin, int nbMax) {
+    public NbConnectedComponents(ReserveModel reserveModel, SetVar set, int nbMin, int nbMax) {
         super(reserveModel);
+        this.set = set;
         this.nbMin = nbMin;
         this.nbMax = nbMax;
     }
 
     @Override
     public void post() {
+        IntVar nbCC;
+        if (set == reserveModel.getCore()) {
+            nbCC = nbCcCore;
+        } else {
+            if (set == reserveModel.getBuffer()) {
+                nbCC = nbCcBuffer;
+            } else {
+                nbCC = nbCcOut;
+            }
+        }
         if (nbMin == nbMax) {
-            // Not very efficient
-//            if (nbMax == 1) {
-//                chocoModel.connected(g).post();
-//            }
             chocoModel.arithm(nbCC, "=", nbMin).post();
         } else {
             chocoModel.arithm(nbCC, ">=", nbMin).post();

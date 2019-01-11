@@ -49,7 +49,7 @@ public class TestReserveSearchFactory {
                 "B",
                 new int[] {1, 0, 1, 0, 1, 0, 1, 0, 0}
         );
-        reserveModel.redundantFeatures(2, featureA, featureB).post();
+        reserveModel.redundantFeatures(reserveModel.getCore(), 2, featureA, featureB).post();
         Solver solver = reserveModel.getChocoSolver();
         solver.setSearch(ReserveSearchFactory.discardPoor(reserveModel, 0));
         Assert.assertTrue(solver.solve());
@@ -68,7 +68,7 @@ public class TestReserveSearchFactory {
                 "B",
                 new int[] {1, 0, 1, 0, 1, 0, 1, 0, 0}
         );
-        reserveModel.redundantFeatures(2, featureA, featureB).post();
+        reserveModel.redundantFeatures(reserveModel.getCore(), 2, featureA, featureB).post();
         Solver solver = reserveModel.getChocoSolver();
         solver.setSearch(ReserveSearchFactory.discardPoorDeterministic(reserveModel, 0));
         Assert.assertTrue(solver.solve());

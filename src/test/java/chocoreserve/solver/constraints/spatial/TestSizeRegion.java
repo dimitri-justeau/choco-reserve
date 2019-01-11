@@ -40,7 +40,7 @@ import java.util.stream.IntStream;
 /**
  * Test for AreaReserveSystem constraint.
  */
-public class TestAreaReserveSystem {
+public class TestSizeRegion {
 
     /**
      * Success test case 1: 3x3 4-connected square grid, areaMin = areaMax = 9 -> 1 solution.
@@ -54,10 +54,10 @@ public class TestAreaReserveSystem {
      *     -----------
      */
     @Test
-    public void testAreaReserveSystemSuccess1() {
+    public void testSizeRegionSuccess1() {
         RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.areaReserveSystem(9, 9).post();
+        reserveModel.sizeRegion(reserveModel.getCore(), 9, 9).post();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();
         Assert.assertEquals(1, solutions.size());
@@ -66,7 +66,7 @@ public class TestAreaReserveSystem {
         } catch (ContradictionException e) {
             e.printStackTrace();
         }
-        int[] nodes = reserveModel.getSpatialGraphVar().getMandatoryNodes().toArray();
+        int[] nodes = reserveModel.getGraphCore().getMandatoryNodes().toArray();
         Assert.assertTrue(Arrays.equals(IntStream.range(0, 9).toArray(), nodes));
     }
 
@@ -83,15 +83,15 @@ public class TestAreaReserveSystem {
      *     -----------
      */
     @Test
-    public void testAreaReserveSystemSuccess2() {
+    public void testSizeRegionSuccess2() {
         RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.areaReserveSystem(2, 4).post();
+        reserveModel.sizeRegion(reserveModel.getCore(), 2, 4).post();
         Solver solver = reserveModel.getChocoSolver();
         if (solver.solve()) {
             do {
                 try {
-                    int n = reserveModel.getSelectedSites().length;
+                    int n = reserveModel.getSelectedCoreSites().length;
                     Assert.assertTrue(n >= 2 && n <= 4);
                 } catch (ModelNotInstantiatedError modelNotInstantiatedError) {
                     modelNotInstantiatedError.printStackTrace();
@@ -115,10 +115,10 @@ public class TestAreaReserveSystem {
      *     -----------
      */
     @Test
-    public void testAreaReserveSystemFail() {
+    public void testSizeRegionFail() {
         RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.areaReserveSystem(10, 20).post();
+        reserveModel.sizeRegion(reserveModel.getCore(), 10, 20).post();
         Solver solver = reserveModel.getChocoSolver();
         Assert.assertFalse(solver.solve());
     }
