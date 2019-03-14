@@ -53,7 +53,7 @@ public class TestReserveSearchFactory {
         Solver solver = reserveModel.getChocoSolver();
         solver.setSearch(ReserveSearchFactory.discardPoor(reserveModel, 0));
         Assert.assertTrue(solver.solve());
-        reserveModel.printSolution(false);
+//        reserveModel.printSolution(false);
     }
 
     @Test
@@ -72,6 +72,6 @@ public class TestReserveSearchFactory {
         Solver solver = reserveModel.getChocoSolver();
         solver.setSearch(ReserveSearchFactory.discardPoorDeterministic(reserveModel, 0));
         Assert.assertTrue(solver.solve());
-        reserveModel.printSolution(true);
+//        reserveModel.printSolution(true);
     }
 }

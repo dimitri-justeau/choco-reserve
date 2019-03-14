@@ -26,58 +26,78 @@ package chocoreserve.solver.constraints.choco;
 import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
 import chocoreserve.grid.regular.square.HeightConnectedSquareGrid;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
-import org.chocosolver.solver.Model;
+import org.chocosolver.graphsolver.GraphModel;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.search.loop.monitors.IMonitorSolution;
+import org.chocosolver.solver.search.strategy.Search;
+import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
+import org.chocosolver.solver.variables.impl.SetVarImpl;
+import org.chocosolver.util.criteria.Criterion;
+import org.chocosolver.util.objects.graphs.UndirectedGraph;
+import org.chocosolver.util.objects.setDataStructures.SetType;
 import org.junit.Test;
 
 import java.util.stream.IntStream;
 
 /**
- * Test class for PropNeighbors.
+ *
  */
-public class TestPropNeighbors {
+public class TestPropCustomChanneling {
 
     @Test
-    public void testNeighBuff() {
-        // 4-connected and 8-connected grid for neighborhood initialization
-        RegularSquareGrid grid4 = new FourConnectedSquareGrid(3, 3);
-        RegularSquareGrid grid8 = new HeightConnectedSquareGrid(3, 3);
+    public void test() {
+        RegularSquareGrid grid4 = new FourConnectedSquareGrid(45, 76);
         int[] universe = IntStream.range(0, grid4.getNbCells()).toArray();
-        int[][] adjLists = new int[grid4.getNbCells()][];
-        IntStream.range(0, grid4.getNbCells())
-                .forEach(i -> adjLists[i] = grid8.getNeighbors(i));
 
-        // ----------- //
-        // Choco model //
-        // ----------- //
+        GraphModel model = new GraphModel();
 
-        Model model = new Model();
+        IntVar[] sites = model.intVarArray(universe.length, 0, 2); // Sites
+        SetType kerSetType = SetType.BIPARTITESET;
+        SetType envSetType = SetType.BIPARTITESET;
+        SetVar O = new SetVarImpl(
+                "core",
+                new int[] {}, kerSetType,
+                universe, envSetType,
+                model
+        );
+        SetVar B = new SetVarImpl(
+                "core",
+                new int[] {}, kerSetType,
+                universe, envSetType,
+                model
+        );
+        SetVar C = new SetVarImpl(
+                "core",
+                new int[] {}, kerSetType,
+                universe, envSetType,
+                model
+        );
 
-        // Set variables
-        SetVar U = model.setVar(universe); // Universe
-        SetVar C = model.setVar("C", new int[] {}, universe); // Core
-        SetVar neighC = model.setVar("neighC", new int[] {}, universe); // Core neigh.
-        SetVar O = model.setVar("O", new int[] {}, universe); // Out
-        SetVar neighO = model.setVar("neighO", new int[] {}, universe); // Out neigh.
-        SetVar B = model.setVar("B", new int[] {}, universe); // Buffer
+        UndirectedGraphVar GO = model.graphVar(
+                "GO",
+                new UndirectedGraph(model, universe.length, SetType.BIPARTITESET, false), // Graph Out
+                grid4.getFullGraph(model, SetType.BIPARTITESET)
+        );
+        UndirectedGraphVar GB = model.graphVar(
+                "GB",
+                new UndirectedGraph(model, universe.length, SetType.BIPARTITESET, false), // Graph Buffer
+                grid4.getFullGraph(model, SetType.BIPARTITESET)
+        );
+        UndirectedGraphVar GC = model.graphVar(
+                "GC",
+                new UndirectedGraph(model, universe.length, SetType.BIPARTITESET, false), // Graph Core
+                grid4.getFullGraph(model, SetType.BIPARTITESET)
+        );
 
-        // Constraints
-        PropNeighbors propNeighC = new PropNeighbors(C, neighC, adjLists);
-        PropNeighbors propNeighO = new PropNeighbors(O, neighO, adjLists);
-        Constraint partition = model.partition(new SetVar[]{C, O, B}, U);
-        partition.post();
-        model.post(new Constraint("propNeighC", propNeighC));
-        model.post(new Constraint("propNeighO", propNeighO));
-        model.disjoint(C, neighO).post();
-        model.disjoint(O, neighC).post();
-        model.intersection(new SetVar[] {neighC, neighO}, B).post();
+        PropCustomChanneling channeling = new PropCustomChanneling(sites, O, B, C, GO, GB, GC);
+        model.post(new Constraint("channeling", channeling));
 
         // Solve
         Solver solver = model.getSolver();
-//        solver.showStatistics();
+        solver.setSearch(Search.domOverWDegSearch(sites));
 //        solver.plugMonitor((IMonitorSolution) () -> {
 //            System.out.println("   " + new String(new char[grid4.getNbCols()]).replace("\0", "_"));
 //            for (int i = 0; i < grid4.getNbRows(); i++) {
@@ -94,16 +114,15 @@ public class TestPropNeighbors {
 //                            if (O.getLB().contains(grid4.getIndexFromCoordinates(i, j)))
 //                                System.out.printf(" ");
 //                            else
-//                                System.out.printf("-");
+//                                System.out.printf("@");
 //                        }
 //                    }
 //                }
 //                System.out.printf("\n");
 //            }
-//            System.out.println("C = " + C.getLB() + " - Gamma_8(C) = " + neighC.getLB());
-//            System.out.println("O = " + O.getLB() + " - Gamma_8(O) = " + neighO.getLB());
-//            System.out.println("B = " + B.getLB());
 //        });
-        solver.findAllSolutions();
+        Criterion limit = () -> solver.getTimeCount() >= 10;
+        solver.findAllSolutions(limit);
+//        solver.solve();
     }
 }

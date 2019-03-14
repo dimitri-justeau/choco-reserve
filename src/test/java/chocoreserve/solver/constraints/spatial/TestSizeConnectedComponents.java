@@ -59,6 +59,9 @@ public class TestSizeConnectedComponents {
     public void testSizeConnectedComponentsSuccess1() {
         RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
+        reserveModel.initGraphCore();
+        reserveModel.initGraphOut();
+        reserveModel.initGraphBuffer();
         reserveModel.nbConnectedComponents(reserveModel.getCore(), 2, 2).post();
         reserveModel.getChocoModel().arithm(reserveModel.getNbSitesBuffer(), "=", 0).post();
         IntVar minNCC = reserveModel.getChocoModel().intVar(3, 4);
@@ -84,6 +87,9 @@ public class TestSizeConnectedComponents {
     public void testSizeConnectedComponentsSuccess2() {
         RegularSquareGrid grid = new FourConnectedSquareGrid(1, 4);
         ReserveModel reserveModel = new ReserveModel(grid);
+        reserveModel.initGraphCore();
+        reserveModel.initGraphOut();
+        reserveModel.initGraphBuffer();
         reserveModel.nbConnectedComponents(reserveModel.getCore(), 1, 1).post();
         reserveModel.getChocoModel().arithm(reserveModel.getNbSitesBuffer(), "=", 0).post();
         IntVar minNCC = reserveModel.getChocoModel().intVar("minNCC", 3, 4);

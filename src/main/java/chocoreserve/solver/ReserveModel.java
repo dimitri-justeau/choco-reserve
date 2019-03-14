@@ -30,11 +30,14 @@ import chocoreserve.solver.constraints.choco.graph.PropInducedNeighborhood;
 import chocoreserve.solver.feature.Feature;
 import chocoreserve.solver.feature.IFeatureFactory;
 import org.chocosolver.graphsolver.GraphModel;
+import org.chocosolver.graphsolver.cstrs.channeling.nodes.PropNodeSetChannel;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.constraints.set.PropIntChannel;
 import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
+import org.chocosolver.solver.variables.impl.SetVarImpl;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 
@@ -63,7 +66,9 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
     /** The spatial graph variables associated to the model */
     private UndirectedGraphVar graphCore, graphBuffer, graphOut;
 
-    private SetVar core, buffer, out;
+    private boolean graphCoreInit, graphBufferInit, graphOutInit;
+
+    private SetVar core, buffer, buffer2, out;
 
     /** Number of connected components of graphs */
     private IntVar nbCcCore, nbCcBuffer, nbCcOut;
@@ -72,17 +77,34 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
     private IntVar nbSitesCore, nbSitesBuffer, nbSitesOut;
 
     public ReserveModel(RegularSquareGrid grid) {
+        this(grid, true, false);
+    }
+
+    public ReserveModel(RegularSquareGrid grid, boolean useBuffer) {
+        this(grid, useBuffer, false);
+    }
+
+    public ReserveModel(RegularSquareGrid grid, boolean useBuffer, boolean useBuffer2) {
+        this(grid, useBuffer, useBuffer2, grid);
+    }
+
+    public ReserveModel(RegularSquareGrid grid, boolean useBuffer, boolean useBuffer2, RegularSquareGrid outGrid) {
+        if (!useBuffer) {
+            assert !useBuffer2;
+        }
         this.grid = grid;
         int nbCells = this.grid.getNbCells(false);
         this.features = new HashMap<>();
         // Init Choco model
         this.model = new GraphModel("Nature Reserve Problem");
 
+        int[] sitesDomain = useBuffer ? (useBuffer2 ? new int[] {0, 1, 2, 3} : new int[] {0, 1, 2}) : new int[] {0, 1};
+
         // Init decision variables
         this.sites = this.model.intVarArray(
                 "sites",
                 this.grid.getNbCells(),
-                new int[] {0, 1, 2}
+                sitesDomain
         );
 
         // Init graph variables
@@ -91,47 +113,78 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
                 new UndirectedGraph(model, nbCells, SetType.BIPARTITESET, false),
                 grid.getFullGraph(model, SetType.BIPARTITESET)
         );
-        this.graphBuffer = model.graphVar(
-                "graphBuffer",
-                new UndirectedGraph(model, nbCells, SetType.BIPARTITESET, false),
-                grid.getFullGraph(model, SetType.BIPARTITESET)
-        );
+        graphCoreInit = false;
+        if (useBuffer) {
+            this.graphBuffer = model.graphVar(
+                    "graphBuffer",
+                    new UndirectedGraph(model, nbCells, SetType.BIPARTITESET, false),
+                    grid.getFullGraph(model, SetType.BIPARTITESET)
+            );
+        }
+        graphBufferInit = false;
         this.graphOut = model.graphVar(
                 "graphOut",
                 new UndirectedGraph(model, nbCells, SetType.BIPARTITESET, false),
-                grid.getFullGraph(model, SetType.BIPARTITESET)
+                outGrid.getFullGraph(model, SetType.BIPARTITESET)
         );
+        graphOutInit = false;
 
         // Set vars
-        this.core = model.setVar("core", new int[] {}, IntStream.range(0, nbCells).filter(i -> !grid.isInBorder(i)).toArray());
-        this.buffer = model.setVar("buffer", new int[] {}, IntStream.range(0, nbCells).toArray());
-        this.out = model.setVar("out", new int[] {}, IntStream.range(0, nbCells).toArray());
+        SetType kerSetType = SetType.BIPARTITESET;
+        SetType envSetType = SetType.BIPARTITESET;
+        this.core = new SetVarImpl(
+                "core",
+                new int[] {}, kerSetType,
+                IntStream.range(0, nbCells).filter(i -> !grid.isInBorder(i)).toArray(), envSetType,
+                model
+        );
+
+        if (useBuffer) {
+            this.buffer = new SetVarImpl(
+                    "buffer",
+                    new int[] {}, kerSetType,
+                    IntStream.range(0, nbCells).toArray(), envSetType,
+                    model
+            );
+            if (useBuffer2) {
+                this.buffer2 = new SetVarImpl(
+                        "buffer2",
+                        new int[] {}, kerSetType,
+                        IntStream.range(0, nbCells).toArray(), envSetType,
+                        model
+                );
+            } else {
+                this.buffer2 = model.setVar("buffer2", new int[]{});
+            }
+        } else {
+            this.buffer = model.setVar("buffer", new int[]{});
+        }
+        this.out = new SetVarImpl(
+                "out",
+                new int[] {}, kerSetType,
+                IntStream.range(0, nbCells).toArray(), envSetType,
+                model
+        );
         // Nb CC
         this.nbCcCore = this.model.intVar("nbCcCore", 0, nbCells);
         this.nbCcBuffer = this.model.intVar("nbCcBuffer", 0, nbCells);
         this.nbCcOut = this.model.intVar("nbCcOut", 0, nbCells);
         // Nb sites
-        this.nbSitesCore = this.model.intVar("nbSitesCore", 0, nbCells);
-        this.nbSitesBuffer = this.model.intVar("nbSitesBuffer", 0, nbCells);
-        this.nbSitesOut = this.model.intVar("nbSitesOut", 0, nbCells);
+        this.nbSitesCore = this.core.getCard();
+        if (useBuffer) {
+            this.nbSitesBuffer = this.buffer.getCard();
+        }
+        this.nbSitesOut = this.out.getCard();
         // Sets <-> Decision variables channeling
-        this.model.setsIntsChanneling(new SetVar[] {this.out, this.buffer, this.core}, this.sites).post();
-        // Sets <-> Graphs nodes channeling
-        this.model.nodesChanneling(this.graphCore, this.core).post();
-        this.model.nodesChanneling(this.graphBuffer, this.buffer).post();
-        this.model.nodesChanneling(this.graphOut, this.out).post();
-        // Induced neighborhood constraint on graphs
-        this.model.post(new Constraint("inducedNeighborhoodCore", new PropInducedNeighborhood(this.graphCore)));
-        this.model.post(new Constraint("inducedNeighborhoodBuffer", new PropInducedNeighborhood(this.graphBuffer)));
-        this.model.post(new Constraint("inducedNeighborhoodOut", new PropInducedNeighborhood(this.graphOut)));
-        // CC constraints
-        this.model.nbConnectedComponents(this.graphCore, this.nbCcCore).post();
-        this.model.nbConnectedComponents(this.graphBuffer, this.nbCcBuffer).post();
-        this.model.nbConnectedComponents(this.graphOut, this.nbCcOut).post();
-        // Nb sites constraint
-        this.model.nbNodes(this.graphCore, this.nbSitesCore).post();
-        this.model.nbNodes(this.graphBuffer, this.nbSitesBuffer).post();
-        this.model.nbNodes(this.graphOut, this.nbSitesOut).post();
+        if (useBuffer) {
+            if (useBuffer2) {
+                this.model.setsIntsChanneling(new SetVar[]{this.out, this.buffer2, this.buffer, this.core}, this.sites).post();
+            } else {
+                this.model.setsIntsChanneling(new SetVar[]{this.out, this.buffer, this.core}, this.sites).post();
+            }
+        } else {
+            this.model.setsIntsChanneling(new SetVar[]{this.out, this.core}, this.sites).post();
+        }
         // Set default search
         this.model.getSolver().setSearch(Search.domOverWDegSearch(sites));
     }
@@ -168,6 +221,10 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
         return buffer;
     }
 
+    public SetVar getBuffer2() {
+        return buffer2;
+    }
+
     public SetVar getOut() {
         return out;
     }
@@ -182,6 +239,33 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
 
     public UndirectedGraphVar getGraphOut() {
         return graphOut;
+    }
+
+    public void initGraphCore() {
+        if (!graphCoreInit) {
+            model.nodesChanneling(graphCore, core).post();
+            model.post(new Constraint("inducedNeighborhoodCore", new PropInducedNeighborhood(graphCore)));
+            model.nbConnectedComponents(graphCore, nbCcCore).post();
+            graphCoreInit = true;
+        }
+    }
+
+    public void initGraphBuffer() {
+        if (!graphBufferInit) {
+            model.nodesChanneling(graphBuffer, buffer).post();
+            model.post(new Constraint("inducedNeighborhoodBuffer", new PropInducedNeighborhood(graphBuffer)));
+            model.nbConnectedComponents(graphBuffer, nbCcBuffer).post();
+            graphBufferInit = true;
+        }
+    }
+
+    public void initGraphOut() {
+        if (!graphOutInit) {
+            model.nodesChanneling(graphOut, out).post();
+            model.post(new Constraint("inducedNeighborhoodOut", new PropInducedNeighborhood(graphOut)));
+            model.nbConnectedComponents(graphOut, nbCcOut).post();
+            graphCoreInit = true;
+        }
     }
 
     public IntVar getNbCcCore() {
@@ -258,6 +342,10 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
                     System.out.printf("#");
                     continue;
                 }
+                if (buffer2.getLB().contains(grid.getIndexFromCoordinates(i, j))) {
+                    System.out.printf("-");
+                    continue;
+                }
                 if (buffer.getLB().contains(grid.getIndexFromCoordinates(i, j))) {
                     System.out.printf("+");
                     continue;
@@ -275,6 +363,7 @@ public class ReserveModel implements IReserveModel, IReserveConstraintFactory, I
         System.out.println("Nb CC out: " + getNbCcOut());
         System.out.println("Nb sites core: " + getNbSitesCore());
         System.out.println("Nb sites buffer: " + getNbSitesBuffer());
+        System.out.println("Nb sites buffer2: " + buffer2.getCard().getValue());
         System.out.println("Nb sites out: " + getNbSitesOut());
         System.out.printf("\n");
     }

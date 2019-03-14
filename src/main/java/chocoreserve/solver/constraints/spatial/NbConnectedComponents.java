@@ -24,6 +24,8 @@
 package chocoreserve.solver.constraints.spatial;
 
 import chocoreserve.solver.ReserveModel;
+import chocoreserve.solver.constraints.choco.graph.PropInducedNeighborhood;
+import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
 

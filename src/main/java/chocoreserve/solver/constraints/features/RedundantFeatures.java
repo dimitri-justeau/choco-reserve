@@ -38,7 +38,7 @@ public class RedundantFeatures extends FeaturesConstraint {
 
     protected SetVar set;
     protected int k;
-    protected IntVar[] N;
+    public IntVar[] N;
 
     public RedundantFeatures(ReserveModel reserveModel, SetVar set, int k, Feature... features) {
         super(reserveModel, features);

@@ -57,6 +57,9 @@ public class TestSizeRegion {
     public void testSizeRegionSuccess1() {
         RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
+        reserveModel.initGraphCore();
+        reserveModel.initGraphOut();
+        reserveModel.initGraphBuffer();
         reserveModel.sizeRegion(reserveModel.getCore(), 9, 9).post();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();

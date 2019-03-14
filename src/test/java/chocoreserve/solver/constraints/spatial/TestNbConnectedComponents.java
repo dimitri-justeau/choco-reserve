@@ -54,6 +54,9 @@ public class TestNbConnectedComponents {
     public void testNbConnectedComponentsSuccessCase1() {
         RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
+        reserveModel.initGraphCore();
+        reserveModel.initGraphOut();
+        reserveModel.initGraphBuffer();
         reserveModel.nbConnectedComponents(reserveModel.getCore(), 5, 5).post();
         reserveModel.getChocoModel().arithm(reserveModel.getNbSitesBuffer(), "=", 0).post();
         Solver solver = reserveModel.getChocoSolver();
@@ -81,6 +84,9 @@ public class TestNbConnectedComponents {
     public void testNbConnectedComponentsSuccessCase2() {
         RegularSquareGrid grid = new FourConnectedSquareGrid(2, 2);
         ReserveModel reserveModel = new ReserveModel(grid);
+        reserveModel.initGraphCore();
+        reserveModel.initGraphOut();
+        reserveModel.initGraphBuffer();
         reserveModel.nbConnectedComponents(reserveModel.getCore(), 2, 2).post();
         reserveModel.getChocoModel().arithm(reserveModel.getNbSitesBuffer(), "=", 0).post();
         Solver solver = reserveModel.getChocoSolver();
@@ -120,6 +126,9 @@ public class TestNbConnectedComponents {
     public void testNbConnectedComponentsFailCase1() {
         RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
         ReserveModel reserveModel = new ReserveModel(grid);
+        reserveModel.initGraphCore();
+        reserveModel.initGraphOut();
+        reserveModel.initGraphBuffer();
         reserveModel.nbConnectedComponents(reserveModel.getCore(), 6, 6).post();
         reserveModel.getChocoModel().arithm(reserveModel.getNbSitesBuffer(), "=", 0).post();
         Solver solver = reserveModel.getChocoSolver();
