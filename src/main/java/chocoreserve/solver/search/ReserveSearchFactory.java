@@ -32,6 +32,7 @@ import org.chocosolver.solver.search.strategy.strategy.IntStrategy;
 import org.chocosolver.solver.variables.IntVar;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -103,13 +104,14 @@ public class ReserveSearchFactory {
      * @param probabilityThreshold A threshold to use in case of probabilistic features.
      * @return The scores.
      */
-    public static double[] makeScores(IReserveModel reserveModel, double probabilityThreshold) {
+    public static double[] makeScores(ReserveModel reserveModel, double probabilityThreshold) {
         assert probabilityThreshold >=0 && probabilityThreshold <= 1;
-        RegularSquareGrid grid = (RegularSquareGrid) reserveModel.getGrid();
+        RegularSquareGrid grid = reserveModel.getGrid();
         int nbPlanningUnits = reserveModel.getGrid().getNbCells();
         // Compute scores
         double[] scores = new double[nbPlanningUnits];
-        for (Feature f : reserveModel.getFeatures().values()) {
+        Collection<Feature> features = reserveModel.getFeatures().values();
+        for (Feature f : features) {
             try {
                 double[] data = grid.getBordered(f.getData());
                 for (int i = 0; i < nbPlanningUnits; i++) {

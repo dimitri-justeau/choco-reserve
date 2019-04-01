@@ -23,39 +23,27 @@
 
 package chocoreserve.solver.constraints.spatial;
 
+import chocoreserve.solver.Region;
 import chocoreserve.solver.ReserveModel;
-import org.chocosolver.graphsolver.variables.GraphVar;
-import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.SetVar;
 
 /**
  * Size of a region's connected components.
  */
 public class SizeConnectedComponents extends SpatialConstraint {
 
-    private SetVar set;
+    private Region region;
     private IntVar minSizeCC, maxSizeCC;
 
-    public SizeConnectedComponents(ReserveModel reserveModel, SetVar set, IntVar minSizeCC, IntVar maxSizeCC) {
+    public SizeConnectedComponents(ReserveModel reserveModel, Region region, IntVar minSizeCC, IntVar maxSizeCC) {
         super(reserveModel);
-        this.set = set;
+        this.region = region;
         this.minSizeCC = minSizeCC;
         this.maxSizeCC = maxSizeCC;
     }
 
     @Override
     public void post() {
-        UndirectedGraphVar g;
-        if (set == reserveModel.getCore()) {
-            g = reserveModel.getGraphCore();
-        } else {
-            if (set == reserveModel.getBuffer()) {
-                g = reserveModel.getGraphBuffer();
-            } else {
-                g = reserveModel.getGraphOut();
-            }
-        }
-        chocoModel.sizeConnectedComponents(g, minSizeCC, maxSizeCC).post();
+        chocoModel.sizeConnectedComponents(region.getGraphVar(), minSizeCC, maxSizeCC).post();
     }
 }

@@ -23,8 +23,9 @@
 
 package chocoreserve.solver.constraints.features;
 
-import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
+import chocoreserve.grid.neighborhood.Neighborhood;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
+import chocoreserve.solver.Region;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.feature.BinaryFeature;
 import org.chocosolver.solver.Solver;
@@ -53,17 +54,19 @@ public class TestRedundantFeatures {
      */
     @Test
     public void testSuccess1() {
-        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
-        ReserveModel reserveModel = new ReserveModel(grid);
+        RegularSquareGrid grid = new RegularSquareGrid(3, 3);
+        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        ReserveModel reserveModel = new ReserveModel(grid, core, out);
         BinaryFeature feature = reserveModel.binaryFeature(
                 "binary",
                 new int[] {1, 1, 1, 0, 0, 0, 0, 0, 0}
         );
-        reserveModel.redundantFeatures(reserveModel.getCore(), 3, feature).post();
+        reserveModel.redundantFeatures(core, 3, feature).post();
         Solver solver = reserveModel.getChocoSolver();
         if (solver.solve()) {
             do {
-                ISet nodes = reserveModel.getCore().getLB();
+                ISet nodes = core.getSetVar().getLB();
                 Assert.assertTrue(nodes.contains(0) && nodes.contains(1) && nodes.contains(2));
             } while (solver.solve());
         }
@@ -86,8 +89,10 @@ public class TestRedundantFeatures {
      */
     @Test
     public void testSuccess2() {
-        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
-        ReserveModel reserveModel = new ReserveModel(grid);
+        RegularSquareGrid grid = new RegularSquareGrid(3, 3);
+        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        ReserveModel reserveModel = new ReserveModel(grid, core, out);
         BinaryFeature featureA = reserveModel.binaryFeature(
                 "A",
                 new int[] {1, 1, 0, 0, 0, 0, 0, 0, 0}
@@ -96,11 +101,11 @@ public class TestRedundantFeatures {
                 "B",
                 new int[] {1, 0, 1, 0, 1, 0, 1, 0, 0}
         );
-        reserveModel.redundantFeatures(reserveModel.getCore(), 2, featureA, featureB).post();
+        reserveModel.redundantFeatures(core, 2, featureA, featureB).post();
         Solver solver = reserveModel.getChocoSolver();
         if (solver.solve()) {
             do {
-                ISet nodes = reserveModel.getCore().getLB();
+                ISet nodes = core.getSetVar().getLB();
                 Assert.assertTrue(nodes.contains(0) && nodes.contains(1) &&
                         (nodes.contains(2) || nodes.contains(4) || nodes.contains(6)));
             } while (solver.solve());
@@ -115,13 +120,15 @@ public class TestRedundantFeatures {
      */
     @Test
     public void testFail() {
-        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
-        ReserveModel reserveModel = new ReserveModel(grid);
+        RegularSquareGrid grid = new RegularSquareGrid(3, 3);
+        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        ReserveModel reserveModel = new ReserveModel(grid, core, out);
         BinaryFeature feature = reserveModel.binaryFeature(
                 "binary",
                 new int[] {1, 1, 0, 0, 0, 0, 0, 0, 0}
         );
-        reserveModel.redundantFeatures(reserveModel.getCore(), 3, feature).post();
+        reserveModel.redundantFeatures(core, 3, feature).post();
         Solver solver = reserveModel.getChocoSolver();
         Assert.assertFalse(solver.solve());
     }

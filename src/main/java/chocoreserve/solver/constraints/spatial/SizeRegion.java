@@ -23,38 +23,30 @@
 
 package chocoreserve.solver.constraints.spatial;
 
+import chocoreserve.solver.Region;
 import chocoreserve.solver.ReserveModel;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
 
 /**
- * Size of a region's connected components.
+ * Total size of a region constraint.
  */
 public class SizeRegion extends SpatialConstraint {
 
-    private SetVar set;
+    private Region region;
     private int minSize, maxSize;
 
-    public SizeRegion(ReserveModel reserveModel, SetVar set, int minSize, int maxSize) {
+    public SizeRegion(ReserveModel reserveModel, Region region, int minSize, int maxSize) {
         super(reserveModel);
-        this.set = set;
+        this.region = region;
         this.minSize = minSize;
         this.maxSize = maxSize;
     }
 
     @Override
     public void post() {
-        IntVar nbNodes;
-        if (set == reserveModel.getCore()) {
-            nbNodes = reserveModel.getNbSitesCore();
-        } else {
-            if (set == reserveModel.getBuffer()) {
-                nbNodes = reserveModel.getNbSitesBuffer();
-            } else {
-                nbNodes = reserveModel.getNbSitesOut();
-            }
-        }
+        IntVar nbNodes = region.getNbSites();
         chocoModel.arithm(nbNodes, ">=", minSize).post();
         chocoModel.arithm(nbNodes, "<=", maxSize).post();
     }

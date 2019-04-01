@@ -23,6 +23,8 @@
 
 package chocoreserve.grid.regular.square;
 
+import chocoreserve.grid.neighborhood.INeighborhood;
+import chocoreserve.grid.neighborhood.Neighborhood;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -46,36 +48,31 @@ import java.util.Arrays;
 public class TestHeightConnectedSquareGrid {
 
     @Test
-    public void testGetNbCells() {
-        HeightConnectedSquareGrid grid = new HeightConnectedSquareGrid(5, 5);
-        Assert.assertEquals(grid.getNbCells(), 25);
-    }
-
-    @Test
     public void testGetNeighbors() {
-        HeightConnectedSquareGrid grid = new HeightConnectedSquareGrid(5, 5);
+        RegularSquareGrid grid = new RegularSquareGrid(5, 5);
+        INeighborhood neigh = Neighborhood.HEIGHT_CONNECTED;
         // Cell in the middle: 12
-        int[] neighbors = grid.getNeighbors(12);
+        int[] neighbors = neigh.getNeighbors(grid, 12);
         Arrays.sort(neighbors);
         int[] expected = new int[] {6, 7, 8, 11, 13, 16, 17, 18};
         Assert.assertTrue(Arrays.equals(neighbors, expected));
         // Cell 0
-        neighbors = grid.getNeighbors(0);
+        neighbors = neigh.getNeighbors(grid, 0);
         Arrays.sort(neighbors);
         expected = new int[] {1, 5, 6};
         Assert.assertTrue(Arrays.equals(neighbors, expected));
         // Cell 15
-        neighbors = grid.getNeighbors(15);
+        neighbors = neigh.getNeighbors(grid, 15);
         Arrays.sort(neighbors);
         expected = new int[] {10, 11, 16, 20, 21};
         Assert.assertTrue(Arrays.equals(neighbors, expected));
         // Cell 9
-        neighbors = grid.getNeighbors(9);
+        neighbors = neigh.getNeighbors(grid, 9);
         Arrays.sort(neighbors);
         expected = new int[] {3, 4, 8, 13, 14};
         Assert.assertTrue(Arrays.equals(neighbors, expected));
         // Cell 24
-        neighbors = grid.getNeighbors(24);
+        neighbors = neigh.getNeighbors(grid, 24);
         Arrays.sort(neighbors);
         expected = new int[] {18, 19, 23};
         Assert.assertTrue(Arrays.equals(neighbors, expected));

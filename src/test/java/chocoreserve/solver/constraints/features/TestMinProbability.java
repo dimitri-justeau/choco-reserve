@@ -23,9 +23,9 @@
 
 package chocoreserve.solver.constraints.features;
 
-import chocoreserve.exception.ModelNotInstantiatedError;
-import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
+import chocoreserve.grid.neighborhood.Neighborhood;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
+import chocoreserve.solver.Region;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.feature.ProbabilisticFeature;
 import org.chocosolver.solver.Solver;
@@ -56,11 +56,13 @@ public class TestMinProbability {
      */
     @Test
     public void testSuccess1() {
-        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
-        ReserveModel reserveModel = new ReserveModel(grid);
+        RegularSquareGrid grid = new RegularSquareGrid(3, 3);
+        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        ReserveModel reserveModel = new ReserveModel(grid, core, out);
         double[] data = new double[] {0.1, 0.2, 0.1, 0.7, 0.1, 0.1, 0.3, 0.3, 0.1};
         ProbabilisticFeature feature = reserveModel.probabilisticFeature("probabilistic", data);
-        reserveModel.minProbability(reserveModel.getCore(), 0.8, feature).post();
+        reserveModel.minProbability(core, 0.8, feature).post();
         Solver solver = reserveModel.getChocoSolver();
         solver.setSearch(Search.inputOrderLBSearch(reserveModel.getSites()));
         int nbSol = 0;
@@ -68,10 +70,10 @@ public class TestMinProbability {
             do {
                 nbSol ++;
                 try {
-                    int[] nodes = reserveModel.getSelectedCoreSites();
+                    int[] nodes = core.getSetVar().getLB().toArray();
                     double prob = IntStream.of(nodes).mapToDouble(i -> 1 - data[i]).reduce(1, (a, b) -> a * b);
                     Assert.assertTrue(prob <= 0.2);
-                } catch (ModelNotInstantiatedError e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                     Assert.fail();
                 }
@@ -80,25 +82,27 @@ public class TestMinProbability {
             Assert.fail();
         }
         // Now assert that the solver found every solution.
-        ReserveModel unconstrainedReserveModel = new ReserveModel(grid);
+        Region unconstrainedCore = new Region("core", Neighborhood.FOUR_CONNECTED);
+        Region unconstrainedOut = new Region("out", Neighborhood.FOUR_CONNECTED);
+        ReserveModel unconstrainedReserveModel = new ReserveModel(grid, unconstrainedCore, unconstrainedOut);
         Solver solver1 = unconstrainedReserveModel.getChocoSolver();
         solver.setSearch(Search.inputOrderLBSearch(reserveModel.getSites()));
         int nbNotSol = 0;
         if (solver1.solve()) {
             do {
                 try {
-                    int[] nodes = unconstrainedReserveModel.getSelectedCoreSites();
+                    int[] nodes = unconstrainedCore.getSetVar().getLB().toArray();
                     double prob = IntStream.of(nodes).mapToDouble(i -> 1 - data[i]).reduce(1, (a, b) -> a * b);
                     if (prob > 0.2) {
                         nbNotSol ++;
                     }
-                } catch (ModelNotInstantiatedError e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                     Assert.fail();
                 }
             } while (solver1.solve());
         }
-        Assert.assertEquals((int) Math.pow(3, 3*3), nbNotSol + nbSol);
+        Assert.assertEquals((int) Math.pow(2, 3*3), nbNotSol + nbSol);
     }
 
     /**
@@ -117,22 +121,24 @@ public class TestMinProbability {
      */
     @Test
     public void testSuccess2() {
-        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
-        ReserveModel reserveModel = new ReserveModel(grid);
+        RegularSquareGrid grid = new RegularSquareGrid(3, 3);
+        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        ReserveModel reserveModel = new ReserveModel(grid, core, out);
         double[] dataA = new double[] {0.1, 0.2, 0.1, 0.7, 0.1, 0.1, 0.3, 0.3, 0.1};
         ProbabilisticFeature featureA = reserveModel.probabilisticFeature("A", dataA);
         double[] dataB = new double[] {0.7, 0.201, 0.051, 0.5, 0.1, 0.01, 0.25, 0.333, 0.21};
         ProbabilisticFeature featureB = reserveModel.probabilisticFeature("B", dataB);
-        reserveModel.minProbability(reserveModel.getCore(), 0.8, featureA, featureB).post();
+        reserveModel.minProbability(core, 0.8, featureA, featureB).post();
         Solver solver = reserveModel.getChocoSolver();
         if (solver.solve()) {
             do {
                 try {
-                    int[] nodes = reserveModel.getSelectedCoreSites();
+                    int[] nodes = core.getSetVar().getLB().toArray();
                     double probA = IntStream.of(nodes).mapToDouble(i -> 1 - dataA[i]).reduce(1, (a, b) -> a * b);
                     double probB = IntStream.of(nodes).mapToDouble(i -> 1 - dataB[i]).reduce(1, (a, b) -> a * b);
                     Assert.assertTrue(probA <= 0.2 && probB <= 0.2);
-                } catch (ModelNotInstantiatedError e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                     Assert.fail();
                 }
@@ -159,11 +165,13 @@ public class TestMinProbability {
      */
     @Test
     public void testFail() {
-        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
-        ReserveModel reserveModel = new ReserveModel(grid);
+        RegularSquareGrid grid = new RegularSquareGrid(3, 3);
+        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        ReserveModel reserveModel = new ReserveModel(grid, core, out);
         double[] data = new double[] {0.1, 0.2, 0.1, 0.7, 0.1, 0.1, 0.3, 0.3, 0.1};
         ProbabilisticFeature feature = reserveModel.probabilisticFeature("probabilistic", data);
-        reserveModel.minProbability(reserveModel.getCore(), 0.99, feature).post();
+        reserveModel.minProbability(core, 0.99, feature).post();
         Solver solver = reserveModel.getChocoSolver();
         Assert.assertFalse(solver.solve());
     }

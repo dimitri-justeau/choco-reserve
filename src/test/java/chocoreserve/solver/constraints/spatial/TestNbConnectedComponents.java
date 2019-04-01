@@ -23,8 +23,9 @@
 
 package chocoreserve.solver.constraints.spatial;
 
-import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
+import chocoreserve.grid.neighborhood.Neighborhood;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
+import chocoreserve.solver.Region;
 import chocoreserve.solver.ReserveModel;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
@@ -52,13 +53,11 @@ public class TestNbConnectedComponents {
      */
     @Test
     public void testNbConnectedComponentsSuccessCase1() {
-        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
-        ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.initGraphCore();
-        reserveModel.initGraphOut();
-        reserveModel.initGraphBuffer();
-        reserveModel.nbConnectedComponents(reserveModel.getCore(), 5, 5).post();
-        reserveModel.getChocoModel().arithm(reserveModel.getNbSitesBuffer(), "=", 0).post();
+        RegularSquareGrid grid = new RegularSquareGrid(3, 3);
+        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        ReserveModel reserveModel = new ReserveModel(grid, core, out);
+        reserveModel.nbConnectedComponents(core, 5, 5).post();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();
         Assert.assertEquals(1, solutions.size());
@@ -67,7 +66,7 @@ public class TestNbConnectedComponents {
         } catch (ContradictionException e) {
             e.printStackTrace();
         }
-        int[] nodes = reserveModel.getGraphCore().getMandatoryNodes().toArray();
+        int[] nodes = core.getSetVar().getLB().toArray();
         Arrays.sort(nodes);
         Assert.assertTrue(Arrays.equals(nodes, new int[] {0, 2, 4, 6, 8}));
     }
@@ -82,13 +81,11 @@ public class TestNbConnectedComponents {
      */
     @Test
     public void testNbConnectedComponentsSuccessCase2() {
-        RegularSquareGrid grid = new FourConnectedSquareGrid(2, 2);
-        ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.initGraphCore();
-        reserveModel.initGraphOut();
-        reserveModel.initGraphBuffer();
-        reserveModel.nbConnectedComponents(reserveModel.getCore(), 2, 2).post();
-        reserveModel.getChocoModel().arithm(reserveModel.getNbSitesBuffer(), "=", 0).post();
+        RegularSquareGrid grid = new RegularSquareGrid(2, 2);
+        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        ReserveModel reserveModel = new ReserveModel(grid, core, out);
+        reserveModel.nbConnectedComponents(core, 2, 2).post();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();
         Assert.assertEquals(2, solutions.size());
@@ -102,10 +99,11 @@ public class TestNbConnectedComponents {
      */
     @Test
     public void testNbConnectedComponentsSuccessCase3() {
-        RegularSquareGrid grid = new FourConnectedSquareGrid(1, 2);
-        ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.nbConnectedComponents(reserveModel.getCore(), 0, 1).post();
-        reserveModel.getChocoModel().arithm(reserveModel.getNbSitesBuffer(), "=", 0).post();
+        RegularSquareGrid grid = new RegularSquareGrid(1, 2);
+        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        ReserveModel reserveModel = new ReserveModel(grid, core, out);
+        reserveModel.nbConnectedComponents(core, 0, 1).post();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();
         Assert.assertEquals(4, solutions.size());
@@ -124,13 +122,11 @@ public class TestNbConnectedComponents {
      */
     @Test
     public void testNbConnectedComponentsFailCase1() {
-        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
-        ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.initGraphCore();
-        reserveModel.initGraphOut();
-        reserveModel.initGraphBuffer();
-        reserveModel.nbConnectedComponents(reserveModel.getCore(), 6, 6).post();
-        reserveModel.getChocoModel().arithm(reserveModel.getNbSitesBuffer(), "=", 0).post();
+        RegularSquareGrid grid = new RegularSquareGrid(3, 3);
+        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        ReserveModel reserveModel = new ReserveModel(grid, core, out);
+        reserveModel.nbConnectedComponents(core, 6, 6).post();
         Solver solver = reserveModel.getChocoSolver();
         boolean solution = solver.solve();
         Assert.assertFalse(solution);

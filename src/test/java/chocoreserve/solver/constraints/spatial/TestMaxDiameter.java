@@ -23,8 +23,9 @@
 
 package chocoreserve.solver.constraints.spatial;
 
-import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
+import chocoreserve.grid.neighborhood.Neighborhood;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
+import chocoreserve.solver.Region;
 import chocoreserve.solver.ReserveModel;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
@@ -44,10 +45,11 @@ public class TestMaxDiameter {
      */
     @Test
     public void testSuccess1() {
-        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 2);
-        ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.maxDiameter(reserveModel.getCore(), 3).post();
-        reserveModel.getChocoModel().arithm(reserveModel.getNbSitesBuffer(), "=", 0).post();
+        RegularSquareGrid grid = new RegularSquareGrid(3, 2);
+        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        ReserveModel reserveModel = new ReserveModel(grid, core, out);
+        reserveModel.maxDiameter(core, 3).post();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();
         Assert.assertEquals((int)(Math.pow(2, 6) - 1), solutions.size());
@@ -58,11 +60,12 @@ public class TestMaxDiameter {
      */
     @Test
     public void testSuccess2() {
-        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 2);
-        ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.mandatorySites(reserveModel.getCore(), 0).post();
-        reserveModel.getChocoModel().arithm(reserveModel.getNbSitesBuffer(), "=", 0).post();
-        reserveModel.maxDiameter(reserveModel.getCore(), 0.5).post();
+        RegularSquareGrid grid = new RegularSquareGrid(3, 2);
+        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        ReserveModel reserveModel = new ReserveModel(grid, core, out);
+        reserveModel.mandatorySites(core, 0).post();
+        reserveModel.maxDiameter(core, 0.5).post();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();
         Assert.assertEquals(1, solutions.size());
@@ -73,11 +76,12 @@ public class TestMaxDiameter {
      */
     @Test
     public void testFail1() throws ContradictionException {
-        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 2);
-        ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.maxDiameter(reserveModel.getCore(), 1).post();
-        reserveModel.getChocoModel().arithm(reserveModel.getNbSitesBuffer(), "=", 0).post();
-        reserveModel.mandatorySites(reserveModel.getCore(), 0, 5).post();
+        RegularSquareGrid grid = new RegularSquareGrid(3, 2);
+        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        ReserveModel reserveModel = new ReserveModel(grid, core, out);
+        reserveModel.maxDiameter(core, 1).post();
+        reserveModel.mandatorySites(core, 0, 5).post();
         Solver solver = reserveModel.getChocoSolver();
         if (solver.solve()) {
             reserveModel.printSolution(false);

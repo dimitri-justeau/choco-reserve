@@ -31,7 +31,7 @@ import java.util.Arrays;
 /**
  * Abstract base class for regular square grids.
  */
-public abstract class RegularSquareGrid extends Grid {
+public class RegularSquareGrid extends Grid {
 
     protected int nbRows, nbCols;
     protected int border;
@@ -89,15 +89,6 @@ public abstract class RegularSquareGrid extends Grid {
         int row = Math.floorDiv(index, getNbCols(ignoreBorder));
         int col = index % getNbCols(ignoreBorder);
         return new int[] {row, col};
-    }
-
-    public int[][] getMatrixNeighbors(int i, int j) {
-        int[] indexNeighbors = getNeighbors(getIndexFromCoordinates(i, j));
-        int[][] matrixNeighbors = new int[indexNeighbors.length][];
-        for (int k = 0; k < indexNeighbors.length; k++) {
-            matrixNeighbors[k] = getCoordinatesFromIndex(indexNeighbors[k]);
-        }
-        return matrixNeighbors;
     }
 
     /**

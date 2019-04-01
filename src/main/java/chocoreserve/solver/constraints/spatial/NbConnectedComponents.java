@@ -23,44 +23,31 @@
 
 package chocoreserve.solver.constraints.spatial;
 
+import chocoreserve.solver.Region;
 import chocoreserve.solver.ReserveModel;
-import chocoreserve.solver.constraints.choco.graph.PropInducedNeighborhood;
-import org.chocosolver.solver.constraints.Constraint;
-import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.SetVar;
 
 /**
  * Number of reserves constraint.
  */
 public class NbConnectedComponents extends SpatialConstraint {
 
-    private SetVar set;
+    private Region region;
     private int nbMin, nbMax;
 
-    public NbConnectedComponents(ReserveModel reserveModel, SetVar set, int nbMin, int nbMax) {
+    public NbConnectedComponents(ReserveModel reserveModel, Region region, int nbMin, int nbMax) {
         super(reserveModel);
-        this.set = set;
+        this.region = region;
         this.nbMin = nbMin;
         this.nbMax = nbMax;
     }
 
     @Override
     public void post() {
-        IntVar nbCC;
-        if (set == reserveModel.getCore()) {
-            nbCC = nbCcCore;
-        } else {
-            if (set == reserveModel.getBuffer()) {
-                nbCC = nbCcBuffer;
-            } else {
-                nbCC = nbCcOut;
-            }
-        }
         if (nbMin == nbMax) {
-            chocoModel.arithm(nbCC, "=", nbMin).post();
+            chocoModel.arithm(region.getNbCC(), "=", nbMin).post();
         } else {
-            chocoModel.arithm(nbCC, ">=", nbMin).post();
-            chocoModel.arithm(nbCC, "<=", nbMax).post();
+            chocoModel.arithm(region.getNbCC(), ">=", nbMin).post();
+            chocoModel.arithm(region.getNbCC(), "<=", nbMax).post();
         }
     }
 }

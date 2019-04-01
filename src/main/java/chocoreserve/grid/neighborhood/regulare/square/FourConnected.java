@@ -21,51 +21,36 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.grid.regular.square;
+package chocoreserve.grid.neighborhood.regulare.square;
+
+import chocoreserve.grid.neighborhood.INeighborhood;
+import chocoreserve.grid.regular.square.RegularSquareGrid;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 8-connected regular square grid.
+ * The four-connected neighborhood in a regular square grid.
  */
-public class HeightConnectedSquareGrid extends RegularSquareGrid {
+public class FourConnected<T extends RegularSquareGrid> implements INeighborhood<T> {
 
-    public HeightConnectedSquareGrid(int nbRows, int nbCols) {
-        super(nbRows, nbCols);
-    }
-
-    public HeightConnectedSquareGrid(int nbRows, int nbCols, int border) {
-        super(nbRows, nbCols, border);
-    }
-
-    @Override
-    public int[] getNeighbors(int i) {
-        List<Integer> neighbors = new ArrayList<>();
+    public int[] getNeighbors(T grid, int i) {
+        int nbCols = grid.getNbCols();
+        int nbRows = grid.getNbRows();
+        List<Integer> neighbors = new ArrayList<Integer>();
         if (i % nbCols != 0) {
             neighbors.add(i - 1);
-        }
-        if (i >= nbCols) {
-            neighbors.add(i - nbCols);
         }
         if ((i + 1) % nbCols != 0) {
             neighbors.add(i + 1);
         }
+        if (i >= nbCols) {
+            neighbors.add(i - nbCols);
+        }
         if (i < nbCols * (nbRows - 1)) {
             neighbors.add(i + nbCols);
         }
-        if ((i < nbCols * (nbRows - 1)) && ((i + 1) % nbCols != 0)) {
-            neighbors.add(i + nbCols + 1);
-        }
-        if ((i < nbCols * (nbRows - 1)) && (i % nbCols != 0)) {
-            neighbors.add(i + nbCols - 1);
-        }
-        if ((i % nbCols != 0) && i >=nbCols) {
-            neighbors.add(i - nbCols - 1);
-        }
-        if (((i + 1) % nbCols != 0) && i >= nbCols) {
-            neighbors.add(i - nbCols + 1);
-        }
         return neighbors.stream().mapToInt(v -> v).toArray();
     }
+
 }

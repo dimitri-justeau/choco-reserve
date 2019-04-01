@@ -23,15 +23,10 @@
 
 package chocoreserve.solver;
 
-import chocoreserve.exception.ModelNotInstantiatedError;
-import chocoreserve.grid.IGrid;
+import chocoreserve.grid.Grid;
 import chocoreserve.solver.feature.Feature;
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.variables.BoolVar;
-import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.util.objects.setDataStructures.ISet;
 
 import java.util.Map;
 
@@ -40,12 +35,12 @@ import java.util.Map;
  * to every instance of the problem. Specialization for specific instances is provided by the extra constraints that
  * can be 'posted' to a model.
  */
-public interface IReserveModel {
+public interface IReserveModel<T extends Grid> {
 
     /**
      * @return The grid associated with the model.
      */
-    IGrid getGrid();
+    T getGrid();
 
     /**
      * Add a feature to the model.
@@ -56,6 +51,11 @@ public interface IReserveModel {
      * @return A map of the features referenced by the model.
      */
     Map<String, Feature> getFeatures();
+
+    /**
+     * @return The regions defined in the model.
+     */
+    Region[] getRegions();
 
     // --------------------- //
     // Choco related methods //

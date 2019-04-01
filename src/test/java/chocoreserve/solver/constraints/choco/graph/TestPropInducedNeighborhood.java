@@ -24,7 +24,9 @@
 package chocoreserve.solver.constraints.choco.graph;
 
 import chocoreserve.grid.Grid;
-import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
+import chocoreserve.grid.neighborhood.INeighborhood;
+import chocoreserve.grid.neighborhood.Neighborhood;
+import chocoreserve.grid.regular.square.RegularSquareGrid;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.Solution;
@@ -58,12 +60,13 @@ public class TestPropInducedNeighborhood {
 
     @Test
     public void testPropInducedNeighborhood() {
-        Grid grid = new FourConnectedSquareGrid(5, 5);
+        Grid grid = new RegularSquareGrid(5, 5);
+        INeighborhood n4 = Neighborhood.FOUR_CONNECTED;
         GraphModel model = new GraphModel("TestPropInducedNeigh");
         UndirectedGraphVar g = model.graphVar(
             "testGraph",
             new UndirectedGraph(model, grid.getNbCells(), SetType.BIPARTITESET, false),
-            grid.getFullGraph(model, SetType.BIPARTITESET)
+            n4.getFullGraph(grid, model, SetType.BIPARTITESET)
         );
         BoolVar[] cells = model.boolVarArray(grid.getNbCells());
         model.nodesChanneling(g, cells).post();

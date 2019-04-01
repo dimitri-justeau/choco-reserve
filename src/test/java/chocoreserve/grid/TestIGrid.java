@@ -23,8 +23,8 @@
 
 package chocoreserve.grid;
 
-import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
-import chocoreserve.grid.regular.square.HeightConnectedSquareGrid;
+import chocoreserve.grid.neighborhood.Neighborhood;
+import chocoreserve.grid.regular.square.RegularSquareGrid;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
@@ -43,13 +43,13 @@ public class TestIGrid {
 
     @Test
     public void testGetFullGraph() {
-        HeightConnectedSquareGrid grid = new HeightConnectedSquareGrid(5, 5);
+        RegularSquareGrid grid = new RegularSquareGrid(5, 5);
         GraphModel model = new GraphModel();
-        UndirectedGraph g = grid.getFullGraph(model, SetType.BIPARTITESET);
+        UndirectedGraph g = Neighborhood.HEIGHT_CONNECTED.getFullGraph(grid, model, SetType.BIPARTITESET);
         for (int i = 0; i < 25; i++) {
             Assert.assertTrue(g.getNodes().contains(i));
             int[] nodeNeighbors = g.getNeighOf(i).toArray();
-            int[] cellNeighbors = grid.getNeighbors(i);
+            int[] cellNeighbors = Neighborhood.HEIGHT_CONNECTED.getNeighbors(grid, i);
             Arrays.sort(cellNeighbors);
             Arrays.sort(nodeNeighbors);
             Assert.assertTrue(Arrays.equals(cellNeighbors, nodeNeighbors));
@@ -58,16 +58,16 @@ public class TestIGrid {
 
     @Test
     public void testGetPartialGraph() {
-        FourConnectedSquareGrid grid = new FourConnectedSquareGrid(5, 5);
+        RegularSquareGrid grid = new RegularSquareGrid(5, 5);
         GraphModel model = new GraphModel();
         int[] cells = new int[] {6, 7, 10, 11, 12, 15};
         List<Integer> listCells = IntStream.of(cells).boxed().collect(Collectors.toList());
-        UndirectedGraph g = grid.getPartialGraph(model, cells, SetType.BIPARTITESET);
+        UndirectedGraph g = Neighborhood.FOUR_CONNECTED.getPartialGraph(grid, model, cells, SetType.BIPARTITESET);
         int[] nodes = g.getNodes().toArray();
         Arrays.sort(nodes);
         for (int i : cells) {
             int[] nodeNeighbors = g.getNeighOf(i).toArray();
-            int[] cellNeighbors = Arrays.stream(grid.getNeighbors(i))
+            int[] cellNeighbors = Arrays.stream(Neighborhood.FOUR_CONNECTED.getNeighbors(grid, i))
                     .filter(v -> listCells.contains(v))
                     .toArray();
             Arrays.sort(cellNeighbors);

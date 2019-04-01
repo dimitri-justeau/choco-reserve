@@ -23,8 +23,9 @@
 
 package chocoreserve.solver.search;
 
-import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
+import chocoreserve.grid.neighborhood.Neighborhood;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
+import chocoreserve.solver.Region;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.feature.BinaryFeature;
 import org.chocosolver.solver.Solver;
@@ -39,8 +40,10 @@ public class TestReserveSearchFactory {
 
     @Test
     public void testDiscardPoor() {
-        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
-        ReserveModel reserveModel = new ReserveModel(grid);
+        RegularSquareGrid grid = new RegularSquareGrid(3, 3);
+        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        ReserveModel reserveModel = new ReserveModel(grid, core, out);
         BinaryFeature featureA = reserveModel.binaryFeature(
                 "A",
                 new int[] {1, 1, 0, 0, 0, 0, 0, 0, 0}
@@ -49,17 +52,18 @@ public class TestReserveSearchFactory {
                 "B",
                 new int[] {1, 0, 1, 0, 1, 0, 1, 0, 0}
         );
-        reserveModel.redundantFeatures(reserveModel.getCore(), 2, featureA, featureB).post();
+        reserveModel.redundantFeatures(core, 2, featureA, featureB).post();
         Solver solver = reserveModel.getChocoSolver();
         solver.setSearch(ReserveSearchFactory.discardPoor(reserveModel, 0));
         Assert.assertTrue(solver.solve());
-//        reserveModel.printSolution(false);
     }
 
     @Test
     public void testDiscardPoorDeterministic() {
-        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
-        ReserveModel reserveModel = new ReserveModel(grid);
+        RegularSquareGrid grid = new RegularSquareGrid(3, 3);
+        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        ReserveModel reserveModel = new ReserveModel(grid, core, out);
         BinaryFeature featureA = reserveModel.binaryFeature(
                 "A",
                 new int[] {1, 1, 0, 0, 0, 0, 0, 0, 0}
@@ -68,10 +72,9 @@ public class TestReserveSearchFactory {
                 "B",
                 new int[] {1, 0, 1, 0, 1, 0, 1, 0, 0}
         );
-        reserveModel.redundantFeatures(reserveModel.getCore(), 2, featureA, featureB).post();
+        reserveModel.redundantFeatures(core, 2, featureA, featureB).post();
         Solver solver = reserveModel.getChocoSolver();
         solver.setSearch(ReserveSearchFactory.discardPoorDeterministic(reserveModel, 0));
         Assert.assertTrue(solver.solve());
-//        reserveModel.printSolution(true);
     }
 }

@@ -24,7 +24,9 @@
 package chocoreserve.solver.constraints.spatial;
 
 import chocoreserve.grid.Grid;
-import chocoreserve.grid.regular.square.HeightConnectedSquareGrid;
+import chocoreserve.grid.neighborhood.INeighborhood;
+import chocoreserve.grid.neighborhood.Neighborhood;
+import chocoreserve.solver.Region;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.constraints.choco.PropNeighbors;
 import org.chocosolver.solver.constraints.Constraint;
@@ -37,39 +39,20 @@ import java.util.stream.IntStream;
  */
 public class BufferZone extends SpatialConstraint {
 
-    private SetVar set1, set2, buffer, neighSet1, neighSet2;
-    private Grid grid;
+    private Region region1, region2, buffer;
+    private SetVar neighSet1, neighSet2;
+    private INeighborhood neighborhood;
 
-    public BufferZone(ReserveModel reserveModel) {
-        this(
-                reserveModel,
-                new HeightConnectedSquareGrid(reserveModel.getNbRows(), reserveModel.getNbCols()),
-                reserveModel.getCore(),
-                reserveModel.getOut(),
-                reserveModel.getBuffer()
-        );
+    public BufferZone(ReserveModel reserveModel, Region region1, Region region2, Region buffer) {
+        this(reserveModel, Neighborhood.HEIGHT_CONNECTED, region1, region2, buffer);
     }
 
-    public BufferZone(ReserveModel reserveModel, Grid grid) {
-        this(
-                reserveModel,
-                grid,
-                reserveModel.getCore(),
-                reserveModel.getOut(),
-                reserveModel.getBuffer()
-        );
-    }
-
-    public BufferZone(ReserveModel reserveModel, SetVar set1, SetVar set2, SetVar buffer) {
-        this(reserveModel, new HeightConnectedSquareGrid(reserveModel.getNbRows(), reserveModel.getNbCols()), set1, set2, buffer);
-    }
-
-    public BufferZone(ReserveModel reserveModel, Grid grid, SetVar set1, SetVar set2, SetVar buffer) {
+    public BufferZone(ReserveModel reserveModel, INeighborhood neighborhood, Region region1, Region region2, Region buffer) {
         super(reserveModel);
-        this.grid = grid;
+        this.neighborhood = neighborhood;
         int nbCells = reserveModel.getGrid().getNbCells();
-        this.set1 = set1;
-        this.set2 = set2;
+        this.region1 = region1;
+        this.region2 = region2;
         this.buffer = buffer;
         this.neighSet1 = chocoModel.setVar("neighSet1", new int[] {}, IntStream.range(0, nbCells).toArray());
         this.neighSet2 = chocoModel.setVar("neighSet2", new int[] {}, IntStream.range(0, nbCells).toArray());
@@ -77,22 +60,23 @@ public class BufferZone extends SpatialConstraint {
 
     @Override
     public void post() {
-        int nbCells = reserveModel.getGrid().getNbCells();
+        Grid grid = reserveModel.getGrid();
+        int nbCells = grid.getNbCells();
         int[][] adjLists = new int[nbCells][];
         int[][] adjLists2 = new int[nbCells][];
-        IntStream.range(0, nbCells).forEach(i -> adjLists[i] = grid.getNeighbors(i));
-        IntStream.range(0, nbCells).forEach(i -> adjLists2[i] = grid.getNeighbors(i));
+        IntStream.range(0, nbCells).forEach(i -> adjLists[i] = neighborhood.getNeighbors(grid, i));
+        IntStream.range(0, nbCells).forEach(i -> adjLists2[i] = neighborhood.getNeighbors(grid, i));
         Constraint consNeighSet1 = new Constraint(
                 "consNeighSet1",
-                new PropNeighbors(set1, neighSet1, adjLists)
+                new PropNeighbors(region1.getSetVar(), neighSet1, adjLists)
         );
         Constraint consNeighSet2 = new Constraint(
                 "consNeighSet2",
-                new PropNeighbors(set2, neighSet2, adjLists)
+                new PropNeighbors(region2.getSetVar(), neighSet2, adjLists)
         );
         chocoModel.post(consNeighSet1, consNeighSet2);
-        chocoModel.disjoint(neighSet1, set2).post();
-        chocoModel.disjoint(neighSet2, set1).post();
-        chocoModel.intersection(new SetVar[]{neighSet2, neighSet1}, buffer).post();
+        chocoModel.disjoint(neighSet1, region2.getSetVar()).post();
+        chocoModel.disjoint(neighSet2, region1.getSetVar()).post();
+        chocoModel.intersection(new SetVar[]{neighSet2, neighSet1}, buffer.getSetVar()).post();
     }
 }

@@ -23,13 +23,12 @@
 
 package chocoreserve.solver.constraints.choco;
 
-import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
-import chocoreserve.grid.regular.square.HeightConnectedSquareGrid;
+import chocoreserve.grid.neighborhood.INeighborhood;
+import chocoreserve.grid.neighborhood.Neighborhood;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.Constraint;
-import org.chocosolver.solver.search.loop.monitors.IMonitorSolution;
 import org.chocosolver.solver.variables.SetVar;
 import org.junit.Test;
 
@@ -43,12 +42,12 @@ public class TestPropNeighbors {
     @Test
     public void testNeighBuff() {
         // 4-connected and 8-connected grid for neighborhood initialization
-        RegularSquareGrid grid4 = new FourConnectedSquareGrid(3, 3);
-        RegularSquareGrid grid8 = new HeightConnectedSquareGrid(3, 3);
-        int[] universe = IntStream.range(0, grid4.getNbCells()).toArray();
-        int[][] adjLists = new int[grid4.getNbCells()][];
-        IntStream.range(0, grid4.getNbCells())
-                .forEach(i -> adjLists[i] = grid8.getNeighbors(i));
+        RegularSquareGrid grid = new RegularSquareGrid(3, 3);
+        INeighborhood n8 = Neighborhood.HEIGHT_CONNECTED;
+        int[] universe = IntStream.range(0, grid.getNbCells()).toArray();
+        int[][] adjLists = new int[grid.getNbCells()][];
+        IntStream.range(0, grid.getNbCells())
+                .forEach(i -> adjLists[i] = n8.getNeighbors(grid, i));
 
         // ----------- //
         // Choco model //
@@ -77,33 +76,6 @@ public class TestPropNeighbors {
 
         // Solve
         Solver solver = model.getSolver();
-//        solver.showStatistics();
-//        solver.plugMonitor((IMonitorSolution) () -> {
-//            System.out.println("   " + new String(new char[grid4.getNbCols()]).replace("\0", "_"));
-//            for (int i = 0; i < grid4.getNbRows(); i++) {
-//                System.out.printf("  |");
-//                for (int j = 0; j < grid4.getNbCols(); j++) {
-//                    if (C.getLB().contains(grid4.getIndexFromCoordinates(i, j))) {
-//                        System.out.printf("#");
-//                        continue;
-//                    } else {
-//                        if (B.getLB().contains(grid4.getIndexFromCoordinates(i, j))) {
-//                            System.out.printf("+");
-//                            continue;
-//                        } else {
-//                            if (O.getLB().contains(grid4.getIndexFromCoordinates(i, j)))
-//                                System.out.printf(" ");
-//                            else
-//                                System.out.printf("-");
-//                        }
-//                    }
-//                }
-//                System.out.printf("\n");
-//            }
-//            System.out.println("C = " + C.getLB() + " - Gamma_8(C) = " + neighC.getLB());
-//            System.out.println("O = " + O.getLB() + " - Gamma_8(O) = " + neighO.getLB());
-//            System.out.println("B = " + B.getLB());
-//        });
         solver.findAllSolutions();
     }
 }

@@ -24,8 +24,9 @@
 package chocoreserve.solver.constraints.spatial;
 
 import chocoreserve.exception.ModelNotInstantiatedError;
-import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
+import chocoreserve.grid.neighborhood.Neighborhood;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
+import chocoreserve.solver.Region;
 import chocoreserve.solver.ReserveModel;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
@@ -55,12 +56,11 @@ public class TestSizeRegion {
      */
     @Test
     public void testSizeRegionSuccess1() {
-        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
-        ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.initGraphCore();
-        reserveModel.initGraphOut();
-        reserveModel.initGraphBuffer();
-        reserveModel.sizeRegion(reserveModel.getCore(), 9, 9).post();
+        RegularSquareGrid grid = new RegularSquareGrid(3, 3);
+        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        ReserveModel reserveModel = new ReserveModel(grid, core, out);
+        reserveModel.sizeRegion(core, 9, 9).post();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();
         Assert.assertEquals(1, solutions.size());
@@ -69,7 +69,8 @@ public class TestSizeRegion {
         } catch (ContradictionException e) {
             e.printStackTrace();
         }
-        int[] nodes = reserveModel.getGraphCore().getMandatoryNodes().toArray();
+        int[] nodes = core.getSetVar().getLB().toArray();
+        Arrays.sort(nodes);
         Assert.assertTrue(Arrays.equals(IntStream.range(0, 9).toArray(), nodes));
     }
 
@@ -87,17 +88,19 @@ public class TestSizeRegion {
      */
     @Test
     public void testSizeRegionSuccess2() {
-        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
-        ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.sizeRegion(reserveModel.getCore(), 2, 4).post();
+        RegularSquareGrid grid = new RegularSquareGrid(3, 3);
+        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        ReserveModel reserveModel = new ReserveModel(grid, core, out);
+        reserveModel.sizeRegion(core, 2, 4).post();
         Solver solver = reserveModel.getChocoSolver();
         if (solver.solve()) {
             do {
                 try {
-                    int n = reserveModel.getSelectedCoreSites().length;
+                    int n = core.getSetVar().getLB().size();
                     Assert.assertTrue(n >= 2 && n <= 4);
-                } catch (ModelNotInstantiatedError modelNotInstantiatedError) {
-                    modelNotInstantiatedError.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
                     Assert.fail();
                 }
             } while (solver.solve());
@@ -119,9 +122,11 @@ public class TestSizeRegion {
      */
     @Test
     public void testSizeRegionFail() {
-        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
-        ReserveModel reserveModel = new ReserveModel(grid);
-        reserveModel.sizeRegion(reserveModel.getCore(), 10, 20).post();
+        RegularSquareGrid grid = new RegularSquareGrid(3, 3);
+        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        ReserveModel reserveModel = new ReserveModel(grid, core, out);
+        reserveModel.sizeRegion(core, 10, 20).post();
         Solver solver = reserveModel.getChocoSolver();
         Assert.assertFalse(solver.solve());
     }

@@ -23,8 +23,9 @@
 
 package chocoreserve.solver.constraints.features;
 
-import chocoreserve.grid.regular.square.FourConnectedSquareGrid;
+import chocoreserve.grid.neighborhood.Neighborhood;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
+import chocoreserve.solver.Region;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.feature.BinaryFeature;
 import chocoreserve.solver.feature.QuantitativeFeature;
@@ -53,17 +54,19 @@ public class TestCoveredFeatures {
      */
     @Test
     public void testSuccess1() {
-        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
-        ReserveModel reserveModel = new ReserveModel(grid);
+        RegularSquareGrid grid = new RegularSquareGrid(3, 3);
+        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        ReserveModel reserveModel = new ReserveModel(grid, core, out);
         BinaryFeature feature = reserveModel.binaryFeature(
                 "test_binary",
                 new int[] {0, 0, 0, 1, 0, 0, 0, 0, 0 }
         );
-        reserveModel.coveredFeatures(reserveModel.getCore(), feature).post();
+        reserveModel.coveredFeatures(core, feature).post();
         Solver solver = reserveModel.getChocoSolver();
         if (solver.solve()) {
             do {
-                ISet nodes = reserveModel.getCore().getLB();
+                ISet nodes = core.getSetVar().getLB();
                 Assert.assertTrue(nodes.contains(3));
             } while (solver.solve());
         } else {
@@ -87,8 +90,10 @@ public class TestCoveredFeatures {
      */
     @Test
     public void testSuccess2() {
-        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
-        ReserveModel reserveModel = new ReserveModel(grid);
+        RegularSquareGrid grid = new RegularSquareGrid(3, 3);
+        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        ReserveModel reserveModel = new ReserveModel(grid, core, out);
         BinaryFeature featureA = reserveModel.binaryFeature(
                 "A",
                 new int[] {0, 0, 0, 0, 0, 1, 0, 0, 0}
@@ -97,11 +102,11 @@ public class TestCoveredFeatures {
                 "B",
                 new int[] {12, 0, 5, 0, 0, 0, 0, 0, 3}
         );
-        reserveModel.coveredFeatures(reserveModel.getCore(), featureA, featureB).post();
+        reserveModel.coveredFeatures(core, featureA, featureB).post();
         Solver solver = reserveModel.getChocoSolver();
         if (solver.solve()) {
             do {
-                ISet nodes = reserveModel.getCore().getLB();
+                ISet nodes = core.getSetVar().getLB();
                 Assert.assertTrue(nodes.contains(5));
                 Assert.assertTrue(nodes.contains(0) || nodes.contains(2) || nodes.contains(8));
             } while (solver.solve());
@@ -117,13 +122,15 @@ public class TestCoveredFeatures {
      */
     @Test
     public void testFail() {
-        RegularSquareGrid grid = new FourConnectedSquareGrid(3, 3);
-        ReserveModel reserveModel = new ReserveModel(grid);
+        RegularSquareGrid grid = new RegularSquareGrid(3, 3);
+        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        ReserveModel reserveModel = new ReserveModel(grid, core, out);
         BinaryFeature feature = reserveModel.binaryFeature(
                 "A",
                 new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0}
         );
-        reserveModel.coveredFeatures(reserveModel.getCore(), feature).post();
+        reserveModel.coveredFeatures(core, feature).post();
         Solver solver = reserveModel.getChocoSolver();
         Assert.assertFalse(solver.solve());
     }

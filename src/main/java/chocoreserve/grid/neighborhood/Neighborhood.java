@@ -21,39 +21,19 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.grid.regular.square;
+package chocoreserve.grid.neighborhood;
 
-import java.util.ArrayList;
-import java.util.List;
+import chocoreserve.grid.neighborhood.regulare.square.FourConnected;
+import chocoreserve.grid.neighborhood.regulare.square.HeightConnected;
+import chocoreserve.grid.neighborhood.regulare.square.TwoWideHeightConnected;
 
 /**
- * 4-connected regular square grid.
+ * Utility class for accessing neighborhoods.
  */
-public class FourConnectedSquareGrid extends RegularSquareGrid {
+public class Neighborhood {
 
-    public FourConnectedSquareGrid(int nbRows, int nbCols) {
-        super(nbRows, nbCols);
-    }
+    public final static FourConnected FOUR_CONNECTED = new FourConnected();
+    public final static HeightConnected HEIGHT_CONNECTED = new HeightConnected();
+    public final static TwoWideHeightConnected TWO_WIDE_HEIGHT_CONNECTED = new TwoWideHeightConnected();
 
-    public FourConnectedSquareGrid(int nbRows, int nbCols, int border) {
-        super(nbRows, nbCols, border);
-    }
-
-    @Override
-    public int[] getNeighbors(int i) {
-        List<Integer> neighbors = new ArrayList<Integer>();
-        if (i % nbCols != 0) {
-            neighbors.add(i - 1);
-        }
-        if ((i + 1) % nbCols != 0) {
-            neighbors.add(i + 1);
-        }
-        if (i >= nbCols) {
-            neighbors.add(i - nbCols);
-        }
-        if (i < nbCols * (nbRows - 1)) {
-            neighbors.add(i + nbCols);
-        }
-        return neighbors.stream().mapToInt(v -> v).toArray();
-    }
 }

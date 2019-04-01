@@ -33,16 +33,7 @@ import org.chocosolver.solver.variables.IntVar;
  */
 public abstract class SpatialConstraint extends ReserveConstraint {
 
-    protected UndirectedGraphVar graphCore, graphBuffer, graphOut;
-    protected IntVar nbCcCore, nbCcBuffer, nbCcOut;
-
     public SpatialConstraint(ReserveModel reserveModel) {
         super(reserveModel);
-        this.graphCore = reserveModel.getGraphCore();
-        this.graphBuffer = reserveModel.getGraphBuffer();
-        this.graphOut = reserveModel.getGraphOut();
-        this.nbCcCore = reserveModel.getNbCcCore();
-        this.nbCcBuffer = reserveModel.getNbCcBuffer();
-        this.nbCcOut = reserveModel.getNbCcOut();
     }
 }

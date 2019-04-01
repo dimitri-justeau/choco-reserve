@@ -21,37 +21,33 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.grid.regular.square;
+package chocoreserve.grid.neighborhood.regulare.square;
 
-import java.util.ArrayList;
+import chocoreserve.grid.neighborhood.INeighborhood;
+import chocoreserve.grid.neighborhood.Neighborhood;
+import chocoreserve.grid.regular.square.RegularSquareGrid;
+
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
- * 2-wide-8-connected regular square grid.
+ * The 2-wide height-connected neighborhood in a regular square grid.
  */
-public class TwoWideHeightConnectedSquareGrid extends RegularSquareGrid {
+public class TwoWideHeightConnected<T extends RegularSquareGrid> implements INeighborhood<T> {
 
-    public TwoWideHeightConnectedSquareGrid(int nbRows, int nbCols) {
-        super(nbRows, nbCols);
-    }
-
-    public TwoWideHeightConnectedSquareGrid(int nbRows, int nbCols, int border) {
-        super(nbRows, nbCols, border);
-    }
-
-    @Override
-    public int[] getNeighbors(int i) {
-        HeightConnectedSquareGrid height = new HeightConnectedSquareGrid(nbRows, nbCols);
+    public int[] getNeighbors(T grid, int i) {
+        int nbCols = grid.getNbCols();
+        int nbRows = grid.getNbRows();
+        HeightConnected height = Neighborhood.HEIGHT_CONNECTED;
         Set<Integer> neighbors = new HashSet<>();
-        int[] heightneigh = height.getNeighbors(i);
+        int[] heightneigh = height.getNeighbors(grid, i);
         for (int neigh : heightneigh) {
             neighbors.add(neigh);
-            for (int nneigh : height.getNeighbors(neigh)) {
+            for (int nneigh : height.getNeighbors(grid, neigh)) {
                 neighbors.add(nneigh);
             }
         }
         return neighbors.stream().mapToInt(v -> v).toArray();
     }
+
 }
