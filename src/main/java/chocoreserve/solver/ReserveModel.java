@@ -28,7 +28,6 @@ import chocoreserve.solver.constraints.IReserveConstraintFactory;
 import chocoreserve.solver.feature.Feature;
 import chocoreserve.solver.feature.IFeatureFactory;
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
@@ -56,19 +55,6 @@ public class ReserveModel<T extends RegularSquareGrid> implements IReserveModel<
 
     /** Regions */
     private Region[] regions;
-
-    /** The spatial graph variables associated to the model */
-    private UndirectedGraphVar graphCore, graphBuffer, graphOut;
-
-    private boolean graphCoreInit, graphBufferInit, graphOutInit;
-
-    private SetVar core, buffer, buffer2, out;
-
-    /** Number of connected components of graphs */
-    private IntVar nbCcCore, nbCcBuffer, nbCcOut;
-
-    /** Number of sites */
-    private IntVar nbSitesCore, nbSitesBuffer, nbSitesOut;
 
     public ReserveModel(T grid, Region... regions) {
         this.grid = grid;
