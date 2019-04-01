@@ -46,15 +46,19 @@ public interface IReserveConstraintFactory {
     // Misc //
     // ---- //
 
-    default IReserveConstraint mandatorySites(Region region, int... sites) {
+    default IReserveConstraint mandatorySites(SetVar set, int... sites) {
         return () -> {
             for (int i : sites) {
-                self().getChocoModel().member(i, region.getSetVar()).post();
+                self().getChocoModel().member(i, set).post();
             }
         };
     }
 
-    // ---------------------------------- //
+    default IReserveConstraint mandatorySites(Region region, int... sites) {
+        return mandatorySites(region.getSetVar(), sites);
+    }
+
+        // ---------------------------------- //
     // Feature representation constraints //
     // ---------------------------------- //
 
@@ -80,7 +84,11 @@ public interface IReserveConstraintFactory {
      * @return A RedundantFeatures constraint.
      */
     default IReserveConstraint redundantFeatures(Region region, int k, BinaryFeature... features) {
-        return new RedundantFeatures(self(), region, k, features);
+        return redundantFeatures(region.getSetVar(), k, features);
+    }
+
+    default IReserveConstraint redundantFeatures(SetVar setVar, int k, BinaryFeature... features) {
+        return new RedundantFeatures(self(), setVar, k, features);
     }
 
     /**
@@ -93,18 +101,17 @@ public interface IReserveConstraintFactory {
      * @return A MinProbability constraint.
      */
     default IReserveConstraint minProbability(Region region, double alpha, ProbabilisticFeature... features) {
-        return new MinProbability(self(), region, alpha, features);
+        return minProbability(region.getSetVar(), alpha, features);
     }
-//
-//    default IReserveConstraint minProbability(double alpha, boolean postCovered, ProbabilisticFeature... features) {
-//        return new MinProbability(self(), postCovered, alpha, features);
-//    }
-//
-//
-//    // ------------------- //
-//    // Spatial constraints //
-//    // ------------------- //
-//
+
+    default IReserveConstraint minProbability(SetVar set, double alpha, ProbabilisticFeature... features) {
+        return new MinProbability(self(), set, alpha, features);
+    }
+
+    // ------------------- //
+    // Spatial constraints //
+    // ------------------- //
+
     /**
      * Creates a nbReserves constraint. The nbReserves constraint holds iff the reserve system has a number of
      * connected components (reserves) between nbMin and nbMax.
@@ -153,7 +160,11 @@ public interface IReserveConstraintFactory {
      * @return A maxDiameter constraint.
      */
     default IReserveConstraint maxDiameter(Region region, double maxDiameter) {
-        return new Radius(self(), region, self().getChocoModel().realVar("radius", 0, 0.5 * maxDiameter, 1e-5));
+        return maxDiameter(region.getSetVar(), maxDiameter);
+    }
+
+    default IReserveConstraint maxDiameter(SetVar set, double maxDiameter) {
+        return new Radius(self(), set, self().getChocoModel().realVar("radius", 0, 0.5 * maxDiameter, 1e-5));
     }
 
     default IReserveConstraint bufferZone(Region region1, Region region2, Region buffer) {

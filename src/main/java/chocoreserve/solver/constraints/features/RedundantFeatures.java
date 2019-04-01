@@ -28,6 +28,7 @@ import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.feature.BinaryFeature;
 import chocoreserve.solver.feature.Feature;
 import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
 
 import java.io.IOException;
 
@@ -36,16 +37,21 @@ import java.io.IOException;
  */
 public class RedundantFeatures extends FeaturesConstraint {
 
-    protected Region region;
+    protected SetVar set;
     protected int k;
     public IntVar[] N;
 
     public RedundantFeatures(ReserveModel reserveModel, Region region, int k, Feature... features) {
+        this(reserveModel, region.getSetVar(), k, features);
+    }
+
+    public RedundantFeatures(ReserveModel reserveModel, SetVar set, int k, Feature... features) {
         super(reserveModel, features);
-        this.region = region;
+        this.set = set;
         this.k = k;
         this.N = reserveModel.getChocoModel().intVarArray(features.length, k, reserveModel.getGrid().getNbCells());
     }
+
 
     @Override
     public void post() {
@@ -53,7 +59,7 @@ public class RedundantFeatures extends FeaturesConstraint {
             try {
                 int[] data = ((BinaryFeature) features[i]).getBinaryData();
                 int[] coeffs = reserveModel.getGrid().getBordered(data);
-                chocoModel.sumElements(region.getSetVar(), coeffs, N[i]).post();
+                chocoModel.sumElements(set, coeffs, N[i]).post();
             } catch (IOException e) {
                 e.printStackTrace();
             }

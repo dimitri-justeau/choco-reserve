@@ -27,6 +27,7 @@ import chocoreserve.solver.Region;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.feature.ProbabilisticFeature;
 import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -37,14 +38,19 @@ import java.util.Arrays;
 public class MinProbability extends FeaturesConstraint {
 
     private double alpha;
-    private Region region;
+    private SetVar setVar;
     private IntVar[] N;
 
     public MinProbability(ReserveModel reserveModel, Region region, double alpha,
                           ProbabilisticFeature... features) {
+        this(reserveModel, region.getSetVar(), alpha, features);
+    }
+
+    public MinProbability(ReserveModel reserveModel, SetVar setVar, double alpha,
+                          ProbabilisticFeature... features) {
         super(reserveModel, features);
         assert alpha > 0 && alpha < 1;
-        this.region = region;
+        this.setVar = setVar;
         this.alpha = alpha;
         this.N = reserveModel.getChocoModel().intVarArray(features.length, 0, reserveModel.getGrid().getNbCells() * 3000);
     }
@@ -58,7 +64,7 @@ public class MinProbability extends FeaturesConstraint {
                         .mapToInt(v -> (v == 1) ? 3000 : (int) (-1000 * Math.log10(1 - 0.01 * Math.round(100 * v))))
                         .toArray();
                 int[] coeffs = reserveModel.getGrid().getBordered(data);
-                chocoModel.sumElements(region.getSetVar(), coeffs, N[i]).post();
+                chocoModel.sumElements(setVar, coeffs, N[i]).post();
                 chocoModel.arithm(N[i], ">=", scaled).post();
             } catch (IOException e) {
                 e.printStackTrace();

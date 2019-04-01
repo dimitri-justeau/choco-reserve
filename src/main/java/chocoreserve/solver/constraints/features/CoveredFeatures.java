@@ -26,6 +26,7 @@ package chocoreserve.solver.constraints.features;
 import chocoreserve.solver.Region;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.feature.Feature;
+import org.chocosolver.solver.variables.SetVar;
 
 /**
  *
@@ -34,5 +35,9 @@ public class CoveredFeatures extends RedundantFeatures {
 
     public CoveredFeatures(ReserveModel reserveModel, Region region, Feature... features) {
         super(reserveModel, region, 1, features);
+    }
+
+    public CoveredFeatures(ReserveModel reserveModel, SetVar setVar, Feature... features) {
+        super(reserveModel, setVar, 1, features);
     }
 }

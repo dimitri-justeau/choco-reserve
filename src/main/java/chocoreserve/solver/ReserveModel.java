@@ -115,6 +115,10 @@ public class ReserveModel<T extends RegularSquareGrid> implements IReserveModel<
     }
 
     public void printSolution(boolean ignoreBorder) {
+        printSolution(ignoreBorder, new String[] {" ", "-", "+", "#"});
+    }
+
+    public void printSolution(boolean ignoreBorder, String[] display) {
         if (!(grid instanceof RegularSquareGrid)) {
             return;
         }
@@ -131,13 +135,21 @@ public class ReserveModel<T extends RegularSquareGrid> implements IReserveModel<
                 if (!ignoreBorder && (j == grid.getBorder() || j == grid.getNbRows() - grid.getBorder())) {
                     System.out.printf("|");
                 }
+                boolean found = false;
                 for (int r = 0; r < regions.length; r++) {
                     if (regions[r].getSetVar().getLB().contains(grid.getIndexFromCoordinates(i, j))) {
-                        System.out.printf(Integer.toString(r));
-                        continue;
+                        found = true;
+                        if (r < display.length) {
+                            System.out.printf(display[r]);
+                        } else {
+                            System.out.println(r);
+                        }
+                        break;
                     }
                 }
-                System.out.printf("?");
+                if (!found) {
+                    System.out.printf("?");
+                }
             }
             System.out.printf("\n");
         }
@@ -147,7 +159,7 @@ public class ReserveModel<T extends RegularSquareGrid> implements IReserveModel<
             if (region.nbCCInit()) {
                 System.out.println("Nb CC " + region.getName() + ": " + region.getNbCC().getValue());
             }
-            System.out.println("Nb sites " + region.getNbSites().getValue());
+            System.out.println("Nb sites " + region.getName() + ": " + region.getNbSites().getValue());
         }
         System.out.printf("\n");
     }
