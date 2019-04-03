@@ -23,10 +23,13 @@
 
 package chocoreserve.solver;
 
+import chocoreserve.exception.RegionAlreadyLinkedToModelError;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.constraints.IReserveConstraintFactory;
 import chocoreserve.solver.feature.Feature;
 import chocoreserve.solver.feature.IFeatureFactory;
+import chocoreserve.solver.region.ComposedRegion;
+import chocoreserve.solver.region.Region;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.IntVar;
@@ -55,14 +58,32 @@ public class ReserveModel<T extends RegularSquareGrid> implements IReserveModel<
 
     /** Regions */
     private Region[] regions;
+    private ComposedRegion[] composedRegions;
 
     public ReserveModel(T grid, Region... regions) {
+        this(grid, regions, new ComposedRegion[]{});
+    }
+
+    public ReserveModel(T grid, Region[] regions, ComposedRegion[] composedRegions) {
         this.grid = grid;
-        this.regions = regions;
-        Arrays.stream(regions).forEach(r -> r.setReserveModel(this));
-        this.features = new HashMap<>();
-        // Init Choco model
         this.model = new GraphModel("Nature Reserve Problem");
+        this.regions = regions;
+        this.composedRegions = composedRegions;
+        Arrays.stream(regions).forEach(r -> {
+            try {
+                r.setReserveModel(this);
+            } catch (RegionAlreadyLinkedToModelError regionAlreadyLinkedToModelError) {
+                regionAlreadyLinkedToModelError.printStackTrace();
+            }
+        });
+        Arrays.stream(composedRegions).forEach(r -> {
+            try {
+                r.setReserveModel(this);
+            } catch (RegionAlreadyLinkedToModelError regionAlreadyLinkedToModelError) {
+                regionAlreadyLinkedToModelError.printStackTrace();
+            }
+        });
+        this.features = new HashMap<>();
         // Init decision variables sites[i] \in [0, region.length - 1]
         this.sites = this.model.intVarArray(
                 "sites",
@@ -156,10 +177,16 @@ public class ReserveModel<T extends RegularSquareGrid> implements IReserveModel<
         System.out.println("\n");
         for (int r = 0; r < regions.length; r++) {
             Region region = regions[r];
+            System.out.println("Region '" + region.getName() + "':");
             if (region.nbCCInit()) {
-                System.out.println("Nb CC " + region.getName() + ": " + region.getNbCC().getValue());
+                System.out.println("  - NbCC = " + region.getNbCC().getValue());
             }
-            System.out.println("Nb sites " + region.getName() + ": " + region.getNbSites().getValue());
+            System.out.println("  - NbSites = " + region.getNbSites().getValue());
+        }
+        for (int r = 0; r < composedRegions.length; r++) {
+            ComposedRegion composedRegion = composedRegions[r];
+            System.out.println("ComposedRegion '" + composedRegion.getName() + "':");
+            System.out.println("  - NbSites = " + composedRegion.getNbSites().getValue());
         }
         System.out.printf("\n");
     }

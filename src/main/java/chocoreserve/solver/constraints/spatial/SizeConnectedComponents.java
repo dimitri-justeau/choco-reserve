@@ -23,7 +23,7 @@
 
 package chocoreserve.solver.constraints.spatial;
 
-import chocoreserve.solver.Region;
+import chocoreserve.solver.region.Region;
 import chocoreserve.solver.ReserveModel;
 import org.chocosolver.solver.variables.IntVar;
 

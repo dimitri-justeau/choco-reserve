@@ -21,31 +21,19 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver.constraints.spatial;
-
-import chocoreserve.solver.region.AbstractRegion;
-import chocoreserve.solver.ReserveModel;
-import org.chocosolver.solver.variables.IntVar;
+package chocoreserve.exception;
 
 /**
- * Total size of a region constraint.
+ * Exception to be thrown when trying to work with a Region not associated to any ReserveModel.
  */
-public class SizeRegion extends SpatialConstraint {
+public class RegionNotLinkedToModelError extends Exception {
 
-    private AbstractRegion region;
-    private int minSize, maxSize;
-
-    public SizeRegion(ReserveModel reserveModel, AbstractRegion region, int minSize, int maxSize) {
-        super(reserveModel);
-        this.region = region;
-        this.minSize = minSize;
-        this.maxSize = maxSize;
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public void post() {
-        IntVar nbNodes = region.getNbSites();
-        chocoModel.arithm(nbNodes, ">=", minSize).post();
-        chocoModel.arithm(nbNodes, "<=", maxSize).post();
+    public String toString() {
+        return "Trying to work with a Region that had not been yet associated to a ReserveModel instance";
     }
+
 }

@@ -23,7 +23,9 @@
 
 package chocoreserve.solver.constraints;
 
-import chocoreserve.solver.Region;
+import chocoreserve.grid.neighborhood.INeighborhood;
+import chocoreserve.solver.region.AbstractRegion;
+import chocoreserve.solver.region.Region;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.constraints.features.CoveredFeatures;
 import chocoreserve.solver.constraints.features.MinProbability;
@@ -32,7 +34,6 @@ import chocoreserve.solver.constraints.spatial.*;
 import chocoreserve.solver.feature.BinaryFeature;
 import chocoreserve.solver.feature.ProbabilisticFeature;
 import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.SetVar;
 
 
 /**
@@ -46,19 +47,15 @@ public interface IReserveConstraintFactory {
     // Misc //
     // ---- //
 
-    default IReserveConstraint mandatorySites(SetVar set, int... sites) {
+    default IReserveConstraint mandatorySites(AbstractRegion region, int... sites) {
         return () -> {
             for (int i : sites) {
-                self().getChocoModel().member(i, set).post();
+                self().getChocoModel().member(i, region.getSetVar()).post();
             }
         };
     }
 
-    default IReserveConstraint mandatorySites(Region region, int... sites) {
-        return mandatorySites(region.getSetVar(), sites);
-    }
-
-        // ---------------------------------- //
+    // ---------------------------------- //
     // Feature representation constraints //
     // ---------------------------------- //
 
@@ -70,7 +67,7 @@ public interface IReserveConstraintFactory {
      * @param features An array of features.
      * @return A CoveredFeatures constraint.
      */
-    default IReserveConstraint coveredFeatures(Region region, BinaryFeature... features) {
+    default IReserveConstraint coveredFeatures(AbstractRegion region, BinaryFeature... features) {
         return new CoveredFeatures(self(), region, features);
     }
 
@@ -83,12 +80,8 @@ public interface IReserveConstraintFactory {
      * @param features An array of features.
      * @return A RedundantFeatures constraint.
      */
-    default IReserveConstraint redundantFeatures(Region region, int k, BinaryFeature... features) {
-        return redundantFeatures(region.getSetVar(), k, features);
-    }
-
-    default IReserveConstraint redundantFeatures(SetVar setVar, int k, BinaryFeature... features) {
-        return new RedundantFeatures(self(), setVar, k, features);
+    default IReserveConstraint redundantFeatures(AbstractRegion region, int k, BinaryFeature... features) {
+        return new RedundantFeatures(self(), region, k, features);
     }
 
     /**
@@ -100,12 +93,8 @@ public interface IReserveConstraintFactory {
      * @param features An array of features.
      * @return A MinProbability constraint.
      */
-    default IReserveConstraint minProbability(Region region, double alpha, ProbabilisticFeature... features) {
-        return minProbability(region.getSetVar(), alpha, features);
-    }
-
-    default IReserveConstraint minProbability(SetVar set, double alpha, ProbabilisticFeature... features) {
-        return new MinProbability(self(), set, alpha, features);
+    default IReserveConstraint minProbability(AbstractRegion region, double alpha, ProbabilisticFeature... features) {
+        return new MinProbability(self(), region, alpha, features);
     }
 
     // ------------------- //
@@ -147,7 +136,7 @@ public interface IReserveConstraintFactory {
      * @param areaMax An int representing the maximum total area of the reserve system.
      * @return An areaReserveSystem constraint.
      */
-    default IReserveConstraint sizeRegion(Region region, int areaMin, int areaMax){
+    default IReserveConstraint sizeRegion(AbstractRegion region, int areaMin, int areaMax){
         return new SizeRegion(self(), region, areaMin, areaMax);
     }
 
@@ -159,15 +148,25 @@ public interface IReserveConstraintFactory {
      * @param maxDiameter The maximum diameter.
      * @return A maxDiameter constraint.
      */
-    default IReserveConstraint maxDiameter(Region region, double maxDiameter) {
-        return maxDiameter(region.getSetVar(), maxDiameter);
+    default IReserveConstraint maxDiameter(AbstractRegion region, double maxDiameter) {
+        return new Radius(self(), region, self().getChocoModel().realVar("radius", 0, 0.5 * maxDiameter, 1e-5));
     }
 
-    default IReserveConstraint maxDiameter(SetVar set, double maxDiameter) {
-        return new Radius(self(), set, self().getChocoModel().realVar("radius", 0, 0.5 * maxDiameter, 1e-5));
-    }
-
-    default IReserveConstraint bufferZone(Region region1, Region region2, Region buffer) {
+    /**
+     * Creates a bufferZone constraint. The bufferZone constraint holds iff the region 'buffer' is a buffer zone
+     * between 'region1' and 'region2'.
+     *
+     * @param region1 The region to be buffered from region2.
+     * @param region2 The region to be buffered from region1.
+     * @param buffer The buffer region between region1 and region2.
+     * @return A bufferZone constraint.
+     */
+    default IReserveConstraint bufferZone(AbstractRegion region1, AbstractRegion region2, AbstractRegion buffer) {
         return new BufferZone(self(), region1, region2, buffer);
+    }
+
+    default IReserveConstraint bufferZone(INeighborhood neighborhood, AbstractRegion region1, AbstractRegion region2,
+                                          AbstractRegion buffer) {
+        return new BufferZone(self(), neighborhood, region1, region2, buffer);
     }
 }

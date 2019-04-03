@@ -25,6 +25,7 @@ package chocoreserve.solver;
 
 import chocoreserve.grid.Grid;
 import chocoreserve.solver.feature.Feature;
+import chocoreserve.solver.region.Region;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.solver.Solver;
 

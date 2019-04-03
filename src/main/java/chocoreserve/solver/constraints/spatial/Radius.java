@@ -23,13 +23,12 @@
 
 package chocoreserve.solver.constraints.spatial;
 
-import chocoreserve.solver.Region;
+import chocoreserve.solver.region.AbstractRegion;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.constraints.choco.PropSmallestEnclosingCircle;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.RealVar;
-import org.chocosolver.solver.variables.SetVar;
 import org.chocosolver.util.tools.ArrayUtils;
 
 /**
@@ -37,31 +36,26 @@ import org.chocosolver.util.tools.ArrayUtils;
  */
 public class Radius extends SpatialConstraint {
 
-    private SetVar set;
+    private AbstractRegion region;
     public RealVar radius;
     public RealVar centerX;
     public RealVar centerY;
     public double[][] coordinates;
 
-    public Radius(ReserveModel reserveModel, Region region, double[][] coordinates, RealVar radius,
-                  RealVar centerX, RealVar centerY) {
-        this(reserveModel, region.getSetVar(), coordinates, radius, centerX, centerY);
-    }
-
-    public Radius(ReserveModel reserveModel, SetVar set, double[][] coordinates, RealVar radius,
+    public Radius(ReserveModel reserveModel, AbstractRegion region, double[][] coordinates, RealVar radius,
                   RealVar centerX, RealVar centerY) {
         super(reserveModel);
-        this.set = set;
+        this.region = region;
         this.radius = radius;
         this.centerX = centerX;
         this.centerY = centerY;
         this.coordinates = coordinates;
     }
 
-    public Radius(ReserveModel reserveModel, SetVar set, RealVar radius) {
+    public Radius(ReserveModel reserveModel, AbstractRegion region, RealVar radius) {
         this(
                 reserveModel,
-                set,
+                region,
                 ArrayUtils.flatten(reserveModel.getGrid().getCartesianCoordinates()),
                 radius,
                 reserveModel.getChocoModel().realVar(0, reserveModel.getNbCols(), 1e-5),
@@ -69,14 +63,10 @@ public class Radius extends SpatialConstraint {
         );
     }
 
-    public Radius(ReserveModel reserveModel, Region region, RealVar radius) {
-        this(reserveModel, region.getSetVar(), radius);
-    }
-
     @Override
     public void post() {
         BoolVar[] boolVars = chocoModel.boolVarArray(reserveModel.getGrid().getNbCells());
-        chocoModel.setBoolsChanneling(boolVars, set).post();
+        chocoModel.setBoolsChanneling(boolVars, region.getSetVar()).post();
         Constraint c = new Constraint("minEnclosingCircle", new PropSmallestEnclosingCircle(
                 boolVars,
                 coordinates,

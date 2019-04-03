@@ -127,7 +127,7 @@ public class PropSmallestEnclosingCircle extends Propagator<Variable> {
         int[] ker = getKernelPoints();
         int[] env = getEnvelopePoints();
         if (env.length == 0){
-            // We assume that by definition, the empty set of points does not satisfy the constraint.
+            // We assume that by definition, the empty region of points does not satisfy the constraint.
             return ESat.FALSE;
         }
         if (ker.length == env.length) {

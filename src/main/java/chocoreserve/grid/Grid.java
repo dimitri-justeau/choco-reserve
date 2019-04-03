@@ -23,8 +23,6 @@
 
 package chocoreserve.grid;
 
-import chocoreserve.solver.Region;
-
 /**
  * Abstract base class for grids.
  */

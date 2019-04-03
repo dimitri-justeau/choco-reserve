@@ -23,10 +23,9 @@
 
 package chocoreserve.solver.constraints.spatial;
 
-import chocoreserve.exception.ModelNotInstantiatedError;
 import chocoreserve.grid.neighborhood.Neighborhood;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
-import chocoreserve.solver.Region;
+import chocoreserve.solver.region.Region;
 import chocoreserve.solver.ReserveModel;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;

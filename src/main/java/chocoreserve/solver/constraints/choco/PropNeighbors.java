@@ -37,9 +37,9 @@ public class PropNeighbors extends Propagator<SetVar> {
      * where Neighbors(X) = U_{x in X} adjList[x]
      *
      * @param X
-     *            a set variable
+     *            a region variable
      * @param N
-     *            a set variable
+     *            a region variable
      * @param adjLists
      *            = adjacency list. For example, <code>adjLists[x][0] = y</code>
      *            means that <code>y</code> is the first neighbor of

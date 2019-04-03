@@ -25,7 +25,7 @@ package chocoreserve.solver.constraints.features;
 
 import chocoreserve.grid.neighborhood.Neighborhood;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
-import chocoreserve.solver.Region;
+import chocoreserve.solver.region.Region;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.feature.BinaryFeature;
 import org.chocosolver.solver.Solver;

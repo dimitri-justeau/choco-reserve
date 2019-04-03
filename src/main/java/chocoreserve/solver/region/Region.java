@@ -21,7 +21,7 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.solver;
+package chocoreserve.solver.region;
 
 import chocoreserve.grid.Grid;
 import chocoreserve.grid.neighborhood.INeighborhood;
@@ -30,39 +30,29 @@ import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.SetVar;
 import org.chocosolver.solver.variables.impl.SetVarImpl;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.IntStream;
 
 /**
  * Class representing a region.
  */
-public class Region {
+public class Region extends AbstractRegion {
 
     private final SetType GRAPH_SET_TYPE = SetType.BIPARTITESET;
     private final SetType SET_VAR_SET_TYPE = SetType.BIPARTITESET;
 
-    private String name;
-    private ReserveModel reserveModel;
     private INeighborhood neighborhood;
     private UndirectedGraphVar graphVar;
-    private SetVar setVar;
-    private IntVar nbCC, nbSites;
+    private IntVar nbCC;
 
     public Region(String name, INeighborhood neighborhood) {
-        this.name = name;
+        super(name);
         this.neighborhood = neighborhood;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setReserveModel(ReserveModel reserveModel) {
-        this.reserveModel = reserveModel;
     }
 
     public UndirectedGraphVar getGraphVar() {
@@ -70,7 +60,7 @@ public class Region {
             GraphModel model = reserveModel.getChocoModel();
             Grid grid = reserveModel.getGrid();
             graphVar = model.graphVar(
-                    "graphVar['" + name + "']",
+                    "regionGraphVar['" + name + "']",
                     new UndirectedGraph(model, grid.getNbCells(), GRAPH_SET_TYPE, false),
                     neighborhood.getFullGraph(grid, model, GRAPH_SET_TYPE)
             );
@@ -80,43 +70,30 @@ public class Region {
         return graphVar;
     }
 
-    public SetVar getSetVar() {
-        if (setVar == null) {
-            GraphModel model = reserveModel.getChocoModel();
-            Grid grid = reserveModel.getGrid();
-            setVar = new SetVarImpl(
-                    "setVar['" + name + "']",
-                    new int[] {}, SET_VAR_SET_TYPE,
-                    IntStream.range(0, grid.getNbCells()).toArray(), SET_VAR_SET_TYPE,
-                    model
-            );
-        }
-        return setVar;
+    @Override
+    protected void buildSetVar() {
+        GraphModel model = reserveModel.getChocoModel();
+        Grid grid = reserveModel.getGrid();
+        setVar = new SetVarImpl(
+                "regionSetVar['" + name + "']",
+                new int[] {}, SET_VAR_SET_TYPE,
+                IntStream.range(0, grid.getNbCells()).toArray(), SET_VAR_SET_TYPE,
+                model
+        );
     }
 
     public IntVar getNbCC() {
         if (nbCC == null) {
             GraphModel model = reserveModel.getChocoModel();
             Grid grid = reserveModel.getGrid();
-            nbCC = model.intVar("nbCC['" + name + "']", 0, grid.getNbCells());
+            nbCC = model.intVar("regionNbCC['" + name + "']", 0, grid.getNbCells());
             model.nbConnectedComponents(getGraphVar(), nbCC).post();
         }
         return nbCC;
     }
 
-    public IntVar getNbSites() {
-        if (nbSites == null) {
-            nbSites = getSetVar().getCard();
-        }
-        return nbSites;
-    }
-
     public INeighborhood getNeighborhood() {
         return neighborhood;
-    }
-
-    public ReserveModel getReserveModel() {
-        return reserveModel;
     }
 
     public boolean nbCCInit() {

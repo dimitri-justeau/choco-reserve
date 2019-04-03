@@ -25,6 +25,7 @@ package chocoreserve.solver;
 
 import chocoreserve.grid.neighborhood.Neighborhood;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
+import chocoreserve.solver.region.Region;
 import org.junit.Assert;
 import org.junit.Test;
 
