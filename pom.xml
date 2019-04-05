@@ -66,21 +66,21 @@
     </repositories>
 
     <dependencies>
-        <!--<dependency>-->
-            <!--<groupId>org.choco-solver</groupId>-->
-            <!--<artifactId>choco-solver</artifactId>-->
-            <!--<version>4.0.9-SNAPSHOT</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.choco-solver</groupId>
+            <artifactId>choco-solver</artifactId>
+            <version>4.10.0</version>
+        </dependency>
         <!--<dependency>-->
             <!--<groupId>org.choco-solver</groupId>-->
             <!--<artifactId>choco-graph</artifactId>-->
-            <!--<version>4.2.2</version>-->
+            <!--<version>4.2.3</version>-->
         <!--</dependency>-->
-        <dependency>
-            <groupId>com.github.chocoteam</groupId>
-            <artifactId>choco-solver</artifactId>
-            <version>master</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>com.github.chocoteam</groupId>-->
+            <!--<artifactId>choco-solver</artifactId>-->
+            <!--<version>master</version>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>com.github.dimitri-justeau</groupId>
             <artifactId>choco-graph</artifactId>

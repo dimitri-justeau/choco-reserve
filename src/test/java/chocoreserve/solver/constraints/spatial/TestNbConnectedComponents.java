@@ -56,7 +56,7 @@ public class TestNbConnectedComponents {
         RegularSquareGrid grid = new RegularSquareGrid(3, 3);
         Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
         Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
-        ReserveModel reserveModel = new ReserveModel(grid, core, out);
+        ReserveModel reserveModel = new ReserveModel<>(grid, core, out);
         reserveModel.nbConnectedComponents(core, 5, 5).post();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();
