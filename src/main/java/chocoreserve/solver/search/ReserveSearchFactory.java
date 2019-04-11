@@ -23,21 +23,12 @@
 
 package chocoreserve.solver.search;
 
-import chocoreserve.grid.regular.square.RegularSquareGrid;
-import chocoreserve.solver.IReserveModel;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.feature.Feature;
+import chocoreserve.solver.search.selectors.variables.PoorestVarSelector;
 import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.search.strategy.strategy.IntStrategy;
-import org.chocosolver.solver.variables.IntVar;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * Factory class for nature reserve problem search strategies.
@@ -48,17 +39,20 @@ public class ReserveSearchFactory {
     // Search strategies //
     //-------------------//
 
-    private static IntStrategy discardPoor(ReserveModel reserveModel, int[] ranking) {
+    /**
+     * Discard poor search strategy (non-deterministic - planning units are shuffled before ranking):
+     *      - Ranks the planning units according to the diversity of features.
+     *      - Branches on the "poorest" planning units and instantiate them to 0.
+     * @param reserveModel The reserve model.
+     * @param probabilityThreshold A threshold for probabilistic features scoring.
+     *                             The probability value is added iff it is > probabilityThreshold.
+     * @param features The features for computing the score.
+     * @return The discard poor search strategy.
+     */
+    public static IntStrategy discardPoor(ReserveModel reserveModel, double probabilityThreshold,
+                                          Feature... features) {
         return Search.intVarSearch(
-                variables -> {
-                    for (int i = ranking.length - 1; i >=0; i--) {
-                        IntVar var = reserveModel.getSites()[ranking[i]];
-                        if (!var.isInstantiated()) {
-                            return var;
-                        }
-                    }
-                    return null;
-                },
+                new PoorestVarSelector(reserveModel, probabilityThreshold, false, features),
                 variable -> variable.getLB(),
                 reserveModel.getSites()
         );
@@ -74,8 +68,27 @@ public class ReserveSearchFactory {
      * @return The discard poor search strategy.
      */
     public static IntStrategy discardPoor(ReserveModel reserveModel, double probabilityThreshold) {
-        int[] ranking = makeRanking(reserveModel, makeScores(reserveModel, probabilityThreshold));
-        return discardPoor(reserveModel, ranking);
+        Feature[] features = (Feature[]) reserveModel.getFeatures().values().toArray(new Feature[0]);
+        return discardPoor(reserveModel, probabilityThreshold, features);
+    }
+
+    /**
+     * Discard poor search strategy (deterministic - planning units are not shuffled before ranking):
+     *      - Ranks the planning units according to the diversity of features.
+     *      - Branches on the "poorest" planning units and instantiate them to 0.
+     * @param reserveModel The reserve model.
+     * @param probabilityThreshold A threshold for probabilistic features scoring.
+     *                             The probability value is added iff it is > probabilityThreshold.
+     * @param features The features for computing the score.
+     * @return The discard poor search strategy.
+     */
+    public static IntStrategy discardPoorDeterministic(ReserveModel reserveModel, double probabilityThreshold,
+                                                       Feature... features) {
+        return Search.intVarSearch(
+                new PoorestVarSelector(reserveModel, probabilityThreshold, true, features),
+                variable -> variable.getLB(),
+                reserveModel.getSites()
+        );
     }
 
     /**
@@ -88,75 +101,8 @@ public class ReserveSearchFactory {
      * @return The discard poor search strategy.
      */
     public static IntStrategy discardPoorDeterministic(ReserveModel reserveModel, double probabilityThreshold) {
-        int[] ranking = makeRankingDeterministic(reserveModel, makeScores(reserveModel, probabilityThreshold));
-        return discardPoor(reserveModel, ranking);
-    }
+        Feature[] features = (Feature[]) reserveModel.getFeatures().values().toArray(new Feature[0]);
+        return discardPoorDeterministic(reserveModel, probabilityThreshold, features);
 
-    //-----------//
-    // Utilities //
-    //-----------//
-
-    /**
-     * Builds a diversity score for each planning unit of the grid associated to a model.
-     * For each binary or quantitative feature 1 is added to the score. For probabilistic features,
-     * the probability value is added iff it is > probabilityThreshold.
-     * @param reserveModel The reserve model.
-     * @param probabilityThreshold A threshold to use in case of probabilistic features.
-     * @return The scores.
-     */
-    public static double[] makeScores(ReserveModel reserveModel, double probabilityThreshold) {
-        assert probabilityThreshold >=0 && probabilityThreshold <= 1;
-        RegularSquareGrid grid = reserveModel.getGrid();
-        int nbPlanningUnits = reserveModel.getGrid().getNbCells();
-        // Compute scores
-        double[] scores = new double[nbPlanningUnits];
-        Collection<Feature> features = reserveModel.getFeatures().values();
-        for (Feature f : features) {
-            try {
-                double[] data = grid.getBordered(f.getData());
-                for (int i = 0; i < nbPlanningUnits; i++) {
-                    double v = data[i] >= probabilityThreshold ? data[i] : 0;
-                    scores[i] += v;
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return scores;
-    }
-
-    /**
-     * Ranks the planning units according to a score.
-     * This is the non-deterministic version (i.e. planning units are shuffled before ranking).
-     * @param reserveModel The reserve model.
-     * @param scores The scores.
-     * @return The ranking.
-     */
-    public static int[] makeRanking(IReserveModel reserveModel, double[] scores) {
-        int nbPlanningUnits = reserveModel.getGrid().getNbCells();
-        List<Integer> planningUnits = IntStream.range(0, nbPlanningUnits)
-                .boxed()
-                .collect(Collectors.toList());
-        Collections.shuffle(planningUnits);
-        planningUnits.sort(Comparator.comparingInt(i -> -1 * (int) scores[i]));
-        int[] diversityRanking = planningUnits.stream().mapToInt(v -> v).toArray();
-        return diversityRanking;
-    }
-
-    /**
-     * Ranks the planning units according to a score.
-     * This is the deterministic version (i.e. planning units are not shuffled before ranking).
-     * @param reserveModel The reserve model.
-     * @param scores The scores.
-     * @return The ranking.
-     */
-    public static int[] makeRankingDeterministic(IReserveModel reserveModel, double[] scores) {
-        int nbPlanningUnits = reserveModel.getGrid().getNbCells();
-        List<Integer> planningUnits = IntStream.range(0, nbPlanningUnits)
-                .boxed()
-                .collect(Collectors.toList());
-        planningUnits.sort(Comparator.comparingInt(i -> -1 * (int) scores[i]));
-        int[] diversityRanking = planningUnits.stream().mapToInt(v -> v).toArray();
-        return diversityRanking;
     }
 }
