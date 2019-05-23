@@ -26,16 +26,16 @@ package chocoreserve.solver.region;
 import chocoreserve.grid.Grid;
 import chocoreserve.grid.neighborhood.INeighborhood;
 import chocoreserve.solver.constraints.choco.graph.PropInducedNeighborhood;
+import chocoreserve.solver.constraints.choco.graph.PropNbCCIncremental;
+import chocoreserve.util.objects.graphs.*;
+
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.impl.SetVarImpl;
-import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.IntStream;
 
 /**
@@ -61,7 +61,7 @@ public class Region extends AbstractRegion {
             Grid grid = reserveModel.getGrid();
             graphVar = model.graphVar(
                     "regionGraphVar['" + name + "']",
-                    new UndirectedGraph(model, grid.getNbCells(), GRAPH_SET_TYPE, false),
+                    new UndirectedGraphIncrementalCC(model, grid.getNbCells(), GRAPH_SET_TYPE, false),
                     neighborhood.getFullGraph(grid, model, GRAPH_SET_TYPE)
             );
             model.nodesChanneling(graphVar, getSetVar()).post();
@@ -87,7 +87,7 @@ public class Region extends AbstractRegion {
             GraphModel model = reserveModel.getChocoModel();
             Grid grid = reserveModel.getGrid();
             nbCC = model.intVar("regionNbCC['" + name + "']", 0, grid.getNbCells());
-            model.nbConnectedComponents(getGraphVar(), nbCC).post();
+            new Constraint("nbCC", new PropNbCCIncremental(getGraphVar(), nbCC)).post();
         }
         return nbCC;
     }

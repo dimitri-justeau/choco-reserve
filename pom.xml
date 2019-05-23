@@ -74,7 +74,7 @@
         <!--<dependency>-->
             <!--<groupId>org.choco-solver</groupId>-->
             <!--<artifactId>choco-graph</artifactId>-->
-            <!--<version>4.2.3</version>-->
+            <!--<version>4.2.4-SNAPSHOT</version>-->
         <!--</dependency>-->
         <!--<dependency>-->
             <!--<groupId>com.github.chocoteam</groupId>-->
@@ -84,7 +84,7 @@
         <dependency>
             <groupId>com.github.dimitri-justeau</groupId>
             <artifactId>choco-graph</artifactId>
-            <version>master</version>
+            <version>9bbde2693e6ea4b311140d2abd097151c1b334cf</version>
         </dependency>
         <dependency>
             <groupId>org.geotools</groupId>
