@@ -30,10 +30,11 @@ import chocoreserve.grid.neighborhood.regulare.square.TwoWideHeightConnected;
 /**
  * Utility class for accessing neighborhoods.
  */
-public class Neighborhood {
+public class Neighborhoods {
 
     public final static FourConnected FOUR_CONNECTED = new FourConnected();
     public final static HeightConnected HEIGHT_CONNECTED = new HeightConnected();
     public final static TwoWideHeightConnected TWO_WIDE_HEIGHT_CONNECTED = new TwoWideHeightConnected();
+    public final static ShapefileNeighborhood SHAPEFILE_NEIGHBORHOOD = new ShapefileNeighborhood();
 
 }

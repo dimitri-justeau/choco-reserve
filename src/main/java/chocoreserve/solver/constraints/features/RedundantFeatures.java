@@ -52,8 +52,7 @@ public class RedundantFeatures extends FeaturesConstraint {
     public void post() {
         for (int i = 0; i < features.length; i++) {
             try {
-                int[] data = ((BinaryFeature) features[i]).getBinaryData();
-                int[] coeffs = reserveModel.getGrid().getBordered(data);
+                int[] coeffs = ((BinaryFeature) features[i]).getBinaryData();
                 chocoModel.sumElements(region.getSetVar(), coeffs, N[i]).post();
             } catch (IOException e) {
                 e.printStackTrace();

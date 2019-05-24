@@ -23,7 +23,7 @@
 
 package chocoreserve.solver.constraints.features;
 
-import chocoreserve.grid.neighborhood.Neighborhood;
+import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.region.Region;
 import chocoreserve.solver.ReserveModel;
@@ -55,8 +55,8 @@ public class TestRedundantFeatures {
     @Test
     public void testSuccess1() {
         RegularSquareGrid grid = new RegularSquareGrid(3, 3);
-        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
-        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        Region core = new Region("core", Neighborhoods.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhoods.FOUR_CONNECTED);
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         BinaryFeature feature = reserveModel.binaryFeature(
                 "binary",
@@ -90,8 +90,8 @@ public class TestRedundantFeatures {
     @Test
     public void testSuccess2() {
         RegularSquareGrid grid = new RegularSquareGrid(3, 3);
-        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
-        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        Region core = new Region("core", Neighborhoods.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhoods.FOUR_CONNECTED);
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         BinaryFeature featureA = reserveModel.binaryFeature(
                 "A",
@@ -121,8 +121,8 @@ public class TestRedundantFeatures {
     @Test
     public void testFail() {
         RegularSquareGrid grid = new RegularSquareGrid(3, 3);
-        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
-        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        Region core = new Region("core", Neighborhoods.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhoods.FOUR_CONNECTED);
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         BinaryFeature feature = reserveModel.binaryFeature(
                 "binary",

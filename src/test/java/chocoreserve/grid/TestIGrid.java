@@ -23,7 +23,7 @@
 
 package chocoreserve.grid;
 
-import chocoreserve.grid.neighborhood.Neighborhood;
+import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
@@ -45,11 +45,11 @@ public class TestIGrid {
     public void testGetFullGraph() {
         RegularSquareGrid grid = new RegularSquareGrid(5, 5);
         GraphModel model = new GraphModel();
-        UndirectedGraph g = Neighborhood.HEIGHT_CONNECTED.getFullGraph(grid, model, SetType.BIPARTITESET);
+        UndirectedGraph g = Neighborhoods.HEIGHT_CONNECTED.getFullGraph(grid, model, SetType.BIPARTITESET);
         for (int i = 0; i < 25; i++) {
             Assert.assertTrue(g.getNodes().contains(i));
             int[] nodeNeighbors = g.getNeighOf(i).toArray();
-            int[] cellNeighbors = Neighborhood.HEIGHT_CONNECTED.getNeighbors(grid, i);
+            int[] cellNeighbors = Neighborhoods.HEIGHT_CONNECTED.getNeighbors(grid, i);
             Arrays.sort(cellNeighbors);
             Arrays.sort(nodeNeighbors);
             Assert.assertTrue(Arrays.equals(cellNeighbors, nodeNeighbors));
@@ -62,12 +62,12 @@ public class TestIGrid {
         GraphModel model = new GraphModel();
         int[] cells = new int[] {6, 7, 10, 11, 12, 15};
         List<Integer> listCells = IntStream.of(cells).boxed().collect(Collectors.toList());
-        UndirectedGraph g = Neighborhood.FOUR_CONNECTED.getPartialGraph(grid, model, cells, SetType.BIPARTITESET);
+        UndirectedGraph g = Neighborhoods.FOUR_CONNECTED.getPartialGraph(grid, model, cells, SetType.BIPARTITESET);
         int[] nodes = g.getNodes().toArray();
         Arrays.sort(nodes);
         for (int i : cells) {
             int[] nodeNeighbors = g.getNeighOf(i).toArray();
-            int[] cellNeighbors = Arrays.stream(Neighborhood.FOUR_CONNECTED.getNeighbors(grid, i))
+            int[] cellNeighbors = Arrays.stream(Neighborhoods.FOUR_CONNECTED.getNeighbors(grid, i))
                     .filter(v -> listCells.contains(v))
                     .toArray();
             Arrays.sort(cellNeighbors);

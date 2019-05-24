@@ -31,6 +31,8 @@ import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.RealVar;
 import org.chocosolver.util.tools.ArrayUtils;
 
+import java.util.Arrays;
+
 /**
  *
  */
@@ -56,10 +58,22 @@ public class Radius extends SpatialConstraint {
         this(
                 reserveModel,
                 region,
-                ArrayUtils.flatten(reserveModel.getGrid().getCartesianCoordinates()),
+                reserveModel.getGrid().getCartesianCoordinates(),
                 radius,
-                reserveModel.getChocoModel().realVar(0, reserveModel.getNbCols(), 1e-5),
-                reserveModel.getChocoModel().realVar(0, reserveModel.getNbRows(), 1e-5)
+                reserveModel.getChocoModel().realVar(
+                        Arrays.stream(reserveModel.getGrid().getCartesianCoordinates())
+                            .mapToDouble(c -> c[0]).min().getAsDouble(),
+                        Arrays.stream(reserveModel.getGrid().getCartesianCoordinates())
+                                .mapToDouble(c -> c[0]).max().getAsDouble(),
+                        1e-5
+                ),
+                reserveModel.getChocoModel().realVar(
+                    Arrays.stream(reserveModel.getGrid().getCartesianCoordinates())
+                            .mapToDouble(c -> c[1]).min().getAsDouble(),
+                    Arrays.stream(reserveModel.getGrid().getCartesianCoordinates())
+                            .mapToDouble(c -> c[1]).max().getAsDouble(),
+                    1e-5
+                )
         );
     }
 

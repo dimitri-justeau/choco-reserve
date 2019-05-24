@@ -23,7 +23,7 @@
 
 package chocoreserve.solver.search.selectors.variables;
 
-import chocoreserve.grid.neighborhood.Neighborhood;
+import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.region.Region;
@@ -44,8 +44,8 @@ public class TestNeighborhoodVarSelector {
     @Test
     public void testGetNeighborhood() {
         RegularSquareGrid grid = new RegularSquareGrid(10, 10);
-        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
-        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        Region core = new Region("core", Neighborhoods.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhoods.FOUR_CONNECTED);
         ReserveModel reserveModel = new ReserveModel(grid, out, core);
         NeighborhoodVarSelector varSelector = new NeighborhoodVarSelector(core);
         Set<Integer> neigh = varSelector.getNeighborhood();

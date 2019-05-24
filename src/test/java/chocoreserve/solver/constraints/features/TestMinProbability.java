@@ -23,7 +23,7 @@
 
 package chocoreserve.solver.constraints.features;
 
-import chocoreserve.grid.neighborhood.Neighborhood;
+import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.region.Region;
 import chocoreserve.solver.ReserveModel;
@@ -57,8 +57,8 @@ public class TestMinProbability {
     @Test
     public void testSuccess1() {
         RegularSquareGrid grid = new RegularSquareGrid(3, 3);
-        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
-        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        Region core = new Region("core", Neighborhoods.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhoods.FOUR_CONNECTED);
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         double[] data = new double[] {0.1, 0.2, 0.1, 0.7, 0.1, 0.1, 0.3, 0.3, 0.1};
         ProbabilisticFeature feature = reserveModel.probabilisticFeature("probabilistic", data);
@@ -82,8 +82,8 @@ public class TestMinProbability {
             Assert.fail();
         }
         // Now assert that the solver found every solution.
-        Region unconstrainedCore = new Region("core", Neighborhood.FOUR_CONNECTED);
-        Region unconstrainedOut = new Region("out", Neighborhood.FOUR_CONNECTED);
+        Region unconstrainedCore = new Region("core", Neighborhoods.FOUR_CONNECTED);
+        Region unconstrainedOut = new Region("out", Neighborhoods.FOUR_CONNECTED);
         ReserveModel unconstrainedReserveModel = new ReserveModel(grid, unconstrainedCore, unconstrainedOut);
         Solver solver1 = unconstrainedReserveModel.getChocoSolver();
         solver.setSearch(Search.inputOrderLBSearch(reserveModel.getSites()));
@@ -122,8 +122,8 @@ public class TestMinProbability {
     @Test
     public void testSuccess2() {
         RegularSquareGrid grid = new RegularSquareGrid(3, 3);
-        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
-        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        Region core = new Region("core", Neighborhoods.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhoods.FOUR_CONNECTED);
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         double[] dataA = new double[] {0.1, 0.2, 0.1, 0.7, 0.1, 0.1, 0.3, 0.3, 0.1};
         ProbabilisticFeature featureA = reserveModel.probabilisticFeature("A", dataA);
@@ -166,8 +166,8 @@ public class TestMinProbability {
     @Test
     public void testFail() {
         RegularSquareGrid grid = new RegularSquareGrid(3, 3);
-        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
-        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        Region core = new Region("core", Neighborhoods.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhoods.FOUR_CONNECTED);
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         double[] data = new double[] {0.1, 0.2, 0.1, 0.7, 0.1, 0.1, 0.3, 0.3, 0.1};
         ProbabilisticFeature feature = reserveModel.probabilisticFeature("probabilistic", data);

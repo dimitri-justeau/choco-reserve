@@ -21,20 +21,21 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.grid;
+package chocoreserve.grid.neighborhood;
+
+import chocoreserve.grid.ShapefileGrid;
+
 
 /**
- * Abstract base class for grids.
+ *
  */
-public abstract class Grid {
+public class ShapefileNeighborhood<T extends ShapefileGrid> implements INeighborhood<T> {
 
-    /**
-     * @return The number of cells of the grid.
-     */
-    public abstract int getNbCells();
+    @Override
+    public int[] getNeighbors(T grid, int i) {
+        return grid.getNeighbors().get(grid.getShapeId(i)).stream()
+                .mapToInt(shapeId -> grid.getInternalId(shapeId))
+                .toArray();
+    }
 
-    /**
-     * @return The cartesian coordinates of the sites (center or centroid).
-     */
-    public abstract double[][] getCartesianCoordinates();
 }

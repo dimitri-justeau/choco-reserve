@@ -24,7 +24,7 @@
 package chocoreserve.grid.neighborhood.regulare.square;
 
 import chocoreserve.grid.neighborhood.INeighborhood;
-import chocoreserve.grid.neighborhood.Neighborhood;
+import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 
 import java.util.HashSet;
@@ -38,7 +38,7 @@ public class TwoWideHeightConnected<T extends RegularSquareGrid> implements INei
     public int[] getNeighbors(T grid, int i) {
         int nbCols = grid.getNbCols();
         int nbRows = grid.getNbRows();
-        HeightConnected height = Neighborhood.HEIGHT_CONNECTED;
+        HeightConnected height = Neighborhoods.HEIGHT_CONNECTED;
         Set<Integer> neighbors = new HashSet<>();
         int[] heightneigh = height.getNeighbors(grid, i);
         for (int neigh : heightneigh) {

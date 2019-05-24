@@ -25,7 +25,7 @@ package chocoreserve.solver.constraints.spatial;
 
 import chocoreserve.grid.Grid;
 import chocoreserve.grid.neighborhood.INeighborhood;
-import chocoreserve.grid.neighborhood.Neighborhood;
+import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.solver.region.AbstractRegion;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.constraints.choco.PropNeighbors;
@@ -45,7 +45,7 @@ public class BufferZone extends SpatialConstraint {
 
     public BufferZone(ReserveModel reserveModel, AbstractRegion region1, AbstractRegion region2,
                       AbstractRegion buffer) {
-        this(reserveModel, Neighborhood.HEIGHT_CONNECTED, region1, region2, buffer);
+        this(reserveModel, Neighborhoods.HEIGHT_CONNECTED, region1, region2, buffer);
     }
 
     public BufferZone(ReserveModel reserveModel, INeighborhood neighborhood,

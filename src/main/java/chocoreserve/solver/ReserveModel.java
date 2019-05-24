@@ -24,6 +24,7 @@
 package chocoreserve.solver;
 
 import chocoreserve.exception.RegionAlreadyLinkedToModelError;
+import chocoreserve.grid.Grid;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.constraints.IReserveConstraintFactory;
 import chocoreserve.solver.feature.Feature;
@@ -42,7 +43,7 @@ import java.util.*;
  * instance of the problem. Specialization for specific instances is provided by the extra constraints that can
  * be 'posted' to a model.
  */
-public class ReserveModel<T extends RegularSquareGrid> implements IReserveModel<T>, IReserveConstraintFactory, IFeatureFactory {
+public class ReserveModel<T extends Grid> implements IReserveModel<T>, IReserveConstraintFactory, IFeatureFactory {
 
     /** The grid on which applies the model */
     private T grid;
@@ -132,33 +133,22 @@ public class ReserveModel<T extends RegularSquareGrid> implements IReserveModel<
     // -------------------------- //
 
     public void printSolution() {
-        printSolution(true);
+        printSolution(new String[] {" ", "-", "+", "#"});
     }
 
-    public void printSolution(boolean ignoreBorder) {
-        printSolution(ignoreBorder, new String[] {" ", "-", "+", "#"});
-    }
-
-    public void printSolution(boolean ignoreBorder, String[] display) {
+    public void printSolution(String[] display) {
         if (!(grid instanceof RegularSquareGrid)) {
             return;
         }
+        RegularSquareGrid rgrid = (RegularSquareGrid) grid;
         System.out.println("\nSolution:");
-        System.out.println("   " + new String(new char[grid.getNbCols(ignoreBorder) + 2]).replace("\0", "_"));
-        for (int i = 0; i < grid.getNbRows(ignoreBorder); i++) {
-            if (!ignoreBorder && (i == grid.getBorder() || i == grid.getNbRows() - grid.getBorder())) {
-                System.out.println("  |"
-                        + new String(new char[grid.getBorder()]).replace("\0", " ")
-                        + new String(new char[grid.getNbRows() - grid.getBorder()]).replace("\0", "-"));
-            }
+        System.out.println("   " + new String(new char[rgrid.getNbCols() + 2]).replace("\0", "_"));
+        for (int i = 0; i < rgrid.getNbRows(); i++) {
             System.out.printf("  |");
-            for (int j = 0; j < grid.getNbCols(ignoreBorder); j++) {
-                if (!ignoreBorder && (j == grid.getBorder() || j == grid.getNbRows() - grid.getBorder())) {
-                    System.out.printf("|");
-                }
+            for (int j = 0; j < rgrid.getNbCols(); j++) {
                 boolean found = false;
                 for (int r = 0; r < regions.length; r++) {
-                    if (regions[r].getSetVar().getLB().contains(grid.getIndexFromCoordinates(i, j))) {
+                    if (regions[r].getSetVar().getLB().contains(rgrid.getIndexFromCoordinates(i, j))) {
                         found = true;
                         if (r < display.length) {
                             System.out.printf(display[r]);
@@ -189,14 +179,6 @@ public class ReserveModel<T extends RegularSquareGrid> implements IReserveModel<
             System.out.println("  - NbSites = " + composedRegion.getNbSites().getValue());
         }
         System.out.printf("\n");
-    }
-
-    public int getNbCols() {
-        return grid.getNbCols();
-    }
-
-    public int getNbRows() {
-        return grid.getNbRows();
     }
 
     // For constraint factory

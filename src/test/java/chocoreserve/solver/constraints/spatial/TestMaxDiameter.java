@@ -23,7 +23,7 @@
 
 package chocoreserve.solver.constraints.spatial;
 
-import chocoreserve.grid.neighborhood.Neighborhood;
+import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.region.Region;
 import chocoreserve.solver.ReserveModel;
@@ -46,8 +46,8 @@ public class TestMaxDiameter {
     @Test
     public void testSuccess1() {
         RegularSquareGrid grid = new RegularSquareGrid(3, 2);
-        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
-        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        Region core = new Region("core", Neighborhoods.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhoods.FOUR_CONNECTED);
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         reserveModel.maxDiameter(core, 3).post();
         Solver solver = reserveModel.getChocoSolver();
@@ -61,8 +61,8 @@ public class TestMaxDiameter {
     @Test
     public void testSuccess2() {
         RegularSquareGrid grid = new RegularSquareGrid(3, 2);
-        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
-        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        Region core = new Region("core", Neighborhoods.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhoods.FOUR_CONNECTED);
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         reserveModel.mandatorySites(core, 0).post();
         reserveModel.maxDiameter(core, 0.5).post();
@@ -77,14 +77,14 @@ public class TestMaxDiameter {
     @Test
     public void testFail1() throws ContradictionException {
         RegularSquareGrid grid = new RegularSquareGrid(3, 2);
-        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
-        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        Region core = new Region("core", Neighborhoods.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhoods.FOUR_CONNECTED);
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         reserveModel.maxDiameter(core, 1).post();
         reserveModel.mandatorySites(core, 0, 5).post();
         Solver solver = reserveModel.getChocoSolver();
         if (solver.solve()) {
-            reserveModel.printSolution(false);
+            reserveModel.printSolution();
         }
     }
 }

@@ -24,7 +24,7 @@
 package chocoreserve.grid.regular.square;
 
 import chocoreserve.grid.neighborhood.INeighborhood;
-import chocoreserve.grid.neighborhood.Neighborhood;
+import chocoreserve.grid.neighborhood.Neighborhoods;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -50,7 +50,7 @@ public class TestHeightConnectedSquareGrid {
     @Test
     public void testGetNeighbors() {
         RegularSquareGrid grid = new RegularSquareGrid(5, 5);
-        INeighborhood neigh = Neighborhood.HEIGHT_CONNECTED;
+        INeighborhood neigh = Neighborhoods.HEIGHT_CONNECTED;
         // Cell in the middle: 12
         int[] neighbors = neigh.getNeighbors(grid, 12);
         Arrays.sort(neighbors);

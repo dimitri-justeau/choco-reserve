@@ -24,7 +24,7 @@
 package chocoreserve.solver.constraints.choco;
 
 import chocoreserve.grid.neighborhood.INeighborhood;
-import chocoreserve.grid.neighborhood.Neighborhood;
+import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.Solver;
@@ -43,7 +43,7 @@ public class TestPropNeighbors {
     public void testNeighBuff() {
         // 4-connected and 8-connected grid for neighborhood initialization
         RegularSquareGrid grid = new RegularSquareGrid(3, 3);
-        INeighborhood n8 = Neighborhood.HEIGHT_CONNECTED;
+        INeighborhood n8 = Neighborhoods.HEIGHT_CONNECTED;
         int[] universe = IntStream.range(0, grid.getNbCells()).toArray();
         int[][] adjLists = new int[grid.getNbCells()][];
         IntStream.range(0, grid.getNbCells())

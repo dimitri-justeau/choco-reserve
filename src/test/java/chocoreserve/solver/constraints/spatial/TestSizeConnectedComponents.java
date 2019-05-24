@@ -23,7 +23,7 @@
 
 package chocoreserve.solver.constraints.spatial;
 
-import chocoreserve.grid.neighborhood.Neighborhood;
+import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.region.Region;
 import chocoreserve.solver.ReserveModel;
@@ -59,8 +59,8 @@ public class TestSizeConnectedComponents {
     @Test
     public void testSizeConnectedComponentsSuccess1() {
         RegularSquareGrid grid = new RegularSquareGrid(3, 3);
-        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
-        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        Region core = new Region("core", Neighborhoods.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhoods.FOUR_CONNECTED);
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         reserveModel.nbConnectedComponents(core, 2, 2).post();
         IntVar minNCC = reserveModel.getChocoModel().intVar(3, 4);
@@ -85,8 +85,8 @@ public class TestSizeConnectedComponents {
     @Test
     public void testSizeConnectedComponentsSuccess2() {
         RegularSquareGrid grid = new RegularSquareGrid(1, 4);
-        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
-        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        Region core = new Region("core", Neighborhoods.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhoods.FOUR_CONNECTED);
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         reserveModel.nbConnectedComponents(core, 1, 1).post();
         IntVar minNCC = reserveModel.getChocoModel().intVar("minNCC", 3, 4);

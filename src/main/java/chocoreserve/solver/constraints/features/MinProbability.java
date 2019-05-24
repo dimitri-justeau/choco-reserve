@@ -54,10 +54,9 @@ public class MinProbability extends FeaturesConstraint {
         int scaled = (int) (-1000 * Math.log10(1 - 0.01 * Math.round(100 * alpha)));
         for (int i = 0; i < features.length; i++) {
             try {
-                int[] data = Arrays.stream(((ProbabilisticFeature) features[i]).getProbabilisticData())
+                int[] coeffs = Arrays.stream(((ProbabilisticFeature) features[i]).getProbabilisticData())
                         .mapToInt(v -> (v == 1) ? 3000 : (int) (-1000 * Math.log10(1 - 0.01 * Math.round(100 * v))))
                         .toArray();
-                int[] coeffs = reserveModel.getGrid().getBordered(data);
                 chocoModel.sumElements(region.getSetVar(), coeffs, N[i]).post();
                 chocoModel.arithm(N[i], ">=", scaled).post();
             } catch (IOException e) {

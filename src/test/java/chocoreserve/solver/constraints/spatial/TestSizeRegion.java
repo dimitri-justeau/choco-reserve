@@ -23,7 +23,7 @@
 
 package chocoreserve.solver.constraints.spatial;
 
-import chocoreserve.grid.neighborhood.Neighborhood;
+import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.region.Region;
 import chocoreserve.solver.ReserveModel;
@@ -56,8 +56,8 @@ public class TestSizeRegion {
     @Test
     public void testSizeRegionSuccess1() {
         RegularSquareGrid grid = new RegularSquareGrid(3, 3);
-        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
-        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        Region core = new Region("core", Neighborhoods.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhoods.FOUR_CONNECTED);
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         reserveModel.sizeRegion(core, 9, 9).post();
         Solver solver = reserveModel.getChocoSolver();
@@ -88,8 +88,8 @@ public class TestSizeRegion {
     @Test
     public void testSizeRegionSuccess2() {
         RegularSquareGrid grid = new RegularSquareGrid(3, 3);
-        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
-        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        Region core = new Region("core", Neighborhoods.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhoods.FOUR_CONNECTED);
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         reserveModel.sizeRegion(core, 2, 4).post();
         Solver solver = reserveModel.getChocoSolver();
@@ -122,8 +122,8 @@ public class TestSizeRegion {
     @Test
     public void testSizeRegionFail() {
         RegularSquareGrid grid = new RegularSquareGrid(3, 3);
-        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
-        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        Region core = new Region("core", Neighborhoods.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhoods.FOUR_CONNECTED);
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         reserveModel.sizeRegion(core, 10, 20).post();
         Solver solver = reserveModel.getChocoSolver();

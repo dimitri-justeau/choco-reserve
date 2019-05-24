@@ -23,7 +23,7 @@
 
 package chocoreserve.solver.constraints.spatial;
 
-import chocoreserve.grid.neighborhood.Neighborhood;
+import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.region.Region;
 import chocoreserve.solver.ReserveModel;
@@ -54,8 +54,8 @@ public class TestNbConnectedComponents {
     @Test
     public void testNbConnectedComponentsSuccessCase1() {
         RegularSquareGrid grid = new RegularSquareGrid(3, 3);
-        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
-        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        Region core = new Region("core", Neighborhoods.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhoods.FOUR_CONNECTED);
         ReserveModel reserveModel = new ReserveModel<>(grid, core, out);
         reserveModel.nbConnectedComponents(core, 5, 5).post();
         Solver solver = reserveModel.getChocoSolver();
@@ -82,8 +82,8 @@ public class TestNbConnectedComponents {
     @Test
     public void testNbConnectedComponentsSuccessCase2() {
         RegularSquareGrid grid = new RegularSquareGrid(2, 2);
-        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
-        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        Region core = new Region("core", Neighborhoods.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhoods.FOUR_CONNECTED);
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         reserveModel.nbConnectedComponents(core, 2, 2).post();
         Solver solver = reserveModel.getChocoSolver();
@@ -100,8 +100,8 @@ public class TestNbConnectedComponents {
     @Test
     public void testNbConnectedComponentsSuccessCase3() {
         RegularSquareGrid grid = new RegularSquareGrid(1, 2);
-        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
-        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        Region core = new Region("core", Neighborhoods.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhoods.FOUR_CONNECTED);
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         reserveModel.nbConnectedComponents(core, 0, 1).post();
         Solver solver = reserveModel.getChocoSolver();
@@ -123,8 +123,8 @@ public class TestNbConnectedComponents {
     @Test
     public void testNbConnectedComponentsFailCase1() {
         RegularSquareGrid grid = new RegularSquareGrid(3, 3);
-        Region core = new Region("core", Neighborhood.FOUR_CONNECTED);
-        Region out = new Region("out", Neighborhood.FOUR_CONNECTED);
+        Region core = new Region("core", Neighborhoods.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhoods.FOUR_CONNECTED);
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         reserveModel.nbConnectedComponents(core, 6, 6).post();
         Solver solver = reserveModel.getChocoSolver();
