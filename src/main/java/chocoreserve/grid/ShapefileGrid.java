@@ -58,14 +58,7 @@ public class ShapefileGrid extends Grid {
 
         LOGGER.info("Loading shapefile '" + filePath + "'...");
 
-        File shp = new File(filePath);
-        Map<String, Object> map = new HashMap<>();
-        map.put("url", shp.toURI().toURL());
-        DataStore dataStore = DataStoreFinder.getDataStore(map);
-        String typeName = dataStore.getTypeNames()[0];
-        FeatureSource<SimpleFeatureType, SimpleFeature> source = dataStore.getFeatureSource(typeName);
-        Filter filter = Filter.INCLUDE;
-        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = source.getFeatures(filter);
+        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = getFeatureCollection(Filter.INCLUDE);
 
         LOGGER.info("Shapefile successfully loaded (" +  collection.size() + " sites)!");
         LOGGER.info("Computing neighborhood...");
@@ -109,6 +102,16 @@ public class ShapefileGrid extends Grid {
 
     public String getShapeId(int internalId) {
         return shapeIds[internalId];
+    }
+
+    public FeatureCollection getFeatureCollection(Filter filter) throws IOException {
+        File shp = new File(filePath);
+        Map<String, Object> map = new HashMap<>();
+        map.put("url", shp.toURI().toURL());
+        DataStore dataStore = DataStoreFinder.getDataStore(map);
+        String typeName = dataStore.getTypeNames()[0];
+        FeatureSource<SimpleFeatureType, SimpleFeature> source = dataStore.getFeatureSource(typeName);
+        return source.getFeatures(filter);
     }
 
     @Override
