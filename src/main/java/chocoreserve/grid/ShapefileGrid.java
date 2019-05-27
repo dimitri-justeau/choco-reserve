@@ -27,6 +27,7 @@ import org.geotools.data.*;
 import org.geotools.data.shapefile.ShapefileDumper;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.factory.GeoTools;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.locationtech.jts.geom.MultiPolygon;
@@ -47,7 +48,7 @@ import java.util.logging.Logger;
 public class ShapefileGrid extends Grid {
 
     private String filePath;
-    private String[] shapeIds;
+    public String[] shapeIds;
     private Map<String, Integer> shapeIdToInternalId;
     private Map<String, Set<String>> neighbors;
 
@@ -65,9 +66,10 @@ public class ShapefileGrid extends Grid {
 
         this.shapeIds = new String[collection.size()];
         this.shapeIdToInternalId = new HashMap<>();
-        this.neighbors = new HashMap<>();
+        this.neighbors = new HashMap<>(); // neighbors identified with shape id.
 
         int i = 0;
+        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(GeoTools.getDefaultHints());
 
         try (FeatureIterator<SimpleFeature> features = collection.features()) {
             while (features.hasNext()) {
@@ -76,13 +78,18 @@ public class ShapefileGrid extends Grid {
                 shapeIdToInternalId.put(feature.getID(), i);
                 neighbors.put(feature.getID(), new HashSet<>());
                 MultiPolygon geom = (MultiPolygon) feature.getDefaultGeometryProperty().getValue();
-                try (FeatureIterator<SimpleFeature> potNeigh = collection.features()) {
-                    while (potNeigh.hasNext()) {
-                        SimpleFeature f = potNeigh.next();
-                        MultiPolygon geom2 = (MultiPolygon) f.getDefaultGeometryProperty().getValue();
-                        if (geom.touches(geom2) || geom.overlaps(geom2)) {
-                            neighbors.get(feature.getID()).add(f.getID());
-                        }
+
+                Filter filter = ff.or(
+                        ff.touches(ff.property("the_geom"), ff.literal(geom)),
+                        ff.overlaps(ff.property("the_geom"), ff.literal(geom))
+                );
+
+                FeatureCollection<SimpleFeatureType, SimpleFeature> neighs = getFeatureCollection(filter);
+
+                try (FeatureIterator<SimpleFeature> neigh = neighs.features()) {
+                    while (neigh.hasNext()) {
+                        SimpleFeature f = neigh.next();
+                        neighbors.get(feature.getID()).add(f.getID());
                     }
                 }
                 i++;
