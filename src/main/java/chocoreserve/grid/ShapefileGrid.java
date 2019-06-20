@@ -41,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Grid loaded from a shapefile.
@@ -49,13 +50,19 @@ public class ShapefileGrid extends Grid {
 
     private String filePath;
     public String[] shapeIds;
+    private String idColumn;
     private Map<String, Integer> shapeIdToInternalId;
     private Map<String, Set<String>> neighbors;
 
     private static final Logger LOGGER = Logger.getLogger(ShapefileGrid.class.getName());
 
     public ShapefileGrid(String filePath) throws IOException {
+        this(filePath, "");
+    }
+
+    public ShapefileGrid(String filePath, String idColumn) throws IOException {
         this.filePath = filePath;
+        this.idColumn = idColumn;
 
         LOGGER.info("Loading shapefile '" + filePath + "'...");
 
@@ -74,9 +81,9 @@ public class ShapefileGrid extends Grid {
         try (FeatureIterator<SimpleFeature> features = collection.features()) {
             while (features.hasNext()) {
                 SimpleFeature feature = features.next();
-                shapeIds[i] = feature.getID();
-                shapeIdToInternalId.put(feature.getID(), i);
-                neighbors.put(feature.getID(), new HashSet<>());
+                shapeIds[i] = getFeatureId(feature);
+                shapeIdToInternalId.put(getFeatureId(feature), i);
+                neighbors.put(getFeatureId(feature), new HashSet<>());
                 MultiPolygon geom = (MultiPolygon) feature.getDefaultGeometryProperty().getValue();
 
                 Filter filter = ff.or(
@@ -89,18 +96,24 @@ public class ShapefileGrid extends Grid {
                 try (FeatureIterator<SimpleFeature> neigh = neighs.features()) {
                     while (neigh.hasNext()) {
                         SimpleFeature f = neigh.next();
-                        neighbors.get(feature.getID()).add(f.getID());
+                        neighbors.get(getFeatureId(feature)).add(getFeatureId(f));
                     }
                 }
                 i++;
             }
         }
-
         LOGGER.info("Neighborhood successfully computed!");
     }
 
     public Map<String, Set<String>> getNeighbors() {
         return neighbors;
+    }
+
+    public String getFeatureId(SimpleFeature feature) {
+        if (idColumn.equals("")) {
+            return feature.getID();
+        }
+        return feature.getAttribute(idColumn).toString();
     }
 
     public int getInternalId(String shapeId) {
@@ -111,7 +124,7 @@ public class ShapefileGrid extends Grid {
         return shapeIds[internalId];
     }
 
-    public FeatureCollection getFeatureCollection(Filter filter) throws IOException {
+    public FeatureCollection getFeatureCollection(String filePath, Filter filter) throws IOException {
         File shp = new File(filePath);
         Map<String, Object> map = new HashMap<>();
         map.put("url", shp.toURI().toURL());
@@ -119,6 +132,89 @@ public class ShapefileGrid extends Grid {
         String typeName = dataStore.getTypeNames()[0];
         FeatureSource<SimpleFeatureType, SimpleFeature> source = dataStore.getFeatureSource(typeName);
         return source.getFeatures(filter);
+    }
+
+    public FeatureCollection getFeatureCollection(Filter filter) throws IOException {
+        return getFeatureCollection(filePath, filter);
+    }
+
+    public int[][] getOverlappingFeatures(String overlappingFilePath) throws IOException {
+        int[][] overlapping = new int[getNbCells()][];
+
+        // Assign integer id to overlappingLayer
+        FeatureCollection<SimpleFeatureType, SimpleFeature> overlappping = getFeatureCollection(
+                overlappingFilePath,
+                Filter.INCLUDE
+        );
+        Map<String, Integer> mapping = new HashMap<>();
+        int i = 0;
+        try (FeatureIterator<SimpleFeature> feats = overlappping.features()) {
+            while (feats.hasNext()) {
+                SimpleFeature f = feats.next();
+                mapping.put(f.getID(), i);
+                i++;
+            }
+        }
+        // Compute overlapping
+        i = 0;
+        FeatureCollection<SimpleFeatureType, SimpleFeature> collection = getFeatureCollection(Filter.INCLUDE);
+        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(GeoTools.getDefaultHints());
+        try (FeatureIterator<SimpleFeature> features = collection.features()) {
+            while (features.hasNext()) {
+                SimpleFeature feature = features.next();
+                MultiPolygon geom = (MultiPolygon) feature.getDefaultGeometryProperty().getValue();
+                Filter filter = ff.overlaps(ff.property("the_geom"), ff.literal(geom));
+
+                FeatureCollection<SimpleFeatureType, SimpleFeature> neighs = getFeatureCollection(
+                        overlappingFilePath,
+                        filter
+                );
+
+                Set<Integer> overlap = new HashSet<>();
+                try (FeatureIterator<SimpleFeature> neigh = neighs.features()) {
+                    while (neigh.hasNext()) {
+                        SimpleFeature f = neigh.next();
+                        overlap.add(mapping.get(f.getID()));
+                    }
+                }
+                overlapping[i] = overlap.stream().mapToInt(v -> v).toArray();
+                i++;
+            }
+        }
+        return overlapping;
+    }
+
+    public String[] getShapeIdsByAttribute(String attributeName, Object value) throws IOException {
+        File shp = new File(filePath);
+        Map<String, Object> map = new HashMap<>();
+        map.put("url", shp.toURI().toURL());
+        DataStore dataStore = DataStoreFinder.getDataStore(map);
+        String typeName = dataStore.getTypeNames()[0];
+        FeatureSource<SimpleFeatureType, SimpleFeature> source = dataStore.getFeatureSource(typeName);
+        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2();
+        Filter filter;
+        filter = ff.or(
+                Arrays.stream(shapeIds)
+                        .map(i -> ff.equals(ff.property(attributeName), ff.literal(value)))
+                        .collect(Collectors.toList())
+        );
+        SimpleFeatureCollection collection = (SimpleFeatureCollection) source.getFeatures(filter);
+        String[] ids = new String[collection.size()];
+        int i = 0;
+        try (FeatureIterator<SimpleFeature> features = collection.features()) {
+            while (features.hasNext()) {
+                SimpleFeature feature = features.next();
+                ids[i] = getFeatureId(feature);
+                i++;
+            }
+        }
+        return ids;
+    }
+
+    public int[] getInternalIdsByAttribute(String attributeName, Object value) throws IOException {
+        return Arrays.stream(getShapeIdsByAttribute(attributeName, value))
+                .mapToInt(i -> getInternalId(i))
+                .toArray();
     }
 
     @Override
@@ -143,7 +239,7 @@ public class ShapefileGrid extends Grid {
                 while (features.hasNext()) {
                     SimpleFeature feature = features.next();
                     MultiPolygon geom = (MultiPolygon) feature.getDefaultGeometryProperty().getValue();
-                    coords[getInternalId(feature.getID())] = new double[]
+                    coords[getInternalId(getFeatureId(feature))] = new double[]
                             {geom.getCentroid().getCoordinate().getX(), geom.getCentroid().getCoordinate().getX()};
                 }
             }
@@ -153,7 +249,12 @@ public class ShapefileGrid extends Grid {
         return null;
     }
 
-    public void export(String destPath, int[] ids) throws IOException {
+    public void export(String destPath, int[] internalIds) throws IOException {
+        String[] shapeIds = Arrays.stream(internalIds).mapToObj(i -> getShapeId(i)).toArray(String[]::new);
+        export(destPath, shapeIds);
+    }
+
+    public void export(String destPath, String[] shapeIds) throws IOException {
         // Load existing
         File shp = new File(filePath);
         Map<String, Object> map = new HashMap<>();
@@ -162,11 +263,20 @@ public class ShapefileGrid extends Grid {
         String typeName = dataStore.getTypeNames()[0];
         FeatureSource<SimpleFeatureType, SimpleFeature> source = dataStore.getFeatureSource(typeName);
         FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2();
-        Filter filter = ff.id(
-                Arrays.stream(ids)
-                        .mapToObj(i -> ff.featureId(getShapeId(i)))
-                        .toArray(FeatureId[]::new)
-        );
+        Filter filter;
+        if (idColumn.equals("")) {
+            filter = ff.id(
+                    Arrays.stream(shapeIds)
+                            .map(i -> ff.featureId(i))
+                            .toArray(FeatureId[]::new)
+            );
+        } else {
+            filter = ff.or(
+                    Arrays.stream(shapeIds)
+                            .map(i -> ff.equals(ff.property(idColumn), ff.literal(i)))
+                            .collect(Collectors.toList())
+            );
+        }
         SimpleFeatureCollection collection = (SimpleFeatureCollection) source.getFeatures(filter);
         // Export subset
         ShapefileDumper dumper = new ShapefileDumper(new File(destPath));

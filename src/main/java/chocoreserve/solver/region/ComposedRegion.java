@@ -24,7 +24,12 @@
 package chocoreserve.solver.region;
 
 import chocoreserve.grid.Grid;
+import chocoreserve.grid.neighborhood.INeighborhood;
+import chocoreserve.solver.constraints.choco.graph.PropInducedNeighborhood;
+import chocoreserve.util.objects.graphs.UndirectedGraphIncrementalCC;
 import org.chocosolver.graphsolver.GraphModel;
+import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
+import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.SetVar;
 import org.chocosolver.solver.variables.impl.SetVarImpl;
 import org.chocosolver.util.objects.setDataStructures.SetType;
@@ -37,13 +42,17 @@ import java.util.stream.IntStream;
  */
 public class ComposedRegion extends AbstractRegion {
 
+    private final SetType GRAPH_SET_TYPE = SetType.BIPARTITESET;
     private final SetType SET_VAR_SET_TYPE = SetType.BIPARTITESET;
 
+    private INeighborhood neighborhood;
+    private UndirectedGraphVar graphVar;
     private Region[] regions;
 
     public ComposedRegion(String name, Region... regions) {
         super(name);
         this.regions = regions;
+        this.neighborhood = regions[0].getNeighborhood();
     }
 
     @Override
@@ -61,5 +70,20 @@ public class ComposedRegion extends AbstractRegion {
                 model
         );
         model.union(setVars, setVar).post();
+    }
+
+    public UndirectedGraphVar getGraphVar() {
+        if (graphVar == null) {
+            GraphModel model = reserveModel.getChocoModel();
+            Grid grid = reserveModel.getGrid();
+            graphVar = model.graphVar(
+                    "regionGraphVar['" + name + "']",
+                    new UndirectedGraphIncrementalCC(model, grid.getNbCells(), GRAPH_SET_TYPE, false),
+                    neighborhood.getFullGraph(grid, model, GRAPH_SET_TYPE)
+            );
+            model.nodesChanneling(graphVar, getSetVar()).post();
+            model.post(new Constraint("inducedNeigh['" + name + "']", new PropInducedNeighborhood(graphVar)));
+        }
+        return graphVar;
     }
 }

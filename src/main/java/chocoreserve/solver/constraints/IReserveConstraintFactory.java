@@ -24,6 +24,7 @@
 package chocoreserve.solver.constraints;
 
 import chocoreserve.grid.neighborhood.INeighborhood;
+import chocoreserve.solver.constraints.features.AllCovered;
 import chocoreserve.solver.region.AbstractRegion;
 import chocoreserve.solver.region.Region;
 import chocoreserve.solver.ReserveModel;
@@ -69,6 +70,10 @@ public interface IReserveConstraintFactory {
      */
     default IReserveConstraint coveredFeatures(AbstractRegion region, BinaryFeature... features) {
         return new CoveredFeatures(self(), region, features);
+    }
+
+    default IReserveConstraint allCovered(AbstractRegion region, BinaryFeature... features) {
+        return new AllCovered(self(), region, features);
     }
 
     /**

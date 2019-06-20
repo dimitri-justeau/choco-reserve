@@ -40,7 +40,7 @@ import java.util.stream.IntStream;
 public class BufferZone extends SpatialConstraint {
 
     private AbstractRegion region1, region2, buffer;
-    private SetVar neighSet1, neighSet2;
+    public SetVar neighSet1, neighSet2;
     private INeighborhood neighborhood;
 
     public BufferZone(ReserveModel reserveModel, AbstractRegion region1, AbstractRegion region2,

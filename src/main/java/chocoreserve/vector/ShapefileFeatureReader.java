@@ -72,13 +72,17 @@ public class ShapefileFeatureReader {
                 Filter f = ff.contains(ff.property("the_geom"), ff.literal(geom));
                 FeatureCollection<SimpleFeatureType, SimpleFeature> sitesCollection = grid.getFeatureCollection(f);
                 assert sitesCollection.size() <= 1;
-                String shapeId = sitesCollection.features().next().getID();
-                int internalId = grid.getInternalId(shapeId);
-                String featName = pointFeature.getAttribute(featureNameColumn).toString();
-                if (!binaryFeatures.keySet().contains(featName)) {
-                    binaryFeatures.put(featName, new HashSet<>());
+                if (sitesCollection.size() == 1) {
+                    try (FeatureIterator<SimpleFeature> iterator = sitesCollection.features()) {
+                        String shapeId = iterator.next().getID();
+                        int internalId = grid.getInternalId(shapeId);
+                        String featName = pointFeature.getAttribute(featureNameColumn).toString();
+                        if (!binaryFeatures.keySet().contains(featName)) {
+                            binaryFeatures.put(featName, new HashSet<>());
+                        }
+                        binaryFeatures.get(featName).add(internalId);
+                    }
                 }
-                binaryFeatures.get(featName).add(internalId);
             }
         }
         Map<String, BinaryFeature> result = new HashMap<>();
