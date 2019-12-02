@@ -25,9 +25,14 @@ package chocoreserve.solver.constraints.spatial;
 
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.region.Region;
+import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
+import org.chocosolver.solver.variables.SetVar;
+import org.chocosolver.util.tools.ArrayUtils;
 
 import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.IntStream;
 
 /**
  *
@@ -35,26 +40,39 @@ import java.util.Arrays;
 public class StructuralConnectivity extends SpatialConstraint {
 
     private Region region;
-    private int[][] overlappingStructuralUnits;
+    public IntVar N;
+    public IntVar[] struct;
 
-    public StructuralConnectivity(ReserveModel reserveModel, Region region, int[][] overlappingStructuralUnits) {
+      private int[][] overlappingStructuralUnits;
+
+    public StructuralConnectivity(ReserveModel reserveModel, Region region, int min, int max,
+                                  int[][] overlappingStructuralUnits) {
         super(reserveModel);
-        this.region = region;
         assert overlappingStructuralUnits.length == reserveModel.getGrid().getNbCells();
         this.overlappingStructuralUnits = overlappingStructuralUnits;
+        this.region = region;
+        this.N = chocoModel.intVar("struct_N", min, max);
+
+        this.struct = Arrays.stream(overlappingStructuralUnits)
+//                .filter(i -> i.length > 0)
+                .map(i -> chocoModel.intVar(ArrayUtils.concat(i, -1))).toArray(IntVar[]::new);
+
     }
 
     @Override
     public void post() {
-        IntVar[] struct = new IntVar[reserveModel.getSites().length];
+
         for (int i = 0; i < reserveModel.getSites().length; i++) {
             if (overlappingStructuralUnits[i].length == 0) {
-                struct[i] = chocoModel.intVar(-1);
+                chocoModel.notMember(i, region.getSetVar()).post();
             }
-            else {
-                struct[i] = chocoModel.intVar(overlappingStructuralUnits[i]);
-            }
+
+            chocoModel.ifThen(
+                    chocoModel.member(i, region.getSetVar()),
+                    chocoModel.arithm(struct[i], "!=", -1)
+            );
         }
-        chocoModel.allEqual(struct).post();
+        chocoModel.nValues(struct, N).post();
+//        chocoModel.allEqual(struct).post();
     }
 }

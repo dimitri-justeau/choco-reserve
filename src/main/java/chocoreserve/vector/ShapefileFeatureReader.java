@@ -25,6 +25,7 @@ package chocoreserve.vector;
 
 import chocoreserve.grid.ShapefileGrid;
 import chocoreserve.solver.feature.BinaryFeature;
+import chocoreserve.solver.feature.QuantitativeFeature;
 import chocoreserve.solver.feature.array.BinaryArrayFeature;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
@@ -74,7 +75,7 @@ public class ShapefileFeatureReader {
                 assert sitesCollection.size() <= 1;
                 if (sitesCollection.size() == 1) {
                     try (FeatureIterator<SimpleFeature> iterator = sitesCollection.features()) {
-                        String shapeId = iterator.next().getID();
+                        String shapeId = grid.getFeatureId(iterator.next());
                         int internalId = grid.getInternalId(shapeId);
                         String featName = pointFeature.getAttribute(featureNameColumn).toString();
                         if (!binaryFeatures.keySet().contains(featName)) {
@@ -95,4 +96,47 @@ public class ShapefileFeatureReader {
         return result;
     }
 
+//    public static Map<String, QuantitativeFeature> quantitativeFeatureFromShapefile(String path, String featureNameColumn,
+//                                                                                    ShapefileGrid grid) throws IOException {
+//        File shp = new File(path);
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("url", shp.toURI().toURL());
+//        DataStore dataStore = DataStoreFinder.getDataStore(map);
+//        String typeName = dataStore.getTypeNames()[0];
+//        FeatureSource<SimpleFeatureType, SimpleFeature> source = dataStore.getFeatureSource(typeName);
+//        FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(GeoTools.getDefaultHints());
+//        Filter filter = Filter.INCLUDE;
+//        FeatureCollection<SimpleFeatureType, SimpleFeature> pointCollection = source.getFeatures(filter);
+//
+//        Map<String, Set<Integer>> binaryFeatures = new HashMap<>();
+//
+//        try (FeatureIterator<SimpleFeature> points = pointCollection.features()) {
+//            while (points.hasNext()) {
+//                SimpleFeature pointFeature = points.next();
+//                Point geom = (Point) pointFeature.getDefaultGeometry();
+//                Filter f = ff.contains(ff.property("the_geom"), ff.literal(geom));
+//                FeatureCollection<SimpleFeatureType, SimpleFeature> sitesCollection = grid.getFeatureCollection(f);
+//                assert sitesCollection.size() <= 1;
+//                if (sitesCollection.size() == 1) {
+//                    try (FeatureIterator<SimpleFeature> iterator = sitesCollection.features()) {
+//                        String shapeId = iterator.next().getID();
+//                        int internalId = grid.getInternalId(shapeId);
+//                        String featName = pointFeature.getAttribute(featureNameColumn).toString();
+//                        if (!binaryFeatures.keySet().contains(featName)) {
+//                            binaryFeatures.put(featName, new HashSet<>());
+//                        }
+//                        binaryFeatures.get(featName).add(internalId);
+//                    }
+//                }
+//            }
+//        }
+//        Map<String, BinaryFeature> result = new HashMap<>();
+//        for (String key : binaryFeatures.keySet()) {
+//            int[] array = IntStream.range(0, grid.getNbCells())
+//                    .map(i -> binaryFeatures.get(key).contains(i) ? 1 : 0)
+//                    .toArray();
+//            result.put(key, new BinaryArrayFeature(key, array));
+//        }
+//        return result;
+//    }
 }

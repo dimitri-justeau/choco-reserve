@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Grid loaded from a shapefile.
@@ -53,6 +54,7 @@ public class ShapefileGrid extends Grid {
     private String idColumn;
     private Map<String, Integer> shapeIdToInternalId;
     private Map<String, Set<String>> neighbors;
+    private Map<String, double[]> centroids;
 
     private static final Logger LOGGER = Logger.getLogger(ShapefileGrid.class.getName());
 
@@ -74,6 +76,7 @@ public class ShapefileGrid extends Grid {
         this.shapeIds = new String[collection.size()];
         this.shapeIdToInternalId = new HashMap<>();
         this.neighbors = new HashMap<>(); // neighbors identified with shape id.
+        this.centroids = new HashMap<>();
 
         int i = 0;
         FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2(GeoTools.getDefaultHints());
@@ -85,10 +88,11 @@ public class ShapefileGrid extends Grid {
                 shapeIdToInternalId.put(getFeatureId(feature), i);
                 neighbors.put(getFeatureId(feature), new HashSet<>());
                 MultiPolygon geom = (MultiPolygon) feature.getDefaultGeometryProperty().getValue();
-
+                centroids.put(shapeIds[i], new double[] {geom.getCentroid().getX(), geom.getCentroid().getY()});
                 Filter filter = ff.or(
                         ff.touches(ff.property("the_geom"), ff.literal(geom)),
                         ff.overlaps(ff.property("the_geom"), ff.literal(geom))
+//                        ff.intersects(ff.property("the_geom"), ff.literal(geom))
                 );
 
                 FeatureCollection<SimpleFeatureType, SimpleFeature> neighs = getFeatureCollection(filter);
@@ -163,8 +167,7 @@ public class ShapefileGrid extends Grid {
             while (features.hasNext()) {
                 SimpleFeature feature = features.next();
                 MultiPolygon geom = (MultiPolygon) feature.getDefaultGeometryProperty().getValue();
-                Filter filter = ff.overlaps(ff.property("the_geom"), ff.literal(geom));
-
+                Filter filter = ff.intersects(ff.property("the_geom"), ff.literal(geom));
                 FeatureCollection<SimpleFeatureType, SimpleFeature> neighs = getFeatureCollection(
                         overlappingFilePath,
                         filter
@@ -247,6 +250,28 @@ public class ShapefileGrid extends Grid {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public String exportDot(double scale) {
+        double minX = centroids.values().stream().mapToDouble(i -> i[0]).min().getAsDouble();
+        double minY = centroids.values().stream().mapToDouble(i -> i[1]).min().getAsDouble();
+        String arc = " -- ";
+        StringBuilder sb = new StringBuilder();
+        sb.append("graph ").append("{\n");
+        sb.append("node [color = black, fontcolor=black];\n{\n");
+        for (String shapeId : shapeIds) {
+            sb.append("    " + shapeId + " [pos=\"" + (centroids.get(shapeId)[0] - minX) * scale + ", " + (centroids.get(shapeId)[1] - minY) * scale + "!\"];\n");
+        }
+        sb.append("\n}\n");
+        for (String shapeId : shapeIds) {
+            for (String neigh : neighbors.get(shapeId)) {
+                if (getInternalId(shapeId) > getInternalId(neigh)) {
+                    sb.append("  " + shapeId + arc + neigh + ";\n");
+                }
+            }
+        }
+        sb.append("}");
+        return sb.toString();
     }
 
     public void export(String destPath, int[] internalIds) throws IOException {

@@ -49,10 +49,17 @@ public class Region extends AbstractRegion {
     private INeighborhood neighborhood;
     private UndirectedGraphVar graphVar;
     private IntVar nbCC;
+    private SetType graphSetType, setVarSetType;
 
-    public Region(String name, INeighborhood neighborhood) {
+    public Region(String name, INeighborhood neighborhood, SetType graphSetType, SetType setVarSetType) {
         super(name);
         this.neighborhood = neighborhood;
+        this.graphSetType = graphSetType;
+        this.setVarSetType = setVarSetType;
+    }
+
+    public Region(String name, INeighborhood neighborhood) {
+        this(name, neighborhood, SetType.BIPARTITESET, SetType.BIPARTITESET);
     }
 
     public UndirectedGraphVar getGraphVar() {
@@ -61,8 +68,8 @@ public class Region extends AbstractRegion {
             Grid grid = reserveModel.getGrid();
             graphVar = model.graphVar(
                     "regionGraphVar['" + name + "']",
-                    new UndirectedGraphIncrementalCC(model, grid.getNbCells(), GRAPH_SET_TYPE, false),
-                    neighborhood.getFullGraph(grid, model, GRAPH_SET_TYPE)
+                    new UndirectedGraphIncrementalCC(model, grid.getNbCells(), graphSetType, false),
+                    neighborhood.getFullGraph(grid, model, graphSetType)
             );
             model.nodesChanneling(graphVar, getSetVar()).post();
             model.post(new Constraint("inducedNeigh['" + name + "']", new PropInducedNeighborhood(graphVar)));
@@ -76,8 +83,8 @@ public class Region extends AbstractRegion {
         Grid grid = reserveModel.getGrid();
         setVar = new SetVarImpl(
                 "regionSetVar['" + name + "']",
-                new int[] {}, SET_VAR_SET_TYPE,
-                IntStream.range(0, grid.getNbCells()).toArray(), SET_VAR_SET_TYPE,
+                new int[] {}, setVarSetType,
+                IntStream.range(0, grid.getNbCells()).toArray(), setVarSetType,
                 model
         );
     }

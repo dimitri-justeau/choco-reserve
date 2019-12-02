@@ -24,44 +24,45 @@
 package chocoreserve.solver.constraints.features;
 
 import chocoreserve.solver.ReserveModel;
-import chocoreserve.solver.feature.BinaryFeature;
-import chocoreserve.solver.feature.Feature;
+import chocoreserve.solver.feature.ProbabilisticFeature;
+import chocoreserve.solver.feature.QuantitativeFeature;
 import chocoreserve.solver.region.AbstractRegion;
+import chocoreserve.solver.region.Region;
+import org.chocosolver.solver.variables.IntVar;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Arrays;
 
 /**
- * All known occurrences of each feature must be covered.
+ *
  */
-public class AllCovered extends FeaturesConstraint {
+public class QuantityCoverage extends FeaturesConstraint {
 
     private AbstractRegion region;
+    public IntVar N;
+    private QuantitativeFeature feature;
 
-    public AllCovered(ReserveModel reserveModel, AbstractRegion region, Feature... features) {
-        super(reserveModel, features);
+    public QuantityCoverage(ReserveModel reserveModel, AbstractRegion region, QuantitativeFeature feature) {
+        super(reserveModel, feature);
         this.region = region;
+        this.feature = feature;
+        try {
+            this.N = chocoModel.intVar(
+                    "qty_" + feature.getName(),
+                    0,
+                    Arrays.stream(feature.getQuantitativeData()).sum()
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void post() {
-        Set<Integer> mandatorySites = new HashSet<>();
-        for (Feature f : features) {
-            BinaryFeature bf = (BinaryFeature) f;
-            try {
-                for (int i = 0; i < bf.getBinaryData().length; i++) {
-                    if (bf.getBinaryData()[i] >= 1) {
-                        mandatorySites.add(i);
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        try {
+            chocoModel.sumElements(region.getSetVar(), feature.getQuantitativeData(), N).post();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        for (int i : mandatorySites) {
-            reserveModel.getChocoModel().member(i, region.getSetVar()).post();
-        }
-        System.out.println("Mandatory: " + mandatorySites.size());
     }
 }

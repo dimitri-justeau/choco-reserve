@@ -102,6 +102,19 @@ public interface IReserveConstraintFactory {
         return new MinProbability(self(), region, alpha, features);
     }
 
+//    /**
+//     * Creates a minQuantity constraint. The minQuantity constraint holds iff each feature involved in
+//     * the constraint has a cumulated quantity of at least k in the region.
+//     *
+//     * @param region The region where the constraint must be posted.
+//     * @param k min quantity.
+//     * @param features An array of features.
+//     * @return A MinQuantity constraint.
+//     */
+//    default IReserveConstraint minQuantity(AbstractRegion region, int k, BinaryFeature... features) {
+//        return new RedundantFeatures(self(), region, k, features);
+//    }
+
     // ------------------- //
     // Spatial constraints //
     // ------------------- //
