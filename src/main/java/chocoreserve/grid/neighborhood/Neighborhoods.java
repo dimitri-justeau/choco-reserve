@@ -23,9 +23,7 @@
 
 package chocoreserve.grid.neighborhood;
 
-import chocoreserve.grid.neighborhood.regulare.square.FourConnected;
-import chocoreserve.grid.neighborhood.regulare.square.HeightConnected;
-import chocoreserve.grid.neighborhood.regulare.square.TwoWideHeightConnected;
+import chocoreserve.grid.neighborhood.regulare.square.*;
 
 /**
  * Utility class for accessing neighborhoods.
@@ -34,6 +32,8 @@ public class Neighborhoods {
 
     public final static FourConnected FOUR_CONNECTED = new FourConnected();
     public final static HeightConnected HEIGHT_CONNECTED = new HeightConnected();
+    public final static PartialFourConnected PARTIAL_FOUR_CONNECTED = new PartialFourConnected();
+    public final static PartialHeightConnected PARTIAL_HEIGHT_CONNECTED = new PartialHeightConnected();
     public final static TwoWideHeightConnected TWO_WIDE_HEIGHT_CONNECTED = new TwoWideHeightConnected();
     public final static ShapefileNeighborhood SHAPEFILE_NEIGHBORHOOD = new ShapefileNeighborhood();
 
