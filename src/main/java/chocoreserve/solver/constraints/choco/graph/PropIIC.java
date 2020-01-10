@@ -65,7 +65,20 @@ public class PropIIC extends Propagator<Variable> {
     }
 
     public double computeIIC(UndirectedGraph graph) {
-        return 0;
+        int[][] allPairsShortestPaths = allPairsShortestPaths(graph);
+        double iic = 0;
+        for (int i = 0; i < areaLandscape; i++) {
+            if (graph.getNodes().contains(i)) {
+                for (int j = 0; j < areaLandscape; j++) {
+                    if (graph.getNodes().contains(j)) {
+                        if (allPairsShortestPaths[i][j] != Integer.MAX_VALUE) {
+                            iic += 1.0 / (1 + allPairsShortestPaths[i][j]);
+                        }
+                    }
+                }
+            }
+        }
+        return iic / Math.pow(areaLandscape, 2);
     }
 
     /**

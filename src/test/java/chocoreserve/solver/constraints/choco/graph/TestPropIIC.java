@@ -125,5 +125,8 @@ public class TestPropIIC {
 //        for (int[] dist : distsLB) {
 //            System.out.println(Arrays.toString(dist));
 //        }
+
+        System.out.println("IIC(LB) = " + propIIC.computeIIC(g.getLB()));
+        System.out.println("IIC(UB) = " + propIIC.computeIIC(g.getUB()));
     }
 }
