@@ -32,6 +32,7 @@ import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.SetVar;
 import org.chocosolver.solver.variables.impl.SetVarImpl;
+import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 
 import java.util.Arrays;
@@ -78,6 +79,7 @@ public class ComposedRegion extends AbstractRegion {
             Grid grid = reserveModel.getGrid();
             graphVar = model.graphVar(
                     "regionGraphVar['" + name + "']",
+//                    new UndirectedGraph(model, grid.getNbCells(), GRAPH_SET_TYPE, false),
                     new UndirectedGraphIncrementalCC(model, grid.getNbCells(), GRAPH_SET_TYPE, false),
                     neighborhood.getFullGraph(grid, model, GRAPH_SET_TYPE)
             );

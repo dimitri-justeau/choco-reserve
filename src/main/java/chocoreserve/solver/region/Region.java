@@ -34,6 +34,7 @@ import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.impl.SetVarImpl;
+import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 
 import java.util.stream.IntStream;
@@ -69,6 +70,7 @@ public class Region extends AbstractRegion {
             graphVar = model.graphVar(
                     "regionGraphVar['" + name + "']",
                     new UndirectedGraphIncrementalCC(model, grid.getNbCells(), graphSetType, false),
+//                    new UndirectedGraph(model, grid.getNbCells(), graphSetType, false),
                     neighborhood.getFullGraph(grid, model, graphSetType)
             );
             model.nodesChanneling(graphVar, getSetVar()).post();
