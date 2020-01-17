@@ -23,6 +23,7 @@
 
 package chocoreserve.solver.constraints.choco.graph;
 
+import chocoreserve.grid.regular.square.RegularSquareGrid;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -34,6 +35,7 @@ import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Stack;
 import java.util.stream.IntStream;
 
 /**
@@ -66,6 +68,23 @@ public class PropIIC extends Propagator<Variable> {
 
     public double computeIIC(UndirectedGraph graph) {
         int[][] allPairsShortestPaths = allPairsShortestPaths(graph);
+        double iic = 0;
+        for (int i = 0; i < areaLandscape; i++) {
+            if (graph.getNodes().contains(i)) {
+                for (int j = 0; j < areaLandscape; j++) {
+                    if (graph.getNodes().contains(j)) {
+                        if (allPairsShortestPaths[i][j] != Integer.MAX_VALUE) {
+                            iic += 1.0 / (1 + allPairsShortestPaths[i][j]);
+                        }
+                    }
+                }
+            }
+        }
+        return iic / Math.pow(areaLandscape, 2);
+    }
+
+    public double computeIIC_MDA(RegularSquareGrid grid, UndirectedGraph graph) {
+        int[][] allPairsShortestPaths = allPairsShortestPathsMDA(grid, graph);
         double iic = 0;
         for (int i = 0; i < areaLandscape; i++) {
             if (graph.getNodes().contains(i)) {
@@ -138,5 +157,141 @@ public class PropIIC extends Propagator<Variable> {
         }
 
         return allPairsShortestPaths;
+    }
+
+    /**
+     * Repeat Minimum Detour Algorithm on each vertex of the graph, avoiding symmetries.
+     * @return
+     */
+    public int[][] allPairsShortestPathsMDA(RegularSquareGrid grid, UndirectedGraph graph) {
+
+        int[][] allPairsShortestPaths = new int[areaLandscape][];
+        int[] prev = new int[areaLandscape];
+
+        for (int source = 0; source < areaLandscape; source++) {
+
+            int[] dist = new int[areaLandscape];
+
+            // If node not in graph we label everything related to it with -1
+            if (!graph.getNodes().contains(source)) {
+                Arrays.fill(dist, -1);
+            } else { // MDA algorithm
+                for (int dest = source; dest < areaLandscape; dest++) {
+                    int minDist = minimumDetour(grid, graph, source, dest)[0][0];
+                    dist[dest] = minDist;
+                }
+                for (int i = 0; i < source; i++) {
+                    dist[i] = allPairsShortestPaths[i][source];
+                }
+            }
+            allPairsShortestPaths[source] = dist.clone();
+        }
+
+        return allPairsShortestPaths;
+    }
+
+    /**
+     * Minimum Detour Algorithm for grid graphs (Hadlock 1977).
+     * @param source
+     * @param dest
+     * @return [ [dist], [path] ]
+     */
+    public int[][] minimumDetour(RegularSquareGrid grid, UndirectedGraph graph, int source, int dest) {
+
+        if (!graph.getNodes().contains(source)) {
+            return new int[][] { {-1}, null };
+        }
+        if (!graph.getNodes().contains(dest)) {
+            return new int[][] { {-1}, null };
+        }
+
+        Set<Integer> visited = new HashSet<>();
+
+        int current = source;
+        int detours = 0;
+
+        int[] prev = new int[graph.getNbMaxNodes()];
+        for (int i = 0; i < graph.getNbMaxNodes(); i++) {
+            prev[i] = -1;
+        }
+
+        Stack<Integer> positives = new Stack<>();
+        Stack<Integer> negatives = new Stack<>();
+
+        boolean skip2 = false;
+
+        prev[source] = source;
+
+        while (current != dest) {
+
+            if (!skip2) {
+                // 2
+                visited.add(current);
+
+                for (int neigh : graph.getNeighOf(current)) { // #2
+                    if (!visited.contains(neigh)) {
+                        if (manhattanDistance(grid, neigh, dest) < manhattanDistance(grid, current, dest)) {
+                            positives.add(neigh);
+                        } else {
+                            negatives.add(neigh);
+                        }
+                    }
+                }
+
+                //System.out.println("\nCurrent = " + current);
+                //System.out.println("Positives = " + positives);
+                //System.out.println("Negatives = " + negatives);
+            }
+
+            //System.out.println(positives);
+            //System.out.println(negatives);
+
+            skip2 = false;
+            int next = -1;
+
+            // 3
+            while (positives.size() > 0) {
+                int candidate = positives.pop();
+                if (!visited.contains(candidate)) {
+                    next = candidate;
+                    break;
+                }
+            }
+            // 4
+            if (positives.size() == 0 && negatives.size() > 0 && next == -1) {
+                detours += 1;
+                while (!negatives.isEmpty()) {
+                    positives.add(negatives.pop());
+                }
+                skip2 = true;
+                next = current;
+            }
+            //System.out.println(next);
+
+            if (next == -1) {
+                return new int[][] { {Integer.MAX_VALUE}, null };
+            }
+            if (next != current) {
+                prev[next] = current;
+            }
+            current = next;
+
+        }
+        //System.out.println("Nb detours = " + detours);
+        int dist = manhattanDistance(grid, source, dest) + 2 * detours;
+        int[] path = new int[dist + 1];
+        path[dist] = dest;
+        for (int i = dist - 1; i >= 0; i--) {
+            path[i] = prev[path[i + 1]];
+        }
+        return new int[][] { {dist}, path };
+    }
+
+    public int manhattanDistance(RegularSquareGrid grid, int source, int dest) {
+        int[] sourceCoords = grid.getCoordinatesFromIndex(source);
+        int[] destCoords = grid.getCoordinatesFromIndex(dest);
+        int dx = Math.abs(sourceCoords[1] - destCoords[1]);
+        int dy = Math.abs(sourceCoords[0] - destCoords[0]);
+        return dx + dy;
     }
 }

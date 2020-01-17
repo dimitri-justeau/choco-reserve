@@ -69,7 +69,7 @@ public class TestPropIIC {
 
     @Test
     public void testDijkstra() {
-        Grid grid = new RegularSquareGrid(5, 5);
+        RegularSquareGrid grid = new RegularSquareGrid(5, 5);
         INeighborhood n4 = Neighborhoods.FOUR_CONNECTED;
         GraphModel model = new GraphModel("TestPropInducedNeigh");
         UndirectedGraph LB = new UndirectedGraph(model, grid.getNbCells(), SetType.BIPARTITESET, false);
@@ -91,7 +91,13 @@ public class TestPropIIC {
         RealVar iic = model.realVar(0, 1, 1e-5);
         PropIIC propIIC = new PropIIC(g, iic);
 
+        long t = System.currentTimeMillis();
         int[][] dists = propIIC.allPairsShortestPaths(g.getUB());
+        long t1 = System.currentTimeMillis();
+        int[][] distsMDA = propIIC.allPairsShortestPathsMDA(grid, g.getUB());
+        long t2 = System.currentTimeMillis();
+
+        System.out.println("Dijkstra : " + (t1 - t) + " / MDA : " + (t2 - t1));
 
         int[] expected0 = new int[] {
                 0, 1, 2, 3, 4,
@@ -113,14 +119,25 @@ public class TestPropIIC {
 //            System.out.println(Arrays.toString(dist));
 //        }
 
+        //System.out.println("MDA = " + propIIC.minimumDetour(grid, LB, 0, 24));
+
         Assert.assertTrue(Arrays.equals(dists[0], expected0));
         Assert.assertTrue(Arrays.equals(dists[18], expected18));
 
+        Assert.assertTrue(Arrays.equals(distsMDA[0], expected0));
+        Assert.assertTrue(Arrays.equals(distsMDA[18], expected18));
+
         int[][] distsLB = propIIC.allPairsShortestPaths(g.getLB());
+        int[][] distsLBMDA = propIIC.allPairsShortestPathsMDA(grid, g.getLB());
 
         Assert.assertEquals(distsLB[0][24], 12);
         Assert.assertEquals(distsLB[0][16], -1);
         Assert.assertEquals(distsLB[0][4], Integer.MAX_VALUE);
+
+        Assert.assertEquals(distsLBMDA[0][24], 12);
+        System.out.println(Arrays.toString(propIIC.minimumDetour(grid, LB, 0, 24)[1]));
+        Assert.assertEquals(distsLBMDA[0][16], -1);
+        Assert.assertEquals(distsLBMDA[0][4], Integer.MAX_VALUE);
 
 //        for (int[] dist : distsLB) {
 //            System.out.println(Arrays.toString(dist));
@@ -128,5 +145,32 @@ public class TestPropIIC {
 
         System.out.println("IIC(LB) = " + propIIC.computeIIC(g.getLB()));
         System.out.println("IIC(UB) = " + propIIC.computeIIC(g.getUB()));
+
+    }
+
+    @Test
+    public void testIICBigGraph() {
+
+        RegularSquareGrid grid = new RegularSquareGrid(100, 100);
+        INeighborhood n4 = Neighborhoods.FOUR_CONNECTED;
+        GraphModel model = new GraphModel("TestPropInducedNeigh");
+        UndirectedGraph LB = new UndirectedGraph(model, grid.getNbCells(), SetType.BIPARTITESET, false);
+        UndirectedGraphVar g = model.graphVar(
+                "testGraph",
+                LB,
+                n4.getFullGraph(grid, model, SetType.BIPARTITESET)
+        );
+        RealVar iic = model.realVar(0, 1, 1e-5);
+        PropIIC propIIC = new PropIIC(g, iic);
+
+        long t0 = System.currentTimeMillis();
+        //System.out.println("IIC(LB) = " + propIIC.computeIIC(g.getLB()));
+        //System.out.println("IIC(UB) = " + propIIC.computeIIC(g.getUB()));
+        long t1 = System.currentTimeMillis();
+        System.out.println("IIC(LB) = " + propIIC.computeIIC_MDA(grid, g.getLB()));
+        System.out.println("IIC(UB) = " + propIIC.computeIIC_MDA(grid, g.getUB()));
+        long t2 = System.currentTimeMillis();
+
+        System.out.println("Dijkstra : " + (t1 - t0) + " / MDA : " + (t2 - t1));
     }
 }
