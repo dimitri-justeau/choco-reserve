@@ -124,8 +124,7 @@ public class TestPropIIC {
         Assert.assertTrue(Arrays.equals(dists[0], expected0));
         Assert.assertTrue(Arrays.equals(dists[18], expected18));
 
-        Assert.assertTrue(Arrays.equals(distsMDA[0], expected0));
-        Assert.assertTrue(Arrays.equals(distsMDA[18], expected18));
+        Assert.assertTrue(Arrays.deepEquals(distsMDA, dists));
 
         int[][] distsLB = propIIC.allPairsShortestPaths(g.getLB());
         int[][] distsLBMDA = propIIC.allPairsShortestPathsMDA(grid, g.getLB());

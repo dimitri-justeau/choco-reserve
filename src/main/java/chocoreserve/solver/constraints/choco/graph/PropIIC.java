@@ -164,29 +164,38 @@ public class PropIIC extends Propagator<Variable> {
      * @return
      */
     public int[][] allPairsShortestPathsMDA(RegularSquareGrid grid, UndirectedGraph graph) {
-
         int[][] allPairsShortestPaths = new int[areaLandscape][];
-        int[] prev = new int[areaLandscape];
-
+        // Initialize every distance to -1
+        for (int i = 0; i < areaLandscape; i++) {
+            allPairsShortestPaths[i] = new int[areaLandscape];
+            Arrays.fill(allPairsShortestPaths[i], -1);
+        }
         for (int source = 0; source < areaLandscape; source++) {
-
-            int[] dist = new int[areaLandscape];
-
-            // If node not in graph we label everything related to it with -1
-            if (!graph.getNodes().contains(source)) {
-                Arrays.fill(dist, -1);
-            } else { // MDA algorithm
-                for (int dest = source; dest < areaLandscape; dest++) {
-                    int minDist = minimumDetour(grid, graph, source, dest)[0][0];
-                    dist[dest] = minDist;
+            // MDA algorithm
+            for (int dest = source; dest < areaLandscape; dest++) {
+                // Avoid recomputing
+                if (allPairsShortestPaths[source][dest] != -1) {
+                    continue;
                 }
-                for (int i = 0; i < source; i++) {
-                    dist[i] = allPairsShortestPaths[i][source];
+                int[][] mdaResult = minimumDetour(grid, graph, source, dest);
+                int minDist = mdaResult[0][0];
+                int[] shortestPath = mdaResult[1];
+                // Case when there is no shortest path (node not in graph of nodes in different connected component)
+                if (shortestPath == null) {
+                    allPairsShortestPaths[source][dest] = minDist;
+                    allPairsShortestPaths[dest][source] = minDist;
+                    continue;
+                }
+                // Every subpath of the shortest path between source and dist is a shortest path
+                // cf. Theorem 3 of Hadlock 1977.
+                for (int x = 0; x < shortestPath.length; x++) {
+                    for (int y = x; y < shortestPath.length; y++) {
+                        allPairsShortestPaths[shortestPath[x]][shortestPath[y]] = y - x;
+                        allPairsShortestPaths[shortestPath[y]][shortestPath[x]] = y - x;
+                    }
                 }
             }
-            allPairsShortestPaths[source] = dist.clone();
         }
-
         return allPairsShortestPaths;
     }
 
