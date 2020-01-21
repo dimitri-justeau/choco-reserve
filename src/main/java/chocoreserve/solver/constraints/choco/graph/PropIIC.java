@@ -24,6 +24,7 @@
 package chocoreserve.solver.constraints.choco.graph;
 
 import chocoreserve.grid.regular.square.RegularSquareGrid;
+import chocoreserve.util.objects.graphs.UndirectedGraphIncrementalCC;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -32,10 +33,7 @@ import org.chocosolver.solver.variables.Variable;
 import org.chocosolver.util.ESat;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 import java.util.stream.IntStream;
 
 /**
@@ -48,12 +46,28 @@ public class PropIIC extends Propagator<Variable> {
     private UndirectedGraphVar g;
     private RealVar iic;
     private int areaLandscape;
+    private Set<Integer> fixedNodes;
+    public int[][] allPairsShortestPathsLB;
+    public int[][] allPairsShortestPathsUB;
 
     public PropIIC(UndirectedGraphVar g, RealVar iic) {
         super(new Variable[] {g, iic});
         this.g = g;
         this.iic = iic;
         this.areaLandscape = g.getUB().getNbMaxNodes();
+        this.fixedNodes = new HashSet<>();
+        for (int i : g.getLB().getNodes()) {
+            this.fixedNodes.add(i);
+        }
+        this.allPairsShortestPathsLB = new int[areaLandscape][];
+        this.allPairsShortestPathsUB = new int[areaLandscape][];
+        // Initialize every distance to -1
+        for (int i = 0; i < areaLandscape; i++) {
+            allPairsShortestPathsLB[i] = new int[areaLandscape];
+            allPairsShortestPathsUB[i] = new int[areaLandscape];
+            Arrays.fill(allPairsShortestPathsLB[i], -1);
+            Arrays.fill(allPairsShortestPathsUB[i], -1);
+        }
     }
 
     @Override
@@ -83,6 +97,25 @@ public class PropIIC extends Propagator<Variable> {
         return iic / Math.pow(areaLandscape, 2);
     }
 
+    public double computeIIC_LB() {
+        double iic = 0;
+        for (int i = 0; i < areaLandscape; i++) {
+            if (g.getLB().getNodes().contains(i)) {
+                for (int j = 0; j < areaLandscape; j++) {
+                    if (g.getLB().getNodes().contains(j)) {
+                        if (allPairsShortestPathsLB[i][j] != Integer.MAX_VALUE) {
+                            iic += 1.0 / (1 + allPairsShortestPathsLB[i][j]);
+                        }
+                    }
+                }
+            }
+        }
+        System.out.println("IICnumMDA = " + iic);
+        System.out.println("IICAreaLandscape = " + areaLandscape);
+        return iic / Math.pow(areaLandscape, 2);
+    }
+
+
     public double computeIIC_MDA(RegularSquareGrid grid, UndirectedGraph graph) {
         int[][] allPairsShortestPaths = allPairsShortestPathsMDA(grid, graph);
         double iic = 0;
@@ -97,6 +130,8 @@ public class PropIIC extends Propagator<Variable> {
                 }
             }
         }
+        System.out.println("IICnumMDA = " + iic);
+        System.out.println("IICAreaLandscape = " + areaLandscape);
         return iic / Math.pow(areaLandscape, 2);
     }
 
@@ -159,6 +194,44 @@ public class PropIIC extends Propagator<Variable> {
         return allPairsShortestPaths;
     }
 
+    public void computeAllPairsShortestPathsLB(RegularSquareGrid grid) {
+        // Reset non fixed distances
+        for (int source = 0; source < areaLandscape; source++) {
+            for (int dest = source; dest < areaLandscape; dest++) {
+                if (!fixedNodes.contains(source) || !fixedNodes.contains(dest)) {
+                    allPairsShortestPathsLB[source][dest] = -1;
+                    allPairsShortestPathsLB[dest][source] = -1;
+                }
+            }
+        }
+
+        for (int source = 0; source < areaLandscape; source++) {
+            // MDA algorithm
+            for (int dest = source; dest < areaLandscape; dest++) {
+                // Avoid recomputing
+                if (allPairsShortestPathsLB[source][dest] != -1) {
+                    continue;
+                }
+                int[][] mdaResult = minimumDetour(grid, g.getLB(), source, dest);
+                int minDist = mdaResult[0][0];
+                int[] shortestPath = mdaResult[1];
+                // Case when there is no shortest path (node not in graph of nodes in different connected component)
+                if (shortestPath == null) {
+                    allPairsShortestPathsLB[source][dest] = minDist;
+                    allPairsShortestPathsLB[dest][source] = minDist;
+                    continue;
+                }
+                // Every subpath of the shortest path between source and dist is a shortest path
+                // cf. Theorem 3 of Hadlock 1977.
+                for (int x = 0; x < shortestPath.length; x++) {
+                    for (int y = 0; y < shortestPath.length; y++) {
+                        allPairsShortestPathsLB[shortestPath[x]][shortestPath[y]] = Math.abs(y - x);
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Repeat Minimum Detour Algorithm on each vertex of the graph, avoiding symmetries.
      * @return
@@ -189,9 +262,8 @@ public class PropIIC extends Propagator<Variable> {
                 // Every subpath of the shortest path between source and dist is a shortest path
                 // cf. Theorem 3 of Hadlock 1977.
                 for (int x = 0; x < shortestPath.length; x++) {
-                    for (int y = x; y < shortestPath.length; y++) {
-                        allPairsShortestPaths[shortestPath[x]][shortestPath[y]] = y - x;
-                        allPairsShortestPaths[shortestPath[y]][shortestPath[x]] = y - x;
+                    for (int y = 0; y < shortestPath.length; y++) {
+                        allPairsShortestPaths[shortestPath[x]][shortestPath[y]] = Math.abs(y - x);
                     }
                 }
             }
@@ -214,6 +286,18 @@ public class PropIIC extends Propagator<Variable> {
             return new int[][] { {-1}, null };
         }
 
+        // When the graph has maintains connected component, avoid running the algorithm for two nodes
+        // in different connected components.
+        if (graph instanceof UndirectedGraphIncrementalCC) {
+            UndirectedGraphIncrementalCC gincr = (UndirectedGraphIncrementalCC) g.getLB();
+            int sourceRoot = gincr.getRoot(source);
+            int destRoot = gincr.getRoot(dest);
+            if (sourceRoot != destRoot) {
+                return new int[][] { {Integer.MAX_VALUE}, null };
+            }
+        }
+
+
         Set<Integer> visited = new HashSet<>();
 
         int current = source;
@@ -226,6 +310,8 @@ public class PropIIC extends Propagator<Variable> {
 
         Stack<Integer> positives = new Stack<>();
         Stack<Integer> negatives = new Stack<>();
+        Stack<Integer> currentPos = new Stack<>();
+        Stack<Integer> currentNeg = new Stack<>();
 
         boolean skip2 = false;
 
@@ -241,28 +327,25 @@ public class PropIIC extends Propagator<Variable> {
                     if (!visited.contains(neigh)) {
                         if (manhattanDistance(grid, neigh, dest) < manhattanDistance(grid, current, dest)) {
                             positives.add(neigh);
+                            currentPos.add(current);
                         } else {
                             negatives.add(neigh);
+                            currentNeg.add(current);
                         }
                     }
                 }
-
-                //System.out.println("\nCurrent = " + current);
-                //System.out.println("Positives = " + positives);
-                //System.out.println("Negatives = " + negatives);
             }
-
-            //System.out.println(positives);
-            //System.out.println(negatives);
 
             skip2 = false;
             int next = -1;
-
+            int potPrev = -1;
             // 3
             while (positives.size() > 0) {
                 int candidate = positives.pop();
+                int prevCandidate = currentPos.pop();
                 if (!visited.contains(candidate)) {
                     next = candidate;
+                    potPrev = prevCandidate;
                     break;
                 }
             }
@@ -272,6 +355,9 @@ public class PropIIC extends Propagator<Variable> {
                 while (!negatives.isEmpty()) {
                     positives.add(negatives.pop());
                 }
+                while (!currentNeg.isEmpty()) {
+                    currentPos.add(currentNeg.pop());
+                }
                 skip2 = true;
                 next = current;
             }
@@ -280,8 +366,8 @@ public class PropIIC extends Propagator<Variable> {
             if (next == -1) {
                 return new int[][] { {Integer.MAX_VALUE}, null };
             }
-            if (next != current) {
-                prev[next] = current;
+            if (potPrev != -1) {
+                prev[next] = potPrev;
             }
             current = next;
 
@@ -290,10 +376,11 @@ public class PropIIC extends Propagator<Variable> {
         int dist = manhattanDistance(grid, source, dest) + 2 * detours;
         int[] path = new int[dist + 1];
         path[dist] = dest;
+//        System.out.println("Prev = " + Arrays.toString(prev));
         for (int i = dist - 1; i >= 0; i--) {
             path[i] = prev[path[i + 1]];
         }
-        return new int[][] { {dist}, path };
+        return new int[][] { {dist}, path, prev};
     }
 
     public int manhattanDistance(RegularSquareGrid grid, int source, int dest) {

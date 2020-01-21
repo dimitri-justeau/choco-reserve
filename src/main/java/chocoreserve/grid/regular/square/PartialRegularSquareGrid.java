@@ -32,18 +32,14 @@ import java.util.stream.IntStream;
 /**
  * Partial Regular square grid : subset of a nbRows x nbCols grid.
  */
-public class PartialRegularSquareGrid extends Grid {
+public class PartialRegularSquareGrid extends RegularSquareGrid {
 
-    protected int nbRows, nbCols;
     protected Set<Integer> discardSet;
     protected int[] partialToComplete;
     protected int[] completeToPartial;
 
     public PartialRegularSquareGrid(int nbRows, int nbCols, int[] toDiscard) {
-        assert nbCols > 0;
-        assert nbRows > 0;
-        this.nbRows = nbRows;
-        this.nbCols = nbCols;
+        super(nbRows, nbCols);
         this.discardSet = new HashSet<>();
         IntStream.of(toDiscard).forEach(i -> discardSet.add(i));
         this.partialToComplete = new int[getNbCells()];
@@ -75,7 +71,7 @@ public class PartialRegularSquareGrid extends Grid {
         assert row < nbRows;
         assert col >= 0;
         assert col < nbCols;
-        return getNbCols() * row + col;
+        return getPartialIndex(getNbCols() * row + col);
     }
 
     /**
@@ -83,8 +79,9 @@ public class PartialRegularSquareGrid extends Grid {
      * @return The grid coordinates [row, col] from its flattened index.
      */
     public int[] getCoordinatesFromIndex(int index) {
-        int row = Math.floorDiv(index, getNbCols());
-        int col = index % getNbCols();
+        int completeIndex = getCompleteIndex(index);
+        int row = Math.floorDiv(completeIndex, getNbCols());
+        int col = completeIndex % getNbCols();
         return new int[] {row, col};
     }
 

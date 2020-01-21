@@ -28,7 +28,9 @@ import org.chocosolver.solver.Model;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -105,12 +107,33 @@ public class UndirectedGraphIncrementalCC extends UndirectedGraph {
     }
 
     public int getNbCC() {
+        Set<Integer> roots = getRoots();
+        return roots.size();
+    }
+
+    public int getRoot(int node) {
+        return find(node);
+    }
+
+    public Set<Integer> getRoots() {
         Set<Integer> roots = new HashSet<>();
         for (int i : getNodes()) {
             if (find(i) != -1 && !roots.contains(find(i))) {
                 roots.add(find(i));
             }
         }
-        return roots.size();
+        return roots;
+    }
+
+    public Map<Integer, Set<Integer>> getConnectedComponents() {
+        Set<Integer> roots = getRoots();
+        Map<Integer, Set<Integer>> ccs = new HashMap<>();
+        for (int r : roots) {
+            ccs.put(r, new HashSet<>());
+        }
+        for (int i : getNodes()) {
+            ccs.get(find(i)).add(i);
+        }
+        return ccs;
     }
 }

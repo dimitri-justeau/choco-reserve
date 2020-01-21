@@ -51,12 +51,18 @@ public class Region extends AbstractRegion {
     private UndirectedGraphVar graphVar;
     private IntVar nbCC;
     private SetType graphSetType, setVarSetType;
+    transient int[] LBNodes;
 
-    public Region(String name, INeighborhood neighborhood, SetType graphSetType, SetType setVarSetType) {
+    public Region(String name, INeighborhood neighborhood, SetType graphSetType, SetType setVarSetType, int[] LBNodes) {
         super(name);
         this.neighborhood = neighborhood;
         this.graphSetType = graphSetType;
         this.setVarSetType = setVarSetType;
+        this.LBNodes = LBNodes;
+    }
+
+    public Region(String name, INeighborhood neighborhood, SetType graphSetType, SetType setVarSetType) {
+        this(name, neighborhood, graphSetType, setVarSetType, new int[] {});
     }
 
     public Region(String name, INeighborhood neighborhood) {
@@ -69,7 +75,8 @@ public class Region extends AbstractRegion {
             Grid grid = reserveModel.getGrid();
             graphVar = model.graphVar(
                     "regionGraphVar['" + name + "']",
-                    new UndirectedGraphIncrementalCC(model, grid.getNbCells(), graphSetType, false),
+                    neighborhood.getPartialGraph(grid, model, LBNodes, graphSetType),
+//                    new UndirectedGraphIncrementalCC(model, grid.getNbCells(), graphSetType, false),
 //                    new UndirectedGraph(model, grid.getNbCells(), graphSetType, false),
                     neighborhood.getFullGraph(grid, model, graphSetType)
             );

@@ -25,6 +25,7 @@ package chocoreserve.grid.neighborhood;
 
 import chocoreserve.grid.Grid;
 import chocoreserve.util.objects.graphs.UndirectedGraphDecrementalCC;
+import chocoreserve.util.objects.graphs.UndirectedGraphIncrementalCC;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
@@ -69,7 +70,7 @@ public interface INeighborhood<T extends Grid> {
      */
     default UndirectedGraph getPartialGraph(T grid, GraphModel model, int[] cells, SetType setType) {
         int nbCells = grid.getNbCells();
-        UndirectedGraph partialGraph = new UndirectedGraph(model, nbCells, setType, false);
+        UndirectedGraph partialGraph = new UndirectedGraphIncrementalCC(model, nbCells, setType, false);
         for (int i : cells) {
             partialGraph.addNode(i);
         }

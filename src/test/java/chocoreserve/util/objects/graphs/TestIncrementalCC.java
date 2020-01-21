@@ -28,6 +28,10 @@ import org.chocosolver.util.objects.setDataStructures.SetType;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 /**
  *
  */
@@ -47,6 +51,18 @@ public class TestIncrementalCC {
         g.addNode(2);
         g.addNode(3);
         Assert.assertEquals(g.getNbCC(), 3);
+
+        g.addNode(4); g.addEdge(1, 4);
+        g.addNode(5); g.addEdge(0, 5);
+        g.addNode(6); g.addEdge(6, 2);
+        g.addNode(7);
+
+        System.out.println(g.getNbCC());
+        System.out.println(g.getRoots());
+        Map<Integer, Set<Integer>> ccs = g.getConnectedComponents();
+        for (int root : ccs.keySet()) {
+            System.out.println("cc[" + root + "] : " + ccs.get(root));
+        }
     }
 
 }

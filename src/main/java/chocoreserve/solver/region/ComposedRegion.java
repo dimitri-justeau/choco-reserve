@@ -34,8 +34,11 @@ import org.chocosolver.solver.variables.SetVar;
 import org.chocosolver.solver.variables.impl.SetVarImpl;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
+import org.chocosolver.util.tools.ArrayUtils;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 /**
@@ -49,11 +52,19 @@ public class ComposedRegion extends AbstractRegion {
     private INeighborhood neighborhood;
     private UndirectedGraphVar graphVar;
     private Region[] regions;
+    private int[] LBNodes;
 
     public ComposedRegion(String name, Region... regions) {
         super(name);
         this.regions = regions;
         this.neighborhood = regions[0].getNeighborhood();
+        Set<Integer> lb = new HashSet<>();
+        for (Region r : regions) {
+            for (int i : r.LBNodes) {
+                lb.add(i);
+            }
+        }
+        this.LBNodes = lb.stream().mapToInt(i -> i).toArray();
     }
 
     @Override
@@ -80,7 +91,8 @@ public class ComposedRegion extends AbstractRegion {
             graphVar = model.graphVar(
                     "regionGraphVar['" + name + "']",
 //                    new UndirectedGraph(model, grid.getNbCells(), GRAPH_SET_TYPE, false),
-                    new UndirectedGraphIncrementalCC(model, grid.getNbCells(), GRAPH_SET_TYPE, false),
+//                    new UndirectedGraphIncrementalCC(model, grid.getNbCells(), GRAPH_SET_TYPE, false),
+                    neighborhood.getPartialGraph(grid, model, LBNodes, GRAPH_SET_TYPE),
                     neighborhood.getFullGraph(grid, model, GRAPH_SET_TYPE)
             );
             model.nodesChanneling(graphVar, getSetVar()).post();
