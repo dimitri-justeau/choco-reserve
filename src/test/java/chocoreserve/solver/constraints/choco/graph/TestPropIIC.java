@@ -23,19 +23,25 @@
 
 package chocoreserve.solver.constraints.choco.graph;
 
-import chocoreserve.grid.Grid;
 import chocoreserve.grid.neighborhood.INeighborhood;
 import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.PartialRegularSquareGrid;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
+import chocoreserve.solver.ReserveModel;
+import chocoreserve.solver.region.Region;
+import chocoreserve.util.objects.graphs.UndirectedGraphIncrementalCC;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
+import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.search.loop.monitors.IMonitorSolution;
 import org.chocosolver.solver.variables.RealVar;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 
@@ -90,7 +96,7 @@ public class TestPropIIC {
             n4.getFullGraph(grid, model, SetType.BIPARTITESET)
         );
         RealVar iic = model.realVar(0, 1, 1e-5);
-        PropIIC propIIC = new PropIIC(g, iic);
+        PropIICExp propIIC = new PropIICExp(g, iic);
 
         long t = System.currentTimeMillis();
         int[][] dists = propIIC.allPairsShortestPaths(g.getUB());
@@ -179,7 +185,7 @@ public class TestPropIIC {
                 n4.getFullGraph(grid, model, SetType.BIPARTITESET)
         );
         RealVar iic = model.realVar(0, 1, 1e-5);
-        PropIIC propIIC = new PropIIC(g, iic);
+        PropIICExp propIIC = new PropIICExp(g, iic);
 
         long t0 = System.currentTimeMillis();
         //System.out.println("IIC(LB) = " + propIIC.computeIIC(g.getLB()));
@@ -236,7 +242,7 @@ public class TestPropIIC {
                 n4.getFullGraph(grid, model, SetType.BIPARTITESET)
         );
         RealVar iic = model.realVar(0, 1, 1e-5);
-        PropIIC propIIC = new PropIIC(g, iic);
+        PropIICExp propIIC = new PropIICExp(g, iic);
 
         System.out.println(g.getUB().getNodes());
         int[][] mda = propIIC.minimumDetour(grid, g.getUB(), 1, 12);
@@ -255,5 +261,184 @@ public class TestPropIIC {
         System.out.println("IIC(LB) = " + propIIC.computeIIC_MDA(grid, g.getLB()));
         System.out.println("IIC(UB) = " + propIIC.computeIIC_MDA(grid, g.getUB()));
         long t2 = System.currentTimeMillis();
+    }
+
+
+    /**
+     * LB =
+     *     -----------
+     *    | 0 | 1 | 2 |
+     *     -----------
+     *    |   | 4 |   |
+     *     -----------
+     *    | 6 | 7 | 8 |
+     *     -----------
+     */
+    @Test
+    public void testIIC1() {
+        RegularSquareGrid grid = new RegularSquareGrid(3, 3);
+        INeighborhood n4 = Neighborhoods.FOUR_CONNECTED;
+        GraphModel model = new GraphModel("TestPropInducedNeigh");
+        UndirectedGraph LB = n4.getPartialGraph(
+                grid,
+                model,
+                new int[] {0, 1, 2, 4, 5, 6, 7, 8},
+                SetType.BIPARTITESET
+        );
+        UndirectedGraphVar g = model.graphVar(
+                "testGraph",
+                LB,
+                n4.getFullGraph(grid, model, SetType.BIPARTITESET)
+        );
+        RealVar iic = model.realVar(0, 1, 1e-5);
+        PropIICExp propIIC = new PropIICExp(g, iic);
+        // 1
+        System.out.println(propIIC.computeIIC_MDA(grid, LB));
+        // 2
+        LB = n4.getPartialGraph(
+                grid,
+                model,
+                new int[] {0, 1, 2, 3, 4, 6, 7, 8},
+                SetType.BIPARTITESET
+        );
+        System.out.println(propIIC.computeIIC_MDA(grid, LB));
+    }
+
+    /**
+     * LB =
+     *     -------------------------------
+     *    | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+     *     -------------------------------
+     *    | 8 |   | 10| 11| 12| 13|   | 15|
+     *     -------------------------------
+     *    | 16| 17| 18|   |   | 21| 22| 23|
+     *     -------------------------------
+     */
+    @Test
+    public void testIIC2() {
+        RegularSquareGrid grid = new RegularSquareGrid(3, 8);
+        INeighborhood n4 = Neighborhoods.FOUR_CONNECTED;
+        GraphModel model = new GraphModel("TestPropInducedNeigh");
+        UndirectedGraph LB = n4.getPartialGraph(
+                grid,
+                model,
+                new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 21, 22, 23},
+                SetType.BIPARTITESET
+        );
+        UndirectedGraphVar g = model.graphVar(
+                "testGraph",
+                LB,
+                n4.getFullGraph(grid, model, SetType.BIPARTITESET)
+        );
+        RealVar iic = model.realVar(0, 1, 1e-5);
+        PropIICExp propIIC = new PropIICExp(g, iic);
+        // 1
+        System.out.println(propIIC.computeIIC_MDA(grid, LB));
+        // 2
+        LB = n4.getPartialGraph(
+                grid,
+                model,
+                new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 21, 22, 23},
+                SetType.BIPARTITESET
+        );
+        System.out.println(propIIC.computeIIC_MDA(grid, LB));
+        // 3
+        LB = n4.getPartialGraph(
+                grid,
+                model,
+                new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23},
+                SetType.BIPARTITESET
+        );
+        System.out.println(propIIC.computeIIC_MDA(grid, LB));
+        // 4
+        LB = n4.getPartialGraph(
+                grid,
+                model,
+                new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 19, 21, 22, 23},
+                SetType.BIPARTITESET
+        );
+        System.out.println(propIIC.computeIIC_MDA(grid, LB));
+        // 5
+        LB = n4.getPartialGraph(
+                grid,
+                model,
+                new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 20, 21, 22, 23},
+                SetType.BIPARTITESET
+        );
+        System.out.println(propIIC.computeIIC_MDA(grid, LB));
+        // 6
+        System.out.println("9 + 14");
+        LB = n4.getPartialGraph(
+                grid,
+                model,
+                new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23},
+                SetType.BIPARTITESET
+        );
+        System.out.println(propIIC.computeIIC_MDA(grid, LB));
+        // 7
+        System.out.println("19 + 20");
+        LB = n4.getPartialGraph(
+                grid,
+                model,
+                new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23},
+                SetType.BIPARTITESET
+        );
+        System.out.println(propIIC.computeIIC_MDA(grid, LB));
+        // 7
+        System.out.println("9 + 19");
+        LB = n4.getPartialGraph(
+                grid,
+                model,
+                new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 21, 22, 23},
+                SetType.BIPARTITESET
+        );
+        System.out.println(propIIC.computeIIC_MDA(grid, LB));
+        // 7
+        System.out.println("9 + 20");
+        LB = n4.getPartialGraph(
+                grid,
+                model,
+                new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 20, 21, 22, 23},
+                SetType.BIPARTITESET
+        );
+        System.out.println(propIIC.computeIIC_MDA(grid, LB));
+    }
+
+    @Test
+    public void testIncr() {
+        RegularSquareGrid grid = new RegularSquareGrid(5, 5);
+        INeighborhood n4 = Neighborhoods.FOUR_CONNECTED;
+        Region forest = new Region("forest", n4);
+        Region out = new Region("out", n4);
+        ReserveModel resModel = new ReserveModel(grid, out, forest);
+        GraphModel model = resModel.getChocoModel();
+        UndirectedGraphVar g = forest.getGraphVar();
+
+        RealVar iic = model.realVar(0, 1, 1e-5);
+        PropIIC propIIC = new PropIIC(grid, g, iic);
+
+        propIIC.computeAllPairsShortestPathsLB(grid);
+        System.out.println("IIC = " + (propIIC.computeIIC_LB()));
+
+        Constraint c = new Constraint("IIC", propIIC);
+        model.post(c);
+
+        Solver solver = model.getSolver();
+
+        solver.plugMonitor((IMonitorSolution) () -> {
+//            propIIC.computeAllPairsShortestPathsLB(grid);
+            resModel.printSolution();
+            System.out.println("IIC = " + (propIIC.computeIIC_LB()));
+            System.out.println("Nb CC = " + ((UndirectedGraphIncrementalCC) g.getLB()).getNbCC());
+            for (int i = 0; i < 3; i++) {
+                String s = "";
+                for (int j = 0; j < 3; j++) {
+                    s += propIIC.allPairsShortestPathsLB[i].quickGet(j) + " ";
+                }
+                System.out.println(s);
+            }
+        });
+
+        solver.findOptimalSolution(forest.getNbSites(), true);
     }
 }

@@ -125,6 +125,16 @@ public class UndirectedGraphIncrementalCC extends UndirectedGraph {
         return roots;
     }
 
+    public Set<Integer> getConnectedComponent(int root) {
+        Set<Integer> cc = new HashSet<>();
+        for (int i : getNodes()) {
+            if (find(i) == root) {
+                cc.add(i);
+            }
+        }
+        return cc;
+    }
+
     public Map<Integer, Set<Integer>> getConnectedComponents() {
         Set<Integer> roots = getRoots();
         Map<Integer, Set<Integer>> ccs = new HashMap<>();
