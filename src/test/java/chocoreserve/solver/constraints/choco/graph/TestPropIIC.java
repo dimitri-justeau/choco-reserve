@@ -416,9 +416,9 @@ public class TestPropIIC {
 
         RealVar iic = model.realVar(0, 1, 1e-5);
         PropIIC propIIC = new PropIIC(grid, g, iic);
-
         propIIC.computeAllPairsShortestPathsLB(grid);
-        System.out.println("IIC = " + (propIIC.computeIIC_LB()));
+        System.out.println("IIC(LB) = " + (propIIC.computeIIC_LB()));
+        System.out.println("IIC(UB) = " + (propIIC.computeIIC_UB()));
 
         Constraint c = new Constraint("IIC", propIIC);
         model.post(c);
@@ -427,16 +427,28 @@ public class TestPropIIC {
 
         solver.plugMonitor((IMonitorSolution) () -> {
 //            propIIC.computeAllPairsShortestPathsLB(grid);
+            propIIC.computeAllPairsShortestPathsUB(grid);
             resModel.printSolution();
-            System.out.println("IIC = " + (propIIC.computeIIC_LB()));
-            System.out.println("Nb CC = " + ((UndirectedGraphIncrementalCC) g.getLB()).getNbCC());
-            for (int i = 0; i < 3; i++) {
-                String s = "";
-                for (int j = 0; j < 3; j++) {
-                    s += propIIC.allPairsShortestPathsLB[i].quickGet(j) + " ";
-                }
-                System.out.println(s);
-            }
+            System.out.println("IIC (LB) = " + (propIIC.computeIIC_LB()));
+            System.out.println("IIC (UB) = " + (propIIC.computeIIC_UB()));
+//            System.out.println("Nb CC = " + ((UndirectedGraphIncrementalCC) g.getLB()).getNbCC());
+//            for (int i = 0; i < 4; i++) {
+//                String s = "";
+//                for (int j = 0; j < 4; j++) {
+//                    int d = propIIC.allPairsShortestPathsUB[i].quickGet(j);
+//                    s += d + " ";
+////                    Assert.assertEquals(d, propIIC.allPairsShortestPathsLB[i].quickGet(j));
+//                }
+//                System.out.println(s);
+//            }
+//            System.out.println("-----");
+//            for (int i = 0; i < 4; i++) {
+//                String s = "";
+//                for (int j = 0; j < 4; j++) {
+//                    s += propIIC.allPairsShortestPathsLB[i].quickGet(j) + " ";
+//                }
+//                System.out.println(s);
+//            }
         });
 
         solver.findOptimalSolution(forest.getNbSites(), true);

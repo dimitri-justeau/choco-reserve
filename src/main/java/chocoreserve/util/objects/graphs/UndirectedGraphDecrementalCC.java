@@ -30,6 +30,9 @@ import org.chocosolver.util.objects.graphs.IGraph;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Backtrackable graph data structure decrementally maintaining connected components.
  * The implementation is based on [Even and Shiloach 1981] "An On-Line Edge-Deletion Problem",
@@ -145,6 +148,34 @@ public class UndirectedGraphDecrementalCC extends UndirectedGraph {
 
     public int getNbCC() {
         return nbCC.get() - delta.get();
+    }
+
+    public Set<Integer> getConnectedComponentFromIndex(int ccIndex) {
+        Set<Integer> connectedComponent = new HashSet<>();
+        for (int i : getNodes()) {
+            if (cc.quickGet(i) == ccIndex) {
+                connectedComponent.add(i);
+            }
+        }
+        assert connectedComponent.size() > 0;
+        return connectedComponent;
+    }
+
+    public Set<Integer> getConnectedComponentOfNode(int node) {
+        int ccIndex = cc.quickGet(node);
+        return getConnectedComponentFromIndex(ccIndex);
+    }
+
+    public int getConnectedComponentIndex(int node) {
+        return cc.quickGet(node);
+    }
+
+    public Set<Integer> getCCIndices() {
+        Set<Integer> indices = new HashSet<>();
+        for (int i : getNodes()) {
+            indices.add(cc.quickGet(i));
+        }
+        return indices;
     }
 
     public class ProcessA {

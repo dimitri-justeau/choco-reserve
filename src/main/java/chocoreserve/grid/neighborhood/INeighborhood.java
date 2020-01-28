@@ -50,7 +50,7 @@ public interface INeighborhood<T extends Grid> {
      */
     default UndirectedGraph getFullGraph(T grid, GraphModel model, SetType setType) {
         int nbCells = grid.getNbCells();
-        UndirectedGraph g = new UndirectedGraph(model, nbCells, setType, false);
+        UndirectedGraphDecrementalCC g = new UndirectedGraphDecrementalCC(model, nbCells, setType, false);
         for (int i = 0; i < nbCells; i++) {
             g.addNode(i);
             int[] neighbors = getNeighbors(grid, i);
@@ -58,6 +58,7 @@ public interface INeighborhood<T extends Grid> {
                 g.addEdge(i, ii);
             }
         }
+        g.init();
         return g;
     }
 

@@ -24,10 +24,12 @@
 package chocoreserve.solver.constraints.choco.graph;
 
 import chocoreserve.grid.regular.square.RegularSquareGrid;
+import chocoreserve.util.objects.graphs.UndirectedGraphDecrementalCC;
 import chocoreserve.util.objects.graphs.UndirectedGraphIncrementalCC;
 import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.graphsolver.variables.delta.GraphDeltaMonitor;
+import org.chocosolver.memory.IStateBitSet;
 import org.chocosolver.memory.IStateIntVector;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
@@ -53,7 +55,10 @@ public class PropIIC extends Propagator<Variable> {
     private int areaLandscape;
     private GraphDeltaMonitor gdm;
     private IntProcedure forceG;
+    private IntProcedure removeG;
     public IStateIntVector[] allPairsShortestPathsLB;
+    public IStateIntVector[] allPairsShortestPathsUB;
+    public IStateBitSet[][] shortestsPathsUB;
 
     public PropIIC(RegularSquareGrid grid, UndirectedGraphVar g, RealVar iic) {
         super(new Variable[]{g, iic}, PropagatorPriority.CUBIC, true);
@@ -63,11 +68,20 @@ public class PropIIC extends Propagator<Variable> {
         this.iic = iic;
         this.areaLandscape = g.getUB().getNbMaxNodes();
         this.allPairsShortestPathsLB = new IStateIntVector[areaLandscape];
+        this.allPairsShortestPathsUB = new IStateIntVector[areaLandscape];
+        this.shortestsPathsUB = new IStateBitSet[areaLandscape][areaLandscape];
         // Initialize every distance to -1
         for (int i = 0; i < areaLandscape; i++) {
             allPairsShortestPathsLB[i] = getModel().getEnvironment().makeIntVector(areaLandscape, -1);
+            allPairsShortestPathsUB[i] = getModel().getEnvironment().makeIntVector(areaLandscape, -1);
+//            for (int j = i + 1; j < areaLandscape; j++) {
+//                shortestsPathsUB[i][j] = getModel().getEnvironment().makeBitSet(areaLandscape);
+//            }
         }
-        forceG = node -> updateAddNode(node);
+        this.forceG = node -> updateAddNode(node);
+        this.removeG = node -> updateRemoveNode(node);
+        computeAllPairsShortestPathsLB(grid);
+        computeAllPairsShortestPathsUB(grid);
     }
 
 
@@ -78,7 +92,7 @@ public class PropIIC extends Propagator<Variable> {
 
     @Override
     public void propagate(int i) throws ContradictionException {
-
+        computeAllPairsShortestPathsUB(grid);
     }
 
     @Override
@@ -86,6 +100,7 @@ public class PropIIC extends Propagator<Variable> {
         if (idxVarInProp == 0) {
             gdm.freeze();
             gdm.forEachNode(forceG, GraphEventType.ADD_NODE);
+//            gdm.forEachNode(removeG, GraphEventType.REMOVE_NODE);
             gdm.unfreeze();
         }
     }
@@ -144,21 +159,165 @@ public class PropIIC extends Propagator<Variable> {
         }
     }
 
-    public double computeIIC_LB() {
-        double iic = 0;
-        for (int i = 0; i < areaLandscape; i++) {
-            if (g.getLB().getNodes().contains(i)) {
-                for (int j = 0; j < areaLandscape; j++) {
-                    int dist = allPairsShortestPathsLB[i].quickGet(j);
-                    if (dist != -1 && dist != Integer.MAX_VALUE) {
-                        iic += 1.0 / (1 + allPairsShortestPathsLB[i].quickGet(j));
+    private void updateRemoveNode(int node) {
+        long t = System.currentTimeMillis();
+        if (g.getUB() instanceof UndirectedGraphDecrementalCC) {
+            UndirectedGraphDecrementalCC gincr = (UndirectedGraphDecrementalCC) g.getUB();
+            // 1-  get the connected component(s) of the removed node
+            Set<Integer> ccs = new HashSet<>();
+            for (int i : gincr.getNodes()) {
+                int d = allPairsShortestPathsUB[node].quickGet(i);
+                if (d != -1 && d != Integer.MAX_VALUE) {
+                    ccs.add(gincr.getConnectedComponentIndex(i));
+                }
+            }
+            int[] ccsArray = ccs.stream().mapToInt(i -> i).toArray();
+//            int avoided = 0;
+//            int notAvoided = 0;
+//            int potAvoided = 0;
+            for (int ci = 0; ci < ccsArray.length; ci++) {
+                int ccIndex1 = ccsArray[ci];
+                int[] cc1 = gincr.getConnectedComponentFromIndex(ccIndex1).stream().mapToInt(i -> i).sorted().toArray();;
+                // 2- Disconnect separated nodes
+//                for (int cj = ci + 1; cj < ccsArray.length; cj++) {
+//                    int ccIndex2 = ccsArray[cj];
+//                    if (ccIndex1 != ccIndex2) {
+//                        Set<Integer> cc2 = gincr.getConnectedComponentFromIndex(ccIndex2);
+//                        for (int n1 : cc1) {
+//                            for (int n2 : cc2) {
+////                                allPairsShortestPathsUB[n1].quickSet(n2, Integer.MAX_VALUE);
+//                                allPairsShortestPathsUB[n1].quickSet(n2, -1);
+//                                allPairsShortestPathsUB[n2].quickSet(n1, -1);
+//                            }
+//                        }
+//                    } else {
+//                        System.out.println("PROBLEM");
+//                    }
+//                }
+                // 3- Recompute distances within reduced ccs
+                boolean[][] checked = new boolean[areaLandscape][areaLandscape];
+                for (int i = 0; i < cc1.length; i++) {
+                    for (int j = cc1.length - 1; j > i; j--) {
+                        int source = cc1[i];
+                        int dest = cc1[j];
+
+                        int a = allPairsShortestPathsUB[source].quickGet(node);
+                        int b = allPairsShortestPathsUB[dest].quickGet(node);
+                        int previousDist = allPairsShortestPathsUB[source].quickGet(dest);
+
+                        // Check whether removed node was on a shortest path between source and dest.
+
+                        int from = source > dest ? dest : source;
+                        int to = source > dest ? source : dest;
+
+                        if (checked[from][to] || (a + b) > previousDist) {
+//                            avoided++;
+                            continue;
+                        }/* else {
+                            potAvoided++;
+                        }*/
+
+                        // MDA algorithm
+                        int[][] mdaResult = minimumDetour(grid, g.getUB(), source, dest);
+                        int[] shortestPath = mdaResult[1];
+
+                        // Every subpath of the shortest path between source and dist is a shortest path
+                        // cf. Theorem 3 of Hadlock 1977.
+                        for (int x = 0; x < shortestPath.length; x++) {
+                            for (int y = x; y < shortestPath.length; y++) {
+                                allPairsShortestPathsUB[shortestPath[x]].quickSet(shortestPath[y], Math.abs(y - x));
+                                allPairsShortestPathsUB[shortestPath[y]].quickSet(shortestPath[x], Math.abs(y - x));
+                                int start = shortestPath[x] > shortestPath[y] ? y : x;
+                                int end = shortestPath[x] > shortestPath[y] ? x : y;
+                                checked[shortestPath[start]][shortestPath[end]] = true;
+//                                    shortestsPathsUB[shortestPath[start]][shortestPath[end]].clear();
+//                                    for (int k = start; k <= b; k++) {
+//                                        shortestsPathsUB[shortestPath[start]][shortestPath[end]].set(shortestPath[k], true);
+//                                    }
+                            }
+                        }
+//                        if (minDist == previousDist) {
+//                            notAvoided++;
+//                        }
                     }
                 }
             }
+            // 1a- Disconnect node from every other nodes
+//            for (int n : g.getUB().getNodes()) {
+//                allPairsShortestPathsUB[n].quickSet(node, -1);
+//                allPairsShortestPathsUB[node].quickSet(n, -1);
+//            }
+//            // 1a- Disconnect node from itself
+//            allPairsShortestPathsUB[node].quickSet(node, -1);
+//            System.out.println("time = " + (System.currentTimeMillis() - t) + " - avoided = " + avoided + " - not avoidable = " + (potAvoided - notAvoided) + " / " + potAvoided);
         }
-        System.out.println("IICnumMDA = " + iic);
-        System.out.println("IICAreaLandscape = " + areaLandscape);
-        return iic / Math.pow(areaLandscape, 2);
+
+    }
+
+    public double computeIIC_LB() {
+        double iic = 0;
+
+        if (g.getLB() instanceof UndirectedGraphIncrementalCC) {
+            UndirectedGraphIncrementalCC gincr = (UndirectedGraphIncrementalCC) g.getLB();
+
+            int connections = 0;
+
+            for (int i = 0; i < areaLandscape; i++) {
+                if (g.getLB().getNodes().contains(i)) {
+                    for (int j = 0; j < areaLandscape; j++) {
+                        if (g.getLB().getNodes().contains(j)) {
+                            if (gincr.getRoot(i) == gincr.getRoot(j)) {
+                                connections++;
+                            }
+                            int dist = allPairsShortestPathsLB[i].quickGet(j);
+                            if (dist != -1 && dist != Integer.MAX_VALUE) {
+                                iic += 1.0 / (1 + allPairsShortestPathsLB[i].quickGet(j));
+                            }
+                        }
+                    }
+                }
+            }
+            System.out.println("IIC(LB) num = " + iic);
+            System.out.println("connections LB = " + connections);
+            return iic / Math.pow(areaLandscape, 2);
+        }
+        return -1;
+    }
+
+    public double computeIIC_UB() {
+        double iic = 0;
+        int a = 0;
+        int connections = 0;
+        if (g.getUB() instanceof UndirectedGraphDecrementalCC) {
+            UndirectedGraphDecrementalCC gincr = (UndirectedGraphDecrementalCC) g.getUB();
+            System.out.println(g.getUB().getNodes().size());
+            System.out.println(gincr.getNbCC());
+            for (int i = 0; i < areaLandscape; i++) {
+                if (g.getUB().getNodes().contains(i)) {
+                    for (int j = 0; j < areaLandscape; j++) {
+
+                        if (gincr.getConnectedComponentIndex(i) == gincr.getConnectedComponentIndex(j)) {
+                            connections++;
+                        }
+
+                        if (g.getUB().getNodes().contains(j) && gincr.getConnectedComponentIndex(i) == gincr.getConnectedComponentIndex(j)) {
+                            int manDist = manhattanDistance(grid, i, j);
+                            int dist = allPairsShortestPathsUB[i].quickGet(j);
+                            if (dist != -1 && dist != Integer.MAX_VALUE) {
+                                int delta = dist - manDist;
+                                iic += 1.0 / (1 + delta);
+                                a++;
+                            }
+                        }
+                    }
+                }
+            }
+            System.out.println("a = " + a);
+            System.out.println("connections UB = " + a);
+            System.out.println("IIC(UB) num = " + iic);
+            return iic / Math.pow(areaLandscape, 2);
+        }
+        return -1;
     }
 
     public void computeAllPairsShortestPathsLB(RegularSquareGrid grid) {
@@ -171,7 +330,6 @@ public class PropIIC extends Propagator<Variable> {
 //                }
 //            }
 //        }
-
         if (g.getLB() instanceof UndirectedGraphIncrementalCC) {
             UndirectedGraphIncrementalCC gincr = (UndirectedGraphIncrementalCC) g.getLB();
             for (int root : gincr.getRoots()) {
@@ -196,44 +354,65 @@ public class PropIIC extends Propagator<Variable> {
                                 int manDist = manhattanDistance(grid, shortestPath[x], shortestPath[y]);
                                 int delta = Math.abs(y - x) - manDist;
                                 allPairsShortestPathsLB[shortestPath[x]].quickSet(shortestPath[y], delta);
+                                // If shortest path is manhattan distance in LB, it is also in UB
+                                if (delta == 0) {
+                                    allPairsShortestPathsUB[shortestPath[x]].quickSet(shortestPath[y], delta);
+                                }
                             }
                         }
                     }
                 }
             }
         }
+    }
 
-//        for (int source = 0; source < areaLandscape; source++) {
-//            // MDA algorithm
-//            for (int dest = areaLandscape - 1; dest >= source; dest--) {
-//                // Avoid recomputing
-//                if (allPairsShortestPathsLB[source].quickGet(dest) != -1) {
-//                    continue;
-//                }
-//                int[][] mdaResult = minimumDetour(grid, g.getLB(), source, dest);
-//                int minDist = mdaResult[0][0];
-//                int[] shortestPath = mdaResult[1];
-//                // Case when there is no shortest path (node not in graph of nodes in different connected component)
-//                if (shortestPath == null) {
-//                    allPairsShortestPathsLB[source].quickSet(dest, minDist);
-//                    allPairsShortestPathsLB[dest].quickSet(source   , minDist);
-//                    continue;
-//                }
-//                // Every subpath of the shortest path between source and dist is a shortest path
-//                // cf. Theorem 3 of Hadlock 1977.
-//
-//                for (int x = 0; x < shortestPath.length; x++) {
-//                    for (int y = 0; y < shortestPath.length; y++) {
-//
-//                        // Experimental : Distance is the difference between manhattan distance and real distance.
-//                        int manDist = manhattanDistance(grid, shortestPath[x], shortestPath[y]);
-//                        int delta = Math.abs(y - x) - manDist;
-//                        allPairsShortestPathsLB[shortestPath[x]].quickSet(shortestPath[y], delta);
-////                        allPairsShortestPathsLB[shortestPath[x]][shortestPath[y]] = Math.abs(y - x);
-//                    }
-//                }
-//            }
-//        }
+    public void computeAllPairsShortestPathsUB(RegularSquareGrid grid) {
+
+        if (g.getUB() instanceof UndirectedGraphDecrementalCC) {
+            UndirectedGraphDecrementalCC gincr = (UndirectedGraphDecrementalCC) g.getUB();
+            // Reset every dist
+            for (int i = 0; i < gincr.getNbMaxNodes(); i++) {
+                for (int j = 0; j < gincr.getNbMaxNodes(); j++) {
+                    allPairsShortestPathsUB[i].quickSet(j, -1);
+                    allPairsShortestPathsUB[j].quickSet(i, -1);
+                }
+            }
+            for (int ccIndex : gincr.getCCIndices()) {
+                // 1-  get the connected component of the current root
+                Set<Integer> cc = gincr.getConnectedComponentFromIndex(ccIndex);
+                int[] ccarray = cc.stream().mapToInt(i -> i).sorted().toArray();
+                boolean[][] checked = new boolean[areaLandscape][areaLandscape];
+                for (int i = 0; i < ccarray.length; i++) {
+                    for (int j = ccarray.length - 1; j >= i; j--) {
+                        int source = ccarray[i];
+                        int dest = ccarray[j];
+                        if (checked[source][dest]) {
+                            continue;
+                        }
+                        // MDA algorithm
+                        int[][] mdaResult = minimumDetour(grid, g.getUB(), source, dest);
+                        int minDist = mdaResult[0][0];
+                        int[] shortestPath = mdaResult[1];
+                        // Every subpath of the shortest path between source and dist is a shortest path
+                        // cf. Theorem 3 of Hadlock 1977.
+                        for (int x = 0; x < shortestPath.length; x++) {
+                            for (int y = 0; y < shortestPath.length; y++) {
+                                int manDist = manhattanDistance(grid, shortestPath[x], shortestPath[y]);
+                                int delta = Math.abs(y - x) - manDist;
+                                allPairsShortestPathsUB[shortestPath[x]].quickSet(shortestPath[y], Math.abs(y - x));
+                                checked[shortestPath[x]][shortestPath[y]] = true;
+                                checked[shortestPath[y]][shortestPath[x]] = true;
+//                                    int a = shortestPath[x] > shortestPath[y] ? y : x;
+//                                    int b = shortestPath[x] > shortestPath[y] ? x : y;
+//                                    for (int k = a; k <= b; k++) {
+//                                        shortestsPathsUB[shortestPath[a]][shortestPath[b]].set(shortestPath[k], true);
+//                                    }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
