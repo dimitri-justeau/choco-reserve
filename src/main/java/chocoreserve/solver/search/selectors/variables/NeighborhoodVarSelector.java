@@ -25,6 +25,7 @@ package chocoreserve.solver.search.selectors.variables;
 
 import chocoreserve.grid.Grid;
 import chocoreserve.grid.neighborhood.INeighborhood;
+import chocoreserve.solver.region.AbstractRegion;
 import chocoreserve.solver.region.Region;
 import org.chocosolver.solver.search.strategy.selectors.variables.VariableSelector;
 import org.chocosolver.solver.variables.IntVar;
@@ -39,9 +40,9 @@ import java.util.Set;
  */
 public class NeighborhoodVarSelector implements VariableSelector<IntVar> {
 
-    private Region region;
+    private AbstractRegion region;
 
-    public NeighborhoodVarSelector(Region region) {
+    public NeighborhoodVarSelector(AbstractRegion region) {
         this.region = region;
     }
 
@@ -68,7 +69,7 @@ public class NeighborhoodVarSelector implements VariableSelector<IntVar> {
         Grid grid = region.getReserveModel().getGrid();
         INeighborhood neigh = region.getNeighborhood();
         for (int i : LB) {
-            for (int j : ((INeighborhood) neigh).getNeighbors(grid, i)) {
+            for (int j : neigh.getNeighbors(grid, i)) {
                 if (!LB.contains(j) && UB.contains(j)) {
                     neighborhood.add(j);
                 }

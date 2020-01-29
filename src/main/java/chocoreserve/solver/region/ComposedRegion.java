@@ -100,4 +100,8 @@ public class ComposedRegion extends AbstractRegion {
         }
         return graphVar;
     }
+
+    public INeighborhood getNeighborhood() {
+        return neighborhood;
+    }
 }
