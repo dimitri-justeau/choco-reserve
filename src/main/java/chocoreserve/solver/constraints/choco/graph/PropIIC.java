@@ -30,11 +30,12 @@ import org.chocosolver.graphsolver.variables.GraphEventType;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.graphsolver.variables.delta.GraphDeltaMonitor;
 import org.chocosolver.memory.IStateBitSet;
+import org.chocosolver.memory.IStateDouble;
 import org.chocosolver.memory.IStateIntVector;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
-import org.chocosolver.solver.variables.RealVar;
+import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
 import org.chocosolver.util.ESat;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
@@ -51,8 +52,10 @@ public class PropIIC extends Propagator<Variable> {
 
     private RegularSquareGrid grid;
     private UndirectedGraphVar g;
-    private RealVar iic;
-    private int areaLandscape;
+    private IStateDouble iic_lb;
+    private IStateDouble iic_ub;
+    private IntVar iic;
+    private int areaLandscape, precision;
     private GraphDeltaMonitor gdm;
     private IntProcedure forceG;
     private IntProcedure removeG;
@@ -60,12 +63,15 @@ public class PropIIC extends Propagator<Variable> {
     public IStateIntVector[] allPairsShortestPathsUB;
     public IStateBitSet[][] shortestsPathsUB;
 
-    public PropIIC(RegularSquareGrid grid, UndirectedGraphVar g, RealVar iic) {
+    public PropIIC(RegularSquareGrid grid, UndirectedGraphVar g, IntVar iic, int precision) {
         super(new Variable[]{g, iic}, PropagatorPriority.CUBIC, true);
         this.grid = grid;
         this.g = g;
         this.gdm = g.monitorDelta(this);
         this.iic = iic;
+        this.precision = precision;
+        this.iic_lb = getModel().getEnvironment().makeFloat(0);
+        this.iic_ub = getModel().getEnvironment().makeFloat(1);
         this.areaLandscape = g.getUB().getNbMaxNodes();
         this.allPairsShortestPathsLB = new IStateIntVector[areaLandscape];
         this.allPairsShortestPathsUB = new IStateIntVector[areaLandscape];
@@ -79,9 +85,7 @@ public class PropIIC extends Propagator<Variable> {
 //            }
         }
         this.forceG = node -> updateAddNode(node);
-        this.removeG = node -> updateRemoveNode(node);
-        computeAllPairsShortestPathsLB(grid);
-        computeAllPairsShortestPathsUB(grid);
+        this.removeG = node -> quickUpdateRemoveNode(node);
     }
 
 
@@ -92,6 +96,7 @@ public class PropIIC extends Propagator<Variable> {
 
     @Override
     public void propagate(int i) throws ContradictionException {
+        computeAllPairsShortestPathsLB(grid);
         computeAllPairsShortestPathsUB(grid);
     }
 
@@ -100,7 +105,7 @@ public class PropIIC extends Propagator<Variable> {
         if (idxVarInProp == 0) {
             gdm.freeze();
             gdm.forEachNode(forceG, GraphEventType.ADD_NODE);
-//            gdm.forEachNode(removeG, GraphEventType.REMOVE_NODE);
+            gdm.forEachNode(removeG, GraphEventType.REMOVE_NODE);
             gdm.unfreeze();
         }
     }
@@ -110,7 +115,7 @@ public class PropIIC extends Propagator<Variable> {
         return ESat.TRUE;
     }
 
-    private void updateAddNode(int node) {
+    private void updateAddNode(int node) throws ContradictionException {
         if (g.getLB() instanceof UndirectedGraphIncrementalCC) {
             UndirectedGraphIncrementalCC gincr = (UndirectedGraphIncrementalCC) g.getLB();
             // 1-  get the connected component of the added node
@@ -156,10 +161,19 @@ public class PropIIC extends Propagator<Variable> {
                     }
                 }
             }
+            computeIIC_LB();
         }
     }
 
-    private void updateRemoveNode(int node) {
+    private void quickUpdateRemoveNode(int node) throws ContradictionException {
+        if (g.isInstantiated()) {
+            iic.updateUpperBound(iic.getLB(), this);
+        } else {
+            computeIIC_UB();
+        }
+    }
+
+    private void updateRemoveNode(int node) throws ContradictionException {
         long t = System.currentTimeMillis();
         if (g.getUB() instanceof UndirectedGraphDecrementalCC) {
             UndirectedGraphDecrementalCC gincr = (UndirectedGraphDecrementalCC) g.getUB();
@@ -251,73 +265,51 @@ public class PropIIC extends Propagator<Variable> {
 //            allPairsShortestPathsUB[node].quickSet(node, -1);
 //            System.out.println("time = " + (System.currentTimeMillis() - t) + " - avoided = " + avoided + " - not avoidable = " + (potAvoided - notAvoided) + " / " + potAvoided);
         }
-
+        computeIIC_UB();
     }
 
-    public double computeIIC_LB() {
-        double iic = 0;
-
+    public void computeIIC_LB() throws ContradictionException {
+        double iicVal = 0;
         if (g.getLB() instanceof UndirectedGraphIncrementalCC) {
-            UndirectedGraphIncrementalCC gincr = (UndirectedGraphIncrementalCC) g.getLB();
-
-            int connections = 0;
-
+            UndirectedGraphIncrementalCC gincr = (UndirectedGraphIncrementalCC) g.getLB();;
             for (int i = 0; i < areaLandscape; i++) {
                 if (g.getLB().getNodes().contains(i)) {
                     for (int j = 0; j < areaLandscape; j++) {
                         if (g.getLB().getNodes().contains(j)) {
-                            if (gincr.getRoot(i) == gincr.getRoot(j)) {
-                                connections++;
-                            }
                             int dist = allPairsShortestPathsLB[i].quickGet(j);
                             if (dist != -1 && dist != Integer.MAX_VALUE) {
-                                iic += 1.0 / (1 + allPairsShortestPathsLB[i].quickGet(j));
+                                iicVal += 1.0 / (1 + allPairsShortestPathsLB[i].quickGet(j));
                             }
                         }
                     }
                 }
             }
-            System.out.println("IIC(LB) num = " + iic);
-            System.out.println("connections LB = " + connections);
-            return iic / Math.pow(areaLandscape, 2);
+            iic_lb.set(iicVal / Math.pow(areaLandscape, 2));
+            iic.updateLowerBound((int) (iic_lb.get() * Math.pow(10, precision)), this);
         }
-        return -1;
     }
 
-    public double computeIIC_UB() {
-        double iic = 0;
-        int a = 0;
-        int connections = 0;
+    public void computeIIC_UB() throws ContradictionException {
+        double iicVal = 0;
         if (g.getUB() instanceof UndirectedGraphDecrementalCC) {
             UndirectedGraphDecrementalCC gincr = (UndirectedGraphDecrementalCC) g.getUB();
-            System.out.println(g.getUB().getNodes().size());
-            System.out.println(gincr.getNbCC());
             for (int i = 0; i < areaLandscape; i++) {
                 if (g.getUB().getNodes().contains(i)) {
                     for (int j = 0; j < areaLandscape; j++) {
-
-                        if (gincr.getConnectedComponentIndex(i) == gincr.getConnectedComponentIndex(j)) {
-                            connections++;
-                        }
-
                         if (g.getUB().getNodes().contains(j) && gincr.getConnectedComponentIndex(i) == gincr.getConnectedComponentIndex(j)) {
                             int manDist = manhattanDistance(grid, i, j);
                             int dist = allPairsShortestPathsUB[i].quickGet(j);
                             if (dist != -1 && dist != Integer.MAX_VALUE) {
                                 int delta = dist - manDist;
-                                iic += 1.0 / (1 + delta);
-                                a++;
+                                iicVal += 1.0 / (1 + delta);
                             }
                         }
                     }
                 }
             }
-            System.out.println("a = " + a);
-            System.out.println("connections UB = " + a);
-            System.out.println("IIC(UB) num = " + iic);
-            return iic / Math.pow(areaLandscape, 2);
+            iic_ub.set(iicVal / Math.pow(areaLandscape, 2));
+            iic.updateUpperBound((int) (iic_lb.get() * Math.pow(10, precision)), this);
         }
-        return -1;
     }
 
     public void computeAllPairsShortestPathsLB(RegularSquareGrid grid) {
