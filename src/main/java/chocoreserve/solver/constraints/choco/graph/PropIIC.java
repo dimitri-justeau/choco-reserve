@@ -91,13 +91,20 @@ public class PropIIC extends Propagator<Variable> {
 
     @Override
     public int getPropagationConditions(int vIdx) {
-        return GraphEventType.ADD_NODE.getMask() + GraphEventType.REMOVE_NODE.getMask();
+        if (vIdx == 0) {
+            return GraphEventType.ADD_NODE.getMask() + GraphEventType.REMOVE_NODE.getMask();
+        }
+        return 0;
     }
 
     @Override
     public void propagate(int i) throws ContradictionException {
         computeAllPairsShortestPathsLB(grid);
         computeAllPairsShortestPathsUB(grid);
+        computeIIC_LB();
+        computeIIC_UB();
+        System.out.println("IIC Initial (LB) = " + ((double) (iic.getLB()) / Math.pow(10, precision)));
+        System.out.println("IIC Initial (UB) = " + ((double) (iic.getUB()) / Math.pow(10, precision)));
         gdm.unfreeze();
     }
 
@@ -106,13 +113,26 @@ public class PropIIC extends Propagator<Variable> {
         if (idxVarInProp == 0) {
             gdm.freeze();
             gdm.forEachNode(forceG, GraphEventType.ADD_NODE);
-            gdm.forEachNode(removeG, GraphEventType.REMOVE_NODE);
+//            gdm.forEachNode(removeG, GraphEventType.REMOVE_NODE);
             gdm.unfreeze();
+            computeIIC_LB();
+            if (g.isInstantiated()) {
+                int val = (int) (iic_lb.get() * Math.pow(10, precision));
+                iic.updateUpperBound(val, this);
+            } else {
+                computeIIC_UB();
+            }
         }
     }
 
     @Override
     public ESat isEntailed() {
+        if (g.isInstantiated()) {
+            int val = (int) (iic_lb.get() * Math.pow(10, precision));
+            if (iic.getLB() != val) {
+                return ESat.FALSE;
+            }
+        }
         return ESat.TRUE;
     }
 
@@ -162,16 +182,11 @@ public class PropIIC extends Propagator<Variable> {
                     }
                 }
             }
-            computeIIC_LB();
         }
     }
 
     private void quickUpdateRemoveNode(int node) throws ContradictionException {
-        if (g.isInstantiated()) {
-            iic.updateUpperBound(iic.getLB(), this);
-        } else {
-            computeIIC_UB();
-        }
+
     }
 
     private void updateRemoveNode(int node) throws ContradictionException {
@@ -276,7 +291,7 @@ public class PropIIC extends Propagator<Variable> {
             for (int i = 0; i < areaLandscape; i++) {
                 if (g.getLB().getNodes().contains(i)) {
                     for (int j = 0; j < areaLandscape; j++) {
-                        if (g.getLB().getNodes().contains(j)) {
+                        if (g.getLB().getNodes().contains(j) && gincr.getRoot(i) == gincr.getRoot(j)) {
                             int dist = allPairsShortestPathsLB[i].quickGet(j);
                             if (dist != -1 && dist != Integer.MAX_VALUE) {
                                 iicVal += 1.0 / (1 + allPairsShortestPathsLB[i].quickGet(j));
@@ -286,7 +301,8 @@ public class PropIIC extends Propagator<Variable> {
                 }
             }
             iic_lb.set(iicVal / Math.pow(areaLandscape, 2));
-            iic.updateLowerBound((int) (iic_lb.get() * Math.pow(10, precision)), this);
+            int val = (int) (iic_lb.get() * Math.pow(10, precision));
+            iic.updateLowerBound(val, this);
         }
     }
 
@@ -309,7 +325,8 @@ public class PropIIC extends Propagator<Variable> {
                 }
             }
             iic_ub.set(iicVal / Math.pow(areaLandscape, 2));
-            iic.updateUpperBound((int) (iic_lb.get() * Math.pow(10, precision)), this);
+            int val = (int) (iic_ub.get() * Math.pow(10, precision));
+            iic.updateUpperBound(val, this);
         }
     }
 
