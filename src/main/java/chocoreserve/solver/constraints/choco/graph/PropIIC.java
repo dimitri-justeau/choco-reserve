@@ -91,13 +91,14 @@ public class PropIIC extends Propagator<Variable> {
 
     @Override
     public int getPropagationConditions(int vIdx) {
-        return GraphEventType.ADD_NODE.getMask();
+        return GraphEventType.ADD_NODE.getMask() + GraphEventType.REMOVE_NODE.getMask();
     }
 
     @Override
     public void propagate(int i) throws ContradictionException {
         computeAllPairsShortestPathsLB(grid);
         computeAllPairsShortestPathsUB(grid);
+        gdm.unfreeze();
     }
 
     @Override
