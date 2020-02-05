@@ -23,7 +23,11 @@
 
 package chocoreserve.raster;
 
+import chocoreserve.grid.Grid;
+import org.chocosolver.util.objects.graphs.UndirectedGraph;
+import org.geotools.coverage.grid.GridCoordinates2D;
 import org.geotools.coverage.grid.GridCoverage2D;
+import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.gce.geotiff.GeoTiffReader;
 
 import java.io.File;
@@ -139,4 +143,5 @@ public class RasterReader {
         int[] values = new int[height * width];
         return grid.getRenderedImage().getData().getSamples(0, 0, width, height, 0, values);
     }
+
 }

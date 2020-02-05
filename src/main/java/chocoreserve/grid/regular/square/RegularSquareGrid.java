@@ -96,4 +96,10 @@ public class RegularSquareGrid extends Grid {
         }
         return coords;
     }
+
+    @Override
+    public double[] getCartesianCoordinates(int site) {
+        int[] coords = getCoordinatesFromIndex(site);
+        return new double[] {(double) coords[0], (double) coords[1]};
+    }
 }

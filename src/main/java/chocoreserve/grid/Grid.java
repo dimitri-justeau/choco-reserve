@@ -37,4 +37,9 @@ public abstract class Grid {
      * @return The cartesian coordinates of the sites (center or centroid).
      */
     public abstract double[][] getCartesianCoordinates();
+
+    /**
+     * @return The cartesian coordinates of a site (center or centroid).
+     */
+    public abstract double[] getCartesianCoordinates(int site);
 }

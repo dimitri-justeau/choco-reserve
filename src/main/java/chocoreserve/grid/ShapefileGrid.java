@@ -252,6 +252,11 @@ public class ShapefileGrid extends Grid {
         return null;
     }
 
+    @Override
+    public double[] getCartesianCoordinates(int site) {
+        return new double[0];
+    }
+
     public String exportDot(double scale) {
         double minX = centroids.values().stream().mapToDouble(i -> i[0]).min().getAsDouble();
         double minY = centroids.values().stream().mapToDouble(i -> i[1]).min().getAsDouble();
