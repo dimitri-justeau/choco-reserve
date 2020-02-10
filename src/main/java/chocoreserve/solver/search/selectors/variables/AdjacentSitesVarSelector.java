@@ -26,14 +26,10 @@ package chocoreserve.solver.search.selectors.variables;
 import chocoreserve.grid.Grid;
 import chocoreserve.grid.neighborhood.INeighborhood;
 import chocoreserve.solver.region.AbstractRegion;
-import chocoreserve.solver.region.Region;
 import org.chocosolver.solver.search.strategy.selectors.variables.VariableSelector;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.setDataStructures.ISet;
-import org.chocosolver.util.tools.ArrayUtils;
 
-import java.awt.*;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -45,47 +41,41 @@ import java.util.stream.IntStream;
  * Variable selector prioritizing sites both in the neighborhood of the LB of a region and in is UB.
  *
  */
-public class NeighborhoodVarSelector implements VariableSelector<IntVar> {
+public class AdjacentSitesVarSelector implements VariableSelector<IntVar> {
 
     private AbstractRegion region;
+    private int previous;
 
-    public NeighborhoodVarSelector(AbstractRegion region) {
+    public AdjacentSitesVarSelector(AbstractRegion region) {
         this.region = region;
+        this.previous = -1;
     }
 
     @Override
     public IntVar getVariable(IntVar[] intVars) {
-        Set<Integer> neighorhood = getNeighborhood();
-        List<Integer> planningUnits = IntStream.range(0, intVars.length)
-                .boxed()
-                .collect(Collectors.toList());
-        Collections.shuffle(planningUnits);
-        for (int i : planningUnits) {
-            if (neighorhood.contains(i) && !intVars[i].isInstantiated()) {
-                return intVars[i];
+        if (previous == -1) {
+            for (int i = 0; i < intVars.length; i++) {
+                if (!intVars[i].isInstantiated()) {
+                    previous = i;
+                    return intVars[i];
+                }
+            }
+        } else {
+            Grid grid = region.getReserveModel().getGrid();
+            INeighborhood neigh = region.getNeighborhood();
+            for (int j : neigh.getNeighbors(grid, previous)) {
+                if (!region.getSetVar().getLB().contains(j) && region.getSetVar().getUB().contains(j)) {
+                    previous = j;
+                    return intVars[j];
+                }
             }
         }
         for (int i = 0; i < intVars.length; i++) {
             if (!intVars[i].isInstantiated()) {
+                previous = i;
                 return intVars[i];
             }
         }
         return null;
-    }
-
-    public Set<Integer> getNeighborhood() {
-        Set<Integer> neighborhood = new HashSet<>();
-        ISet LB = region.getSetVar().getLB();
-        ISet UB = region.getSetVar().getUB();
-        Grid grid = region.getReserveModel().getGrid();
-        INeighborhood neigh = region.getNeighborhood();
-        for (int i : LB) {
-            for (int j : neigh.getNeighbors(grid, i)) {
-                if (!LB.contains(j) && UB.contains(j)) {
-                    neighborhood.add(j);
-                }
-            }
-        }
-        return neighborhood;
     }
 }

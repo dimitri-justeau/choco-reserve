@@ -53,18 +53,33 @@ public class ComposedRegion extends AbstractRegion {
     private UndirectedGraphVar graphVar;
     private Region[] regions;
     private int[] LBNodes;
+    private int[] UBNodes;
 
     public ComposedRegion(String name, Region... regions) {
         super(name);
         this.regions = regions;
         this.neighborhood = regions[0].getNeighborhood();
         Set<Integer> lb = new HashSet<>();
+        Set<Integer> ub = new HashSet<>();
+        boolean ubNull = false;
         for (Region r : regions) {
             for (int i : r.LBNodes) {
                 lb.add(i);
             }
+            if (r.UBNodes == null) {
+                ubNull = true;
+            } else {
+                for (int i : r.UBNodes) {
+                    ub.add(i);
+                }
+            }
         }
         this.LBNodes = lb.stream().mapToInt(i -> i).toArray();
+        if (!ubNull) {
+            this.UBNodes = ub.stream().mapToInt(i -> i).toArray();
+        } else {
+            this.UBNodes = null;
+        }
     }
 
     @Override
@@ -75,10 +90,13 @@ public class ComposedRegion extends AbstractRegion {
         SetVar[] setVars = Arrays.stream(regions).map(r -> r.getSetVar()).toArray(SetVar[]::new);
         GraphModel model = reserveModel.getChocoModel();
         Grid grid = reserveModel.getGrid();
+        if (UBNodes == null) {
+            UBNodes = IntStream.range(0, grid.getNbCells()).toArray();
+        }
         setVar = new SetVarImpl(
                 "composedRegionSetVar['" + name + "']",
-                new int[] {}, SET_VAR_SET_TYPE,
-                IntStream.range(0, grid.getNbCells()).toArray(), SET_VAR_SET_TYPE,
+                LBNodes, SET_VAR_SET_TYPE,
+                UBNodes, SET_VAR_SET_TYPE,
                 model
         );
         model.union(setVars, setVar).post();
@@ -88,12 +106,15 @@ public class ComposedRegion extends AbstractRegion {
         if (graphVar == null) {
             GraphModel model = reserveModel.getChocoModel();
             Grid grid = reserveModel.getGrid();
+            if (UBNodes == null) {
+                UBNodes = IntStream.range(0, grid.getNbCells()).toArray();
+            }
             graphVar = model.graphVar(
                     "regionGraphVar['" + name + "']",
 //                    new UndirectedGraph(model, grid.getNbCells(), GRAPH_SET_TYPE, false),
 //                    new UndirectedGraphIncrementalCC(model, grid.getNbCells(), GRAPH_SET_TYPE, false),
                     neighborhood.getPartialGraph(grid, model, LBNodes, GRAPH_SET_TYPE),
-                    neighborhood.getFullGraph(grid, model, GRAPH_SET_TYPE)
+                    neighborhood.getPartialGraphUB(grid, model, UBNodes, GRAPH_SET_TYPE)
             );
             model.nodesChanneling(graphVar, getSetVar()).post();
             model.post(new Constraint("inducedNeigh['" + name + "']", new PropInducedNeighborhood(graphVar)));

@@ -51,18 +51,23 @@ public class Region extends AbstractRegion {
     private UndirectedGraphVar graphVar;
     private IntVar nbCC;
     private SetType graphSetType, setVarSetType;
-    transient int[] LBNodes;
+    transient int[] LBNodes, UBNodes;
 
-    public Region(String name, INeighborhood neighborhood, SetType graphSetType, SetType setVarSetType, int[] LBNodes) {
+    public Region(String name, INeighborhood neighborhood, SetType graphSetType, SetType setVarSetType, int[] LBNodes, int[] UBNodes) {
         super(name);
         this.neighborhood = neighborhood;
         this.graphSetType = graphSetType;
         this.setVarSetType = setVarSetType;
         this.LBNodes = LBNodes;
+        this.UBNodes = UBNodes;
+    }
+
+    public Region(String name, INeighborhood neighborhood, SetType graphSetType, SetType setVarSetType, int[] LBNodes) {
+        this(name, neighborhood, graphSetType, setVarSetType, LBNodes, null);
     }
 
     public Region(String name, INeighborhood neighborhood, SetType graphSetType, SetType setVarSetType) {
-        this(name, neighborhood, graphSetType, setVarSetType, new int[] {});
+        this(name, neighborhood, graphSetType, setVarSetType, new int[] {}, null);
     }
 
     public Region(String name, INeighborhood neighborhood) {
@@ -73,12 +78,15 @@ public class Region extends AbstractRegion {
         if (graphVar == null) {
             GraphModel model = reserveModel.getChocoModel();
             Grid grid = reserveModel.getGrid();
+            if (UBNodes == null) {
+                UBNodes = IntStream.range(0, grid.getNbCells()).toArray();
+            }
             graphVar = model.graphVar(
                     "regionGraphVar['" + name + "']",
                     neighborhood.getPartialGraph(grid, model, LBNodes, graphSetType),
 //                    new UndirectedGraphIncrementalCC(model, grid.getNbCells(), graphSetType, false),
 //                    new UndirectedGraph(model, grid.getNbCells(), graphSetType, false),
-                    neighborhood.getFullGraph(grid, model, graphSetType)
+                    neighborhood.getPartialGraphUB(grid, model, UBNodes, graphSetType)
             );
             model.nodesChanneling(graphVar, getSetVar()).post();
             model.post(new Constraint("inducedNeigh['" + name + "']", new PropInducedNeighborhood(graphVar)));
@@ -90,10 +98,13 @@ public class Region extends AbstractRegion {
     protected void buildSetVar() {
         GraphModel model = reserveModel.getChocoModel();
         Grid grid = reserveModel.getGrid();
+        if (UBNodes == null) {
+            UBNodes = IntStream.range(0, grid.getNbCells()).toArray();
+        }
         setVar = new SetVarImpl(
                 "regionSetVar['" + name + "']",
-                new int[] {}, setVarSetType,
-                IntStream.range(0, grid.getNbCells()).toArray(), setVarSetType,
+                LBNodes, setVarSetType,
+                UBNodes, setVarSetType,
                 model
         );
     }

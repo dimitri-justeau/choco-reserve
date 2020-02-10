@@ -42,6 +42,7 @@ import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.procedure.IntProcedure;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 /**
  * Propagator for the Integral Index of Connectivity in a landscape graph.
@@ -136,7 +137,7 @@ public class PropIIC extends Propagator<Variable> {
         return ESat.TRUE;
     }
 
-    private void updateAddNode(int node) throws ContradictionException {
+    public void updateAddNode(int node) throws ContradictionException {
         if (g.getLB() instanceof UndirectedGraphIncrementalCC) {
             UndirectedGraphIncrementalCC gincr = (UndirectedGraphIncrementalCC) g.getLB();
             // 1-  get the connected component of the added node
@@ -146,13 +147,22 @@ public class PropIIC extends Propagator<Variable> {
             // 2- Compute the shortest paths between the added node and all connected component nodes.
             for (int i = 0; i < ccarray.length; i++) {
                 int dest = ccarray[i];
+                if (allPairsShortestPathsLB[node].quickGet(dest) != -1) {
+                    continue;
+                }
                 int[][] mdaResult = minimumDetour(grid, g.getLB(), node, dest);
                 int minDist = mdaResult[0][0];
-                int manDist = manhattanDistance(grid, node, dest);
-                int delta = minDist - manDist;
-                allPairsShortestPathsLB[node].quickSet(dest, delta);
-                allPairsShortestPathsLB[dest].quickSet(node, delta);
-                dists[i] = minDist;
+                int[] shortestPath = mdaResult[1];
+                for (int x = 1; x < shortestPath.length; x++) {
+                    int manDist = manhattanDistance(grid, node, shortestPath[x]);
+                    int delta = x - manDist;
+                    allPairsShortestPathsLB[node].quickSet(shortestPath[x], delta);
+                    allPairsShortestPathsLB[shortestPath[x]].quickSet(node, delta);
+                    int finalX = x;
+                    IntStream.range(0, ccarray.length)
+                            .filter(v -> ccarray[v] == shortestPath[finalX])
+                            .forEach(v -> dists[v] = finalX);
+                }
             }
             // 3- For each pair of node in the CC, check whether the added node has created a path (two CC merged)
             //    or if it has shortened an existing path.
@@ -189,7 +199,7 @@ public class PropIIC extends Propagator<Variable> {
 
     }
 
-    private void updateRemoveNode(int node) throws ContradictionException {
+    public void updateRemoveNode(int node) throws ContradictionException {
         long t = System.currentTimeMillis();
         if (g.getUB() instanceof UndirectedGraphDecrementalCC) {
             UndirectedGraphDecrementalCC gincr = (UndirectedGraphDecrementalCC) g.getUB();
@@ -331,15 +341,6 @@ public class PropIIC extends Propagator<Variable> {
     }
 
     public void computeAllPairsShortestPathsLB(RegularSquareGrid grid) {
-        // Reset non optimal distances
-//        for (int source = 0; source < areaLandscape; source++) {
-//            for (int dest = source; dest < areaLandscape; dest++) {
-//                if (allPairsShortestPathsLB[source].quickGet(dest) != 0) {
-//                    allPairsShortestPathsLB[source].quickSet(dest, -1);
-//                    allPairsShortestPathsLB[dest].quickSet(source   , -1);
-//                }
-//            }
-//        }
         if (g.getLB() instanceof UndirectedGraphIncrementalCC) {
             UndirectedGraphIncrementalCC gincr = (UndirectedGraphIncrementalCC) g.getLB();
             for (int root : gincr.getRoots()) {
@@ -399,6 +400,9 @@ public class PropIIC extends Propagator<Variable> {
                         if (checked[source][dest]) {
                             continue;
                         }
+                        if (allPairsShortestPathsLB[source].quickGet(dest) == 0) {
+                            continue;
+                        }
                         // MDA algorithm
                         int[][] mdaResult = minimumDetour(grid, g.getUB(), source, dest);
                         int minDist = mdaResult[0][0];
@@ -420,6 +424,30 @@ public class PropIIC extends Propagator<Variable> {
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    public void computeAllPairsShortestPathsUBFromLB(RegularSquareGrid grid) {
+        if (g.getUB() instanceof UndirectedGraphDecrementalCC) {
+            UndirectedGraphDecrementalCC gincr = (UndirectedGraphDecrementalCC) g.getUB();
+            // Reset every dist
+            for (int i = 0; i < gincr.getNbMaxNodes(); i++) {
+                for (int j = 0; j < gincr.getNbMaxNodes(); j++) {
+                    int valLB = allPairsShortestPathsLB[i].quickGet(j);
+                    if (valLB != -1) {
+                        allPairsShortestPathsUB[i].quickSet(j, valLB);
+                        allPairsShortestPathsUB[j].quickSet(i, valLB);
+                    } else {
+                        allPairsShortestPathsUB[i].quickSet(j, -1);
+                        allPairsShortestPathsUB[j].quickSet(i, -1);
+                    }
+                }
+            }
+            for (int i : g.getUB().getNodes()) {
+                if (!g.getLB().getNodes().contains(i)) {
+
                 }
             }
         }

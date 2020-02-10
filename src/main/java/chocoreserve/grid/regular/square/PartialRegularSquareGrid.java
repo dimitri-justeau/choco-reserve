@@ -124,10 +124,9 @@ public class PartialRegularSquareGrid extends RegularSquareGrid {
      */
     public double[][] getCartesianCoordinates() {
         double[][] coords = new double[getNbCells()][];
-        for (int y = 0; y < getNbRows(); y++) {
-            for (int x = 0; x < getNbCols(); x++) {
-                coords[getIndexFromCoordinates(y, x)] = new double[] {x, y};
-            }
+        for (int i = 0; i < getNbCells(); i++) {
+            int[] coord = getCoordinatesFromIndex(i);
+            coords[i] = new double[] {coord[1], coord[0]};
         }
         return coords;
     }
