@@ -71,24 +71,6 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
         int perimeterUB = bounds[1];
         perimeter.updateLowerBound(perimeterLB, this);
         perimeter.updateUpperBound(perimeterUB, this);
-//        if (perimeterLB == perimeterUB) {
-//            setPassive();
-//        } else if (perimeter.isInstantiated()) {
-//            int v = perimeter.getValue();
-//            if (v == perimeterUB) {
-//                for (int node : g.getPotentialNodes()) {
-//                    g.enforceNode(node, this);
-//                }
-//                setPassive();
-//            } else if (v == perimeterLB) {
-//                for (int node : g.getPotentialNodes()) {
-//                    if (!g.getMandatoryNodes().contains(node)) {
-//                        g.removeNode(node, this);
-//                    }
-//                }
-//                setPassive();
-//            }
-//        }
     }
 
     @Override
@@ -209,9 +191,10 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
             Set<Integer> D1 = new HashSet<>();
             Set<Integer> D2 = new HashSet<>();
             boolean currentD1 = true;
-            for (int col = 0; col < grid.getNbCols(); col++) {
-                int c = col;
-                int r = 0;
+            int nbDiags = grid.getNbCols() + grid.getNbRows() - 1;
+            for (int diag = 0; diag < nbDiags; diag++) {
+                int c = Math.min(diag, grid.getNbCols() - 1);
+                int r = diag < grid.getNbCols() ? 0 : diag - grid.getNbCols() + 1;
                 while (c >= 0 && r < grid.getNbRows()) {
                     int curr = grid.getIndexFromCoordinates(r, c);
                     if (increasing.contains(curr)) {

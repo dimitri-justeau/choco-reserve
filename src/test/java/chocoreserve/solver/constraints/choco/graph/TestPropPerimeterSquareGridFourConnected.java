@@ -30,7 +30,10 @@ import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.region.Region;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
+import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.exception.ContradictionException;
+import org.chocosolver.solver.search.loop.monitors.IMonitorSolution;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 import org.junit.Assert;
@@ -94,14 +97,34 @@ public class TestPropPerimeterSquareGridFourConnected {
         ReserveModel resModel = new ReserveModel(grid, out, in);
         GraphModel model = resModel.getChocoModel();
         UndirectedGraphVar g = in.getGraphVar();
-        IntVar perimeter = model.intVar(0, 100);
+        IntVar perimeter = model.intVar("perimeter", 0, 100);
         PropPerimeterSquareGridFourConnected propPerimeter = new PropPerimeterSquareGridFourConnected(grid, g, perimeter);
+//        model.post(new Constraint("Perimeter", propPerimeter));
         int expectedExtLB = 16;
         Assert.assertEquals(expectedExtLB, propPerimeter.getPerimeterGLB());
         int[] bounds = propPerimeter.getBounds();
+        int expectedPLB = 14;
+        int expectedPUB = 46;
+        Assert.assertEquals(expectedPLB, bounds[0]);
+        Assert.assertEquals(expectedPUB, bounds[1]);
         System.out.println("PLB = " + bounds[0]);
         System.out.println("PUB = " + bounds[1]);
         System.out.println("P(GLB) = " + propPerimeter.getPerimeterGLB());
         System.out.println("P(GUB) = " + propPerimeter.getPerimeterGUB());
+        Solver solver = model.getSolver();
+        final int[] minPerimeter = {100};
+        final int[] maxPerimeter = {0};
+        solver.plugMonitor((IMonitorSolution) () -> {
+            int p = propPerimeter.getPerimeter(g.getLB());
+            if (p < minPerimeter[0]) {
+                minPerimeter[0] = p;
+            }
+            if (p > maxPerimeter[0]) {
+                maxPerimeter[0] = p;
+            }
+        });
+        solver.findAllSolutions();
+        Assert.assertEquals(minPerimeter[0], bounds[0]);
+        Assert.assertEquals(maxPerimeter[0], bounds[1]);
     }
 }
