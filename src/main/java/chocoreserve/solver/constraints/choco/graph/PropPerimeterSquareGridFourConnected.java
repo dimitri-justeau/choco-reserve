@@ -114,7 +114,7 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
         return getPerimeter(graph, new HashSet<>());
     }
 
-    int getPerimeterGLB() {
+    public int getPerimeterGLB() {
         return getPerimeter(g.getLB());
     }
 
@@ -122,7 +122,7 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
         return getPerimeter(g.getUB());
     }
 
-    int[] getBounds() {
+    public int[] getBounds() {
         int LB;
         int UB;
         // 1. Compute neutral, increasing and decreasing vertices sets
