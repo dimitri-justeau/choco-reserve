@@ -37,6 +37,7 @@ import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 /**
  * Base model for the Nature Reserve Problem. Defines the variables and constraints that are common to every
@@ -91,6 +92,18 @@ public class ReserveModel<T extends Grid> implements IReserveModel<T>, IReserveC
                 this.grid.getNbCells(),
                 0, regions.length - 1
         );
+//        this.sites = new IntVar[this.grid.getNbCells()];
+//        for (int i = 0; i < this.grid.getNbCells(); i++) {
+//            int finalI = i;
+//            int[] dom = IntStream.range(0, regions.length)
+//                    .filter(j -> regions[j].getSetVar().getUB().contains(finalI))
+//                    .toArray();
+//            if (dom.length == 1) {
+//                this.sites[i] = model.intVar("sites[" + i + "]", dom[0]);
+//            } else {
+//                this.sites[i] = model.intVar("sites[" + i + "]", dom);
+//            }
+//        }
         // Sets <-> Decision variables channeling
         SetVar[] setVars = Arrays.stream(regions).map(r -> r.getSetVar()).toArray(SetVar[]::new);
         this.model.setsIntsChanneling(setVars, this.sites).post();
@@ -134,6 +147,41 @@ public class ReserveModel<T extends Grid> implements IReserveModel<T>, IReserveC
 
     public void printSolution() {
         printSolution(new String[] {" ", "-", "+", "#"});
+    }
+
+    public void printGrid() {
+        printGrid(new String[] {" ", "-", "+", "#"});
+    }
+
+    public void printGrid(String[] display) {
+        if (!(grid instanceof RegularSquareGrid)) {
+            return;
+        }
+        RegularSquareGrid rgrid = (RegularSquareGrid) grid;
+        System.out.println("\nSolution:");
+        System.out.println("   " + new String(new char[rgrid.getNbCols() + 2]).replace("\0", "_"));
+        for (int i = 0; i < rgrid.getNbRows(); i++) {
+            System.out.printf("  |");
+            for (int j = 0; j < rgrid.getNbCols(); j++) {
+                boolean found = false;
+                for (int r = 0; r < regions.length; r++) {
+                    if (regions[r].getSetVar().getLB().contains(rgrid.getIndexFromCoordinates(i, j))) {
+                        found = true;
+                        if (r < display.length) {
+                            System.out.printf(display[r]);
+                        } else {
+                            System.out.println(r);
+                        }
+                        break;
+                    }
+                }
+                if (!found) {
+                    System.out.printf("?");
+                }
+            }
+            System.out.printf("\n");
+        }
+        System.out.println("\n");
     }
 
     public void printSolution(String[] display) {

@@ -63,7 +63,8 @@ public class PropInducedNeighborhood extends Propagator<UndirectedGraphVar> {
 
     @Override
     public int getPropagationConditions(int vIdx) {
-        return GraphEventType.REMOVE_ARC.getMask() + GraphEventType.ADD_NODE.getMask();
+        return GraphEventType.REMOVE_ARC.getMask() + GraphEventType.ADD_NODE.getMask()
+                + GraphEventType.REMOVE_NODE.getMask() + GraphEventType.ADD_ARC.getMask();
     }
 
     @Override
@@ -71,8 +72,7 @@ public class PropInducedNeighborhood extends Propagator<UndirectedGraphVar> {
         for (int i : g.getLB().getNodes()) {
             for (int j : initialGUB.getSuccOrNeighOf(i)) {
                 if (g.getMandatoryNodes().contains(j))
-                    if (!g.getMandNeighOf(i).contains(j))
-                        g.enforceArc(i, j, this);
+                    g.enforceArc(i, j, this);
                 else
                     if (!g.getPotNeighOf(i).contains(j))
                         g.removeNode(j, this);
