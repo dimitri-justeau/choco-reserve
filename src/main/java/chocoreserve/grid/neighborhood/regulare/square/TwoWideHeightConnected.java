@@ -26,6 +26,8 @@ package chocoreserve.grid.neighborhood.regulare.square;
 import chocoreserve.grid.neighborhood.INeighborhood;
 import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
+import org.chocosolver.util.objects.setDataStructures.ISet;
+import org.chocosolver.util.objects.setDataStructures.SetFactory;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -35,19 +37,19 @@ import java.util.Set;
  */
 public class TwoWideHeightConnected<T extends RegularSquareGrid> implements INeighborhood<T> {
 
-    public int[] getNeighbors(T grid, int i) {
+    public ISet getNeighbors(T grid, int i) {
         int nbCols = grid.getNbCols();
         int nbRows = grid.getNbRows();
         HeightConnected height = Neighborhoods.HEIGHT_CONNECTED;
-        Set<Integer> neighbors = new HashSet<>();
-        int[] heightneigh = height.getNeighbors(grid, i);
+        ISet neighbors = SetFactory.makeBitSet(0);
+        ISet heightneigh = height.getNeighbors(grid, i);
         for (int neigh : heightneigh) {
             neighbors.add(neigh);
             for (int nneigh : height.getNeighbors(grid, neigh)) {
                 neighbors.add(nneigh);
             }
         }
-        return neighbors.stream().mapToInt(v -> v).toArray();
+        return neighbors;
     }
 
 }

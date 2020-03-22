@@ -23,32 +23,30 @@
 
 package chocoreserve.solver.constraints.spatial;
 
-import chocoreserve.solver.region.AbstractRegion;
-import chocoreserve.solver.region.Region;
 import chocoreserve.solver.ReserveModel;
+import chocoreserve.solver.constraints.choco.graph.spatial.PropNbArcsSpatial;
+import chocoreserve.solver.region.AbstractRegion;
+import org.chocosolver.solver.constraints.Constraint;
+import org.chocosolver.solver.variables.IntVar;
 
-/**
- * Number of reserves constraint.
- */
-public class NbConnectedComponents extends SpatialConstraint {
+public class NbEdges extends SpatialConstraint{
 
     private AbstractRegion region;
-    private int nbMin, nbMax;
+    public IntVar nbEdges;
 
-    public NbConnectedComponents(ReserveModel reserveModel, AbstractRegion region, int nbMin, int nbMax) {
+    public NbEdges(ReserveModel reserveModel, AbstractRegion region) {
         super(reserveModel);
         this.region = region;
-        this.nbMin = nbMin;
-        this.nbMax = nbMax;
+        this.nbEdges = reserveModel.getChocoModel().intVar(
+                "nbEdges_" + region.getName(),
+                0,
+                reserveModel.getGrid().getNbCells() * reserveModel.getGrid().getNbCells()
+        );
     }
 
     @Override
     public void post() {
-        if (nbMin == nbMax) {
-            chocoModel.arithm(region.getNbCC(), "=", nbMin).post();
-        } else {
-            chocoModel.arithm(region.getNbCC(), ">=", nbMin).post();
-            chocoModel.arithm(region.getNbCC(), "<=", nbMax).post();
-        }
+        PropNbArcsSpatial propNbEdges = new PropNbArcsSpatial(region.getSetVar(), nbEdges);
+        chocoModel.post(new Constraint("PropNbEdges_" + region.getName(), propNbEdges));
     }
 }

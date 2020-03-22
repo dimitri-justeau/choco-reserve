@@ -67,8 +67,8 @@ public class BufferZone extends SpatialConstraint {
         int nbCells = grid.getNbCells();
         int[][] adjLists = new int[nbCells][];
         int[][] adjLists2 = new int[nbCells][];
-        IntStream.range(0, nbCells).forEach(i -> adjLists[i] = neighborhood.getNeighbors(grid, i));
-        IntStream.range(0, nbCells).forEach(i -> adjLists2[i] = neighborhood.getNeighbors(grid, i));
+        IntStream.range(0, nbCells).forEach(i -> adjLists[i] = neighborhood.getNeighbors(grid, i).toArray());
+        IntStream.range(0, nbCells).forEach(i -> adjLists2[i] = neighborhood.getNeighbors(grid, i).toArray());
         Constraint consNeighSet1 = new Constraint(
                 "consNeighSet1",
                 new PropNeighbors(region1.getSetVar(), neighSet1, adjLists)

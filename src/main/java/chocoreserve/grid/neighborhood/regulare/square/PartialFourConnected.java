@@ -26,6 +26,8 @@ package chocoreserve.grid.neighborhood.regulare.square;
 import chocoreserve.grid.neighborhood.INeighborhood;
 import chocoreserve.grid.regular.square.PartialRegularSquareGrid;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
+import org.chocosolver.util.objects.setDataStructures.ISet;
+import org.chocosolver.util.objects.setDataStructures.SetFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,11 +37,11 @@ import java.util.List;
  */
 public class PartialFourConnected<T extends PartialRegularSquareGrid> implements INeighborhood<T> {
 
-    public int[] getNeighbors(T grid, int partialIdx) {
+    public ISet getNeighbors(T grid, int partialIdx) {
         int idx = grid.getCompleteIndex(partialIdx);
         int nbCols = grid.getNbCols();
         int nbRows = grid.getNbRows();
-        List<Integer> neighbors = new ArrayList<Integer>();
+        ISet neighbors = SetFactory.makeBitSet(0);
         if (idx % nbCols != 0 && !grid.getDiscardSet().contains(idx - 1)) {
             neighbors.add(grid.getPartialIndex(idx - 1));
         }
@@ -52,7 +54,7 @@ public class PartialFourConnected<T extends PartialRegularSquareGrid> implements
         if (idx < nbCols * (nbRows - 1) && !grid.getDiscardSet().contains(idx + nbCols)) {
             neighbors.add(grid.getPartialIndex(idx + nbCols));
         }
-        return neighbors.stream().mapToInt(v -> v).toArray();
+        return neighbors;
     }
 
 }

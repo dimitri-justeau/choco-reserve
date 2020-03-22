@@ -47,7 +47,7 @@ public class TestPropNeighbors {
         int[] universe = IntStream.range(0, grid.getNbCells()).toArray();
         int[][] adjLists = new int[grid.getNbCells()][];
         IntStream.range(0, grid.getNbCells())
-                .forEach(i -> adjLists[i] = n8.getNeighbors(grid, i));
+                .forEach(i -> adjLists[i] = n8.getNeighbors(grid, i).toArray());
 
         // ----------- //
         // Choco model //

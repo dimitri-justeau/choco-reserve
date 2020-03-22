@@ -90,7 +90,7 @@ public class TestShapefileGrid {
         };
         for (int i = 0; i < grid.getNbCells(); i++) {
             int[] expected = expectedNeighborhoods[i];
-            int[] computed = Neighborhoods.SHAPEFILE_NEIGHBORHOOD.getNeighbors(grid, i);
+            int[] computed = Neighborhoods.SHAPEFILE_NEIGHBORHOOD.getNeighbors(grid, i).toArray();
             Arrays.sort(expected);
             Arrays.sort(computed);
             if (!Arrays.equals(expected, computed)) {

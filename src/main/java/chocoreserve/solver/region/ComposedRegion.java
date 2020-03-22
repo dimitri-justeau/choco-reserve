@@ -26,6 +26,7 @@ package chocoreserve.solver.region;
 import chocoreserve.grid.Grid;
 import chocoreserve.grid.neighborhood.INeighborhood;
 import chocoreserve.solver.constraints.choco.graph.PropInducedNeighborhood;
+import chocoreserve.solver.variable.SpatialGraphVar;
 import chocoreserve.util.objects.graphs.UndirectedGraphIncrementalCC;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
@@ -50,7 +51,6 @@ public class ComposedRegion extends AbstractRegion {
     private final SetType SET_VAR_SET_TYPE = SetType.BIPARTITESET;
 
     private INeighborhood neighborhood;
-    private UndirectedGraphVar graphVar;
     private Region[] regions;
     private int[] LBNodes;
     private int[] UBNodes;
@@ -93,33 +93,15 @@ public class ComposedRegion extends AbstractRegion {
         if (UBNodes == null) {
             UBNodes = IntStream.range(0, grid.getNbCells()).toArray();
         }
-        setVar = new SetVarImpl(
+        setVar = new SpatialGraphVar(
                 "composedRegionSetVar['" + name + "']",
                 LBNodes, SET_VAR_SET_TYPE,
                 UBNodes, SET_VAR_SET_TYPE,
-                model
+                model,
+                grid,
+                neighborhood
         );
         model.union(setVars, setVar).post();
-    }
-
-    public UndirectedGraphVar getGraphVar() {
-        if (graphVar == null) {
-            GraphModel model = reserveModel.getChocoModel();
-            Grid grid = reserveModel.getGrid();
-            if (UBNodes == null) {
-                UBNodes = IntStream.range(0, grid.getNbCells()).toArray();
-            }
-            graphVar = model.graphVar(
-                    "regionGraphVar['" + name + "']",
-//                    new UndirectedGraph(model, grid.getNbCells(), GRAPH_SET_TYPE, false),
-//                    new UndirectedGraphIncrementalCC(model, grid.getNbCells(), GRAPH_SET_TYPE, false),
-                    neighborhood.getPartialGraph(grid, model, LBNodes, GRAPH_SET_TYPE),
-                    neighborhood.getPartialGraphUB(grid, model, UBNodes, GRAPH_SET_TYPE)
-            );
-            model.nodesChanneling(graphVar, getSetVar()).post();
-            model.post(new Constraint("inducedNeigh['" + name + "']", new PropInducedNeighborhood(graphVar)));
-        }
-        return graphVar;
     }
 
     public INeighborhood getNeighborhood() {

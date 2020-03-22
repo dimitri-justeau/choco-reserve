@@ -25,16 +25,12 @@ package chocoreserve.solver.region;
 
 import chocoreserve.grid.Grid;
 import chocoreserve.grid.neighborhood.INeighborhood;
-import chocoreserve.solver.constraints.choco.graph.PropInducedNeighborhood;
-import chocoreserve.solver.constraints.choco.graph.PropNbCCIncremental;
-import chocoreserve.util.objects.graphs.*;
+import chocoreserve.solver.constraints.choco.graph.spatial.PropNbCCSpatialGraph;
+import chocoreserve.solver.variable.SpatialGraphVar;
 
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.impl.SetVarImpl;
-import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 
 import java.util.stream.IntStream;
@@ -44,54 +40,31 @@ import java.util.stream.IntStream;
  */
 public class Region extends AbstractRegion {
 
-    private final SetType GRAPH_SET_TYPE = SetType.BIPARTITESET;
     private final SetType SET_VAR_SET_TYPE = SetType.BIPARTITESET;
 
     private INeighborhood neighborhood;
-    private UndirectedGraphVar graphVar;
     private IntVar nbCC;
-    private SetType graphSetType, setVarSetType;
+    private SetType setVarSetType;
     transient int[] LBNodes, UBNodes;
 
-    public Region(String name, INeighborhood neighborhood, SetType graphSetType, SetType setVarSetType, int[] LBNodes, int[] UBNodes) {
+    public Region(String name, INeighborhood neighborhood, SetType setVarSetType, int[] LBNodes, int[] UBNodes) {
         super(name);
         this.neighborhood = neighborhood;
-        this.graphSetType = graphSetType;
         this.setVarSetType = setVarSetType;
         this.LBNodes = LBNodes;
         this.UBNodes = UBNodes;
     }
 
-    public Region(String name, INeighborhood neighborhood, SetType graphSetType, SetType setVarSetType, int[] LBNodes) {
-        this(name, neighborhood, graphSetType, setVarSetType, LBNodes, null);
+    public Region(String name, INeighborhood neighborhood, SetType setVarSetType, int[] LBNodes) {
+        this(name, neighborhood, setVarSetType, LBNodes, null);
     }
 
-    public Region(String name, INeighborhood neighborhood, SetType graphSetType, SetType setVarSetType) {
-        this(name, neighborhood, graphSetType, setVarSetType, new int[] {}, null);
+    public Region(String name, INeighborhood neighborhood, SetType setVarSetType) {
+        this(name, neighborhood, setVarSetType, new int[] {}, null);
     }
 
     public Region(String name, INeighborhood neighborhood) {
-        this(name, neighborhood, SetType.BIPARTITESET, SetType.BIPARTITESET);
-    }
-
-    public UndirectedGraphVar getGraphVar() {
-        if (graphVar == null) {
-            GraphModel model = reserveModel.getChocoModel();
-            Grid grid = reserveModel.getGrid();
-            if (UBNodes == null) {
-                UBNodes = IntStream.range(0, grid.getNbCells()).toArray();
-            }
-            graphVar = model.graphVar(
-                    "regionGraphVar['" + name + "']",
-                    neighborhood.getPartialGraph(grid, model, LBNodes, graphSetType),
-//                    new UndirectedGraphIncrementalCC(model, grid.getNbCells(), graphSetType, false),
-//                    new UndirectedGraph(model, grid.getNbCells(), graphSetType, false),
-                    neighborhood.getPartialGraphUB(grid, model, UBNodes, graphSetType)
-            );
-            model.nodesChanneling(graphVar, getSetVar()).post();
-            model.post(new Constraint("inducedNeigh['" + name + "']", new PropInducedNeighborhood(graphVar)));
-        }
-        return graphVar;
+        this(name, neighborhood, SetType.BIPARTITESET);
     }
 
     @Override
@@ -101,22 +74,14 @@ public class Region extends AbstractRegion {
         if (UBNodes == null) {
             UBNodes = IntStream.range(0, grid.getNbCells()).toArray();
         }
-        setVar = new SetVarImpl(
+        setVar = new SpatialGraphVar(
                 "regionSetVar['" + name + "']",
                 LBNodes, setVarSetType,
                 UBNodes, setVarSetType,
-                model
+                model,
+                grid,
+                neighborhood
         );
-    }
-
-    public IntVar getNbCC() {
-        if (nbCC == null) {
-            GraphModel model = reserveModel.getChocoModel();
-            Grid grid = reserveModel.getGrid();
-            nbCC = model.intVar("regionNbCC['" + name + "']", 0, grid.getNbCells());
-            new Constraint("nbCC", new PropNbCCIncremental(getGraphVar(), nbCC)).post();
-        }
-        return nbCC;
     }
 
     public INeighborhood getNeighborhood() {

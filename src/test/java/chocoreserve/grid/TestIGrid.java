@@ -49,7 +49,7 @@ public class TestIGrid {
         for (int i = 0; i < 25; i++) {
             Assert.assertTrue(g.getNodes().contains(i));
             int[] nodeNeighbors = g.getNeighOf(i).toArray();
-            int[] cellNeighbors = Neighborhoods.HEIGHT_CONNECTED.getNeighbors(grid, i);
+            int[] cellNeighbors = Neighborhoods.HEIGHT_CONNECTED.getNeighbors(grid, i).toArray();
             Arrays.sort(cellNeighbors);
             Arrays.sort(nodeNeighbors);
             Assert.assertTrue(Arrays.equals(cellNeighbors, nodeNeighbors));
@@ -67,7 +67,7 @@ public class TestIGrid {
         Arrays.sort(nodes);
         for (int i : cells) {
             int[] nodeNeighbors = g.getNeighOf(i).toArray();
-            int[] cellNeighbors = Arrays.stream(Neighborhoods.FOUR_CONNECTED.getNeighbors(grid, i))
+            int[] cellNeighbors = Arrays.stream(Neighborhoods.FOUR_CONNECTED.getNeighbors(grid, i).toArray())
                     .filter(v -> listCells.contains(v))
                     .toArray();
             Arrays.sort(cellNeighbors);

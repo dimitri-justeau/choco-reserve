@@ -25,6 +25,8 @@ package chocoreserve.grid.neighborhood.regulare.square;
 
 import chocoreserve.grid.neighborhood.INeighborhood;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
+import org.chocosolver.util.objects.setDataStructures.ISet;
+import org.chocosolver.util.objects.setDataStructures.SetFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,10 +36,10 @@ import java.util.List;
  */
 public class FourConnected<T extends RegularSquareGrid> implements INeighborhood<T> {
 
-    public int[] getNeighbors(T grid, int i) {
+    public ISet getNeighbors(T grid, int i) {
         int nbCols = grid.getNbCols();
         int nbRows = grid.getNbRows();
-        List<Integer> neighbors = new ArrayList<Integer>();
+        ISet neighbors = SetFactory.makeBitSet(0);
         if (i % nbCols != 0) {
             neighbors.add(i - 1);
         }
@@ -50,7 +52,7 @@ public class FourConnected<T extends RegularSquareGrid> implements INeighborhood
         if (i < nbCols * (nbRows - 1)) {
             neighbors.add(i + nbCols);
         }
-        return neighbors.stream().mapToInt(v -> v).toArray();
+        return neighbors;
     }
 
 }

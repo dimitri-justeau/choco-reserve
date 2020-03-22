@@ -27,14 +27,13 @@ import chocoreserve.grid.neighborhood.INeighborhood;
 import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.PartialRegularSquareGrid;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
-import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
+import chocoreserve.solver.variable.SpatialGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
 import org.chocosolver.util.ESat;
-import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 
 import java.util.Arrays;
@@ -49,12 +48,12 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
 
     private RegularSquareGrid grid;
     private INeighborhood neigh;
-    private UndirectedGraphVar g;
+    private SpatialGraphVar g;
     private IntVar perimeter;
 
-    public PropPerimeterSquareGridFourConnected(RegularSquareGrid grid, UndirectedGraphVar g, IntVar perimeter) {
+    public PropPerimeterSquareGridFourConnected(SpatialGraphVar g, IntVar perimeter) {
         super(new Variable[] {g, perimeter}, PropagatorPriority.LINEAR, false);
-        this.grid = grid;
+        this.grid = (RegularSquareGrid) g.getGrid();
         if (grid instanceof PartialRegularSquareGrid) {
             this.neigh = Neighborhoods.PARTIAL_FOUR_CONNECTED;
         } else {
@@ -90,14 +89,14 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
         return ESat.UNDEFINED;
     }
 
-    int getPerimeter(UndirectedGraph graph, Set<Integer> toAdd) {
+    int getPerimeter(ISet graphNodes, Set<Integer> toAdd) {
         int p = 0;
         Set<Integer> nodes = new HashSet<>();
-        Arrays.stream(graph.getNodes().toArray()).forEach(i -> nodes.add(i));
+        Arrays.stream(graphNodes.toArray()).forEach(i -> nodes.add(i));
         nodes.addAll(toAdd);
         for (int node : nodes) {
-            int[] potNeighs = neigh.getNeighbors(grid, node);
-            int frontierGrid = 4 - potNeighs.length;
+            ISet potNeighs = neigh.getNeighbors(grid, node);
+            int frontierGrid = 4 - potNeighs.size();
             int n = 0;
             for (int i : potNeighs) {
                 if (!nodes.contains(i)) {
@@ -110,16 +109,16 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
     }
 
 
-    int getPerimeter(UndirectedGraph graph) {
-        return getPerimeter(graph, new HashSet<>());
+    int getPerimeter(ISet graphNodes) {
+        return getPerimeter(graphNodes, new HashSet<>());
     }
 
     public int getPerimeterGLB() {
-        return getPerimeter(g.getLB());
+        return getPerimeter(g.getMandatoryNodes());
     }
 
     int getPerimeterGUB() {
-        return getPerimeter(g.getUB());
+        return getPerimeter(g.getPotentialNodes());
     }
 
     public int[] getBounds() {
@@ -129,8 +128,8 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
         Set<Integer> neutral = new HashSet<>();
         Set<Integer> increasing = new HashSet<>();
         Set<Integer> decreasing = new HashSet<>();
-        for (int node : g.getUB().getNodes()) {
-            if (!g.getLB().getNodes().contains(node)) {
+        for (int node : g.getPotentialNodes()) {
+            if (!g.getMandatoryNodes().contains(node)) {
                 int potDecr = getPotDecreasing(node);
                 int potIncr = getPotIncreasing(node);
                 if (potDecr == potIncr) {
@@ -161,12 +160,12 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
                 falseIncr.clear();
                 // Detect false increasing
                 for (int node : increasing) {
-                    if (!g.getLB().getNodes().contains(node) && !toAdd.contains(node)) {
-                        int frontierGrid = 4 - neigh.getNeighbors(grid, node).length;
+                    if (!g.getMandatoryNodes().contains(node) && !toAdd.contains(node)) {
+                        int frontierGrid = 4 - neigh.getNeighbors(grid, node).size();
                         int potDecr = 0;
                         int potIncr = frontierGrid;
-                        for (int i : g.getUB().getNeighOf(node)) {
-                            if (g.getLB().getNodes().contains(i) || toAdd.contains(i)) {
+                        for (int i : g.getPotNeighOf(node)) {
+                            if (g.getMandatoryNodes().contains(i) || toAdd.contains(i)) {
                                 potDecr += 1;
                             } else {
                                 potIncr += 1;
@@ -217,11 +216,11 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
     }
 
     int getPotIncreasing(int node) {
-        ISet neighs = g.getUB().getNeighOf(node);
+        ISet neighs = g.getPotNeighOf(node);
         int frontierGrid = 4 - neighs.size();
         int n = 0;
         for (int i : neighs) {
-            if (!g.getLB().getNodes().contains(i)) {
+            if (!g.getMandatoryNodes().contains(i)) {
                 n += 1;
             }
         }
@@ -230,8 +229,8 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
 
     int getPotDecreasing(int node) {
         int n = 0;
-        for (int i : g.getUB().getNeighOf(node)) {
-            if (g.getLB().getNodes().contains(i)) {
+        for (int i : g.getPotNeighOf(node)) {
+            if (g.getMandatoryNodes().contains(i)) {
                 n += 1;
             }
         }

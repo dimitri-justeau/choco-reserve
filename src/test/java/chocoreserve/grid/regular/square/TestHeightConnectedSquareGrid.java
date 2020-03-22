@@ -52,27 +52,27 @@ public class TestHeightConnectedSquareGrid {
         RegularSquareGrid grid = new RegularSquareGrid(5, 5);
         INeighborhood neigh = Neighborhoods.HEIGHT_CONNECTED;
         // Cell in the middle: 12
-        int[] neighbors = neigh.getNeighbors(grid, 12);
+        int[] neighbors = neigh.getNeighbors(grid, 12).toArray();
         Arrays.sort(neighbors);
         int[] expected = new int[] {6, 7, 8, 11, 13, 16, 17, 18};
         Assert.assertTrue(Arrays.equals(neighbors, expected));
         // Cell 0
-        neighbors = neigh.getNeighbors(grid, 0);
+        neighbors = neigh.getNeighbors(grid, 0).toArray();
         Arrays.sort(neighbors);
         expected = new int[] {1, 5, 6};
         Assert.assertTrue(Arrays.equals(neighbors, expected));
         // Cell 15
-        neighbors = neigh.getNeighbors(grid, 15);
+        neighbors = neigh.getNeighbors(grid, 15).toArray();
         Arrays.sort(neighbors);
         expected = new int[] {10, 11, 16, 20, 21};
         Assert.assertTrue(Arrays.equals(neighbors, expected));
         // Cell 9
-        neighbors = neigh.getNeighbors(grid, 9);
+        neighbors = neigh.getNeighbors(grid, 9).toArray();
         Arrays.sort(neighbors);
         expected = new int[] {3, 4, 8, 13, 14};
         Assert.assertTrue(Arrays.equals(neighbors, expected));
         // Cell 24
-        neighbors = neigh.getNeighbors(grid, 24);
+        neighbors = neigh.getNeighbors(grid, 24).toArray();
         Arrays.sort(neighbors);
         expected = new int[] {18, 19, 23};
         Assert.assertTrue(Arrays.equals(neighbors, expected));

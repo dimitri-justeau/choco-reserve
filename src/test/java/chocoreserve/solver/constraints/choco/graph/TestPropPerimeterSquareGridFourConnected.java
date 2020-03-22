@@ -28,11 +28,9 @@ import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.region.Region;
+import chocoreserve.solver.variable.SpatialGraphVar;
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.constraints.Constraint;
-import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.search.loop.monitors.IMonitorSolution;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.setDataStructures.SetType;
@@ -56,15 +54,15 @@ public class TestPropPerimeterSquareGridFourConnected {
         INeighborhood n4 = Neighborhoods.FOUR_CONNECTED;
         Region in = new Region(
                 "in",
-                n4, SetType.BIPARTITESET, SetType.BIPARTITESET,
+                n4, SetType.BIPARTITESET,
                 new int[] {0, 1, 2, 3, 4, 6}
         );
         Region out = new Region("out", n4);
         ReserveModel resModel = new ReserveModel(grid, out, in);
         GraphModel model = resModel.getChocoModel();
-        UndirectedGraphVar g = in.getGraphVar();
+        SpatialGraphVar g = in.getSetVar();
         IntVar perimeter = model.intVar(0, 100);
-        PropPerimeterSquareGridFourConnected propPerimeter = new PropPerimeterSquareGridFourConnected(grid, g, perimeter);
+        PropPerimeterSquareGridFourConnected propPerimeter = new PropPerimeterSquareGridFourConnected(g, perimeter);
         int expectedExtUB = 12;
         Assert.assertEquals(expectedExtUB, propPerimeter.getPerimeterGUB());
         int expectedExtLB = 12;
@@ -90,15 +88,15 @@ public class TestPropPerimeterSquareGridFourConnected {
         INeighborhood n4 = Neighborhoods.FOUR_CONNECTED;
         Region in = new Region(
                 "in",
-                n4, SetType.BIPARTITESET, SetType.BIPARTITESET,
+                n4, SetType.BIPARTITESET,
                 new int[] {0, 1, 2, 3, 4, 5, 9}
         );
         Region out = new Region("out", n4);
         ReserveModel resModel = new ReserveModel(grid, out, in);
         GraphModel model = resModel.getChocoModel();
-        UndirectedGraphVar g = in.getGraphVar();
+        SpatialGraphVar g = in.getSetVar();
         IntVar perimeter = model.intVar("perimeter", 0, 100);
-        PropPerimeterSquareGridFourConnected propPerimeter = new PropPerimeterSquareGridFourConnected(grid, g, perimeter);
+        PropPerimeterSquareGridFourConnected propPerimeter = new PropPerimeterSquareGridFourConnected(g, perimeter);
 //        model.post(new Constraint("Perimeter", propPerimeter));
         int expectedExtLB = 16;
         Assert.assertEquals(expectedExtLB, propPerimeter.getPerimeterGLB());

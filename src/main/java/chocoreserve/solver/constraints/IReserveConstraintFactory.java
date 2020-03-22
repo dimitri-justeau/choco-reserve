@@ -128,7 +128,7 @@ public interface IReserveConstraintFactory {
      * @param nbMax An int representing the maximum number of reserves.
      * @return A NbReserves constraint.
      */
-    default IReserveConstraint nbConnectedComponents(Region region, int nbMin, int nbMax) {
+    default IReserveConstraint nbConnectedComponents(AbstractRegion region, int nbMin, int nbMax) {
         return new NbConnectedComponents(self(), region, nbMin, nbMax);
     }
 
@@ -170,6 +170,10 @@ public interface IReserveConstraintFactory {
         return new Radius(self(), region, self().getChocoModel().realVar("radius", 0, 0.5 * maxDiameter, 1e-5));
     }
 
+    default IReserveConstraint maxDiameterSpatial(AbstractRegion region, double maxDiameter) {
+        return new RadiusSpatialGraph(self(), region, self().getChocoModel().realVar("radius", 0, 0.5 * maxDiameter, 1e-5));
+    }
+
     /**
      * Creates a bufferZone constraint. The bufferZone constraint holds iff the region 'buffer' is a buffer zone
      * between 'region1' and 'region2'.
@@ -186,5 +190,9 @@ public interface IReserveConstraintFactory {
     default IReserveConstraint bufferZone(INeighborhood neighborhood, AbstractRegion region1, AbstractRegion region2,
                                           AbstractRegion buffer) {
         return new BufferZone(self(), neighborhood, region1, region2, buffer);
+    }
+
+    default IReserveConstraint nbEdges(AbstractRegion region) {
+        return new NbEdges(self(), region);
     }
 }

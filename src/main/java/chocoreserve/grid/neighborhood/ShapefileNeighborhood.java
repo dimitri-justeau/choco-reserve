@@ -24,6 +24,8 @@
 package chocoreserve.grid.neighborhood;
 
 import chocoreserve.grid.ShapefileGrid;
+import org.chocosolver.util.objects.setDataStructures.ISet;
+import org.chocosolver.util.objects.setDataStructures.SetFactory;
 
 
 /**
@@ -32,10 +34,10 @@ import chocoreserve.grid.ShapefileGrid;
 public class ShapefileNeighborhood<T extends ShapefileGrid> implements INeighborhood<T> {
 
     @Override
-    public int[] getNeighbors(T grid, int i) {
-        return grid.getNeighbors().get(grid.getShapeId(i)).stream()
+    public ISet getNeighbors(T grid, int i) {
+        return SetFactory.makeConstantSet(grid.getNeighbors().get(grid.getShapeId(i)).stream()
                 .mapToInt(shapeId -> grid.getInternalId(shapeId))
-                .toArray();
+                .toArray());
     }
 
 }

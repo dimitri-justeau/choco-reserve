@@ -26,8 +26,13 @@ package chocoreserve.solver.region;
 import chocoreserve.exception.RegionAlreadyLinkedToModelError;
 import chocoreserve.exception.RegionNotLinkedToModelError;
 
+import chocoreserve.grid.Grid;
 import chocoreserve.grid.neighborhood.INeighborhood;
 import chocoreserve.solver.ReserveModel;
+import chocoreserve.solver.constraints.choco.graph.spatial.PropNbCCSpatialGraph;
+import chocoreserve.solver.variable.SpatialGraphVar;
+import org.chocosolver.graphsolver.GraphModel;
+import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
 
@@ -39,8 +44,8 @@ public abstract class AbstractRegion {
 
     protected String name;
     protected ReserveModel reserveModel;
-    protected SetVar setVar;
-    protected IntVar nbSites;
+    protected SpatialGraphVar setVar;
+    protected IntVar nbSites, nbCC;
 
     public AbstractRegion(String name) {
         this.name = name;
@@ -59,7 +64,7 @@ public abstract class AbstractRegion {
         this.nbSites = setVar.getCard();
     }
 
-    public SetVar getSetVar() {
+    public SpatialGraphVar getSetVar() {
         if (setVar == null) {
             new RegionNotLinkedToModelError().printStackTrace();
         }
@@ -73,6 +78,16 @@ public abstract class AbstractRegion {
             new RegionNotLinkedToModelError().printStackTrace();
         }
         return nbSites;
+    }
+
+    public IntVar getNbCC() {
+        if (nbCC == null) {
+            GraphModel model = reserveModel.getChocoModel();
+            Grid grid = reserveModel.getGrid();
+            nbCC = model.intVar("regionNbCC['" + name + "']", 0, grid.getNbCells());
+            new Constraint("nbCC", new PropNbCCSpatialGraph(setVar, nbCC)).post();
+        }
+        return nbCC;
     }
 
     public ReserveModel getReserveModel() {
