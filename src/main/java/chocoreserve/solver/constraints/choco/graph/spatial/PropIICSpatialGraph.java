@@ -699,6 +699,10 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
             return new int[][] { {-1}, null };
         }
 
+        if (source == dest) {
+            return new int[][] { {0}, {source}};
+        }
+
         // When the graph has maintains connected component, avoid running the algorithm for two nodes
         // in different connected components.
 //        if (graph instanceof UndirectedGraphIncrementalCC) {
