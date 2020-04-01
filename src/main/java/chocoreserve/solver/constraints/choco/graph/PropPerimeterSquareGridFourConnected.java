@@ -25,6 +25,8 @@ package chocoreserve.solver.constraints.choco.graph;
 
 import chocoreserve.grid.neighborhood.INeighborhood;
 import chocoreserve.grid.neighborhood.Neighborhoods;
+import chocoreserve.grid.neighborhood.regulare.square.FourConnected;
+import chocoreserve.grid.neighborhood.regulare.square.PartialFourConnected;
 import chocoreserve.grid.regular.square.PartialRegularSquareGrid;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.variable.SpatialGraphVar;
@@ -35,8 +37,8 @@ import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
 import org.chocosolver.util.ESat;
 import org.chocosolver.util.objects.setDataStructures.ISet;
+import org.chocosolver.util.objects.setDataStructures.SetFactory;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -47,18 +49,15 @@ import java.util.Set;
 public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
 
     private RegularSquareGrid grid;
-    private INeighborhood neigh;
     private SpatialGraphVar g;
     private IntVar perimeter;
 
     public PropPerimeterSquareGridFourConnected(SpatialGraphVar g, IntVar perimeter) {
         super(new Variable[] {g, perimeter}, PropagatorPriority.LINEAR, false);
         this.grid = (RegularSquareGrid) g.getGrid();
-        if (grid instanceof PartialRegularSquareGrid) {
-            this.neigh = Neighborhoods.PARTIAL_FOUR_CONNECTED;
-        } else {
-            this.neigh = Neighborhoods.FOUR_CONNECTED;
-        }
+        assert g.getGrid() instanceof RegularSquareGrid;
+        INeighborhood nei = g.getNeighborhood();
+        assert nei instanceof FourConnected || nei instanceof PartialFourConnected;
         this.g = g;
         this.perimeter = perimeter;
     }
@@ -89,28 +88,27 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
         return ESat.UNDEFINED;
     }
 
-    int getPerimeter(ISet graphNodes, Set<Integer> toAdd) {
+    int getPerimeter(ISet graphNodes, ISet toAdd) {
         int p = 0;
-        Set<Integer> nodes = new HashSet<>();
-        Arrays.stream(graphNodes.toArray()).forEach(i -> nodes.add(i));
-        nodes.addAll(toAdd);
-        for (int node : nodes) {
-            ISet potNeighs = neigh.getNeighbors(grid, node);
-            int frontierGrid = 4 - potNeighs.size();
-            int n = 0;
-            for (int i : potNeighs) {
-                if (!nodes.contains(i)) {
-                    n += 1;
+        for (ISet set : new ISet[] {graphNodes, toAdd}){
+            for (int node : set) {
+                ISet potNeighs = g.getPotNeighOf(node);
+                int frontierGrid = 4 - potNeighs.size();
+                int n = 0;
+                for (int i : potNeighs) {
+                    if (!graphNodes.contains(i) && !toAdd.contains(i)) {
+                        n += 1;
+                    }
                 }
+                p += frontierGrid + n;
             }
-            p += frontierGrid + n;
         }
         return p;
     }
 
 
-    int getPerimeter(ISet graphNodes) {
-        return getPerimeter(graphNodes, new HashSet<>());
+    public int getPerimeter(ISet graphNodes) {
+        return getPerimeter(graphNodes, SetFactory.makeConstantSet(new int[] {}));
     }
 
     public int getPerimeterGLB() {
@@ -125,9 +123,9 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
         int LB;
         int UB;
         // 1. Compute neutral, increasing and decreasing vertices sets
-        Set<Integer> neutral = new HashSet<>();
-        Set<Integer> increasing = new HashSet<>();
-        Set<Integer> decreasing = new HashSet<>();
+        ISet neutral = SetFactory.makeBipartiteSet(0);
+        ISet increasing = SetFactory.makeBipartiteSet(0);
+        ISet decreasing = SetFactory.makeBipartiteSet(0);
         for (int node : g.getPotentialNodes()) {
             if (!g.getMandatoryNodes().contains(node)) {
                 int potDecr = getPotDecreasing(node);
@@ -150,21 +148,28 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
             // 2.b Else, compute the perimeter LB by repeatedly adding decreasing and neutral vertices, until
             //     both sets are empty.
             int decr = 0;
-            Set<Integer> toAdd = new HashSet<>();
-            toAdd.addAll(neutral);
-            toAdd.addAll(decreasing);
+            ISet toAdd = SetFactory.makeBipartiteSet(0);
+            for (int i : neutral) {
+                toAdd.add(i);
+            }
+            for (int i : decreasing) {
+                toAdd.add(i);
+            }
             // Vertices becoming neutral of decreasing after adding neutrals and decreasing
-            Set<Integer> falseIncr = new HashSet<>();
+            ISet falseIncr = SetFactory.makeBipartiteSet(0);
             do {
-                toAdd.addAll(falseIncr);
+                for (int i : falseIncr) {
+                    toAdd.add(i);
+                }
                 falseIncr.clear();
                 // Detect false increasing
                 for (int node : increasing) {
                     if (!g.getMandatoryNodes().contains(node) && !toAdd.contains(node)) {
-                        int frontierGrid = 4 - neigh.getNeighbors(grid, node).size();
+                        ISet potNeigh = g.getPotNeighOf(node);
+                        int frontierGrid = 4 - potNeigh.size();
                         int potDecr = 0;
                         int potIncr = frontierGrid;
-                        for (int i : g.getPotNeighOf(node)) {
+                        for (int i : potNeigh) {
                             if (g.getMandatoryNodes().contains(i) || toAdd.contains(i)) {
                                 potDecr += 1;
                             } else {
@@ -187,8 +192,8 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
             //      - Partition the grid in two sets D1 and D2 by alternating diagonals.
             //      - For D1 and D2, compute the perimeter obtained by adding only increasing vertices.
             //      - The highest perimeter is the upper bound.
-            Set<Integer> D1 = new HashSet<>();
-            Set<Integer> D2 = new HashSet<>();
+            ISet D1 = SetFactory.makeBipartiteSet(0);
+            ISet D2 = SetFactory.makeBipartiteSet(0);
             boolean currentD1 = true;
             int nbDiags = grid.getNbCols() + grid.getNbRows() - 1;
             for (int diag = 0; diag < nbDiags; diag++) {

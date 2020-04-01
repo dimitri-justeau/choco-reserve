@@ -64,12 +64,12 @@ public class SpatialGraphVar extends AbstractVariable implements SetVar {
     protected UndirectedGraphIncrementalCC GLB;
     protected UndirectedGraph GUB;
 
-    public SpatialGraphVar(String name, int[] ker, SetType kerType, int[] env, SetType envType, Model model, Grid grid, INeighborhood neighborhood) {
+    public SpatialGraphVar(String name, int[] ker, SetType kerType, int[] env, SetType envType, Model model, Grid grid, INeighborhood neighborhood, boolean ubDecr) {
         super(name, model);
         this.grid = grid;
         this.neighborhood = neighborhood;
         this.GLB = neighborhood.getPartialGraph(grid, getModel(), ker, kerType);
-        this.GUB = neighborhood.getPartialGraphUB(grid, getModel(), env, envType);
+        this.GUB = neighborhood.getPartialGraphUB(grid, getModel(), env, envType, ubDecr);
         // Adapted from set Var Impl - START //
         lb = GLB.getNodes();
         ub = GUB.getNodes();
@@ -78,7 +78,12 @@ public class SpatialGraphVar extends AbstractVariable implements SetVar {
         // Adapted from set Var Impl - END //
     }
 
-    public Grid getGrid() {
+    public SpatialGraphVar(String name, int[] ker, SetType kerType, int[] env, SetType envType, Model model, Grid grid, INeighborhood neighborhood) {
+        this(name, ker, kerType, env, envType, model, grid, neighborhood, false);
+    }
+
+
+        public Grid getGrid() {
         return grid;
     }
 
@@ -177,7 +182,7 @@ public class SpatialGraphVar extends AbstractVariable implements SetVar {
             contradiction(cause, "");
             return true;
         }
-        if (lb.add(element)) {
+        if (getGLB().addNode(element)) {
             ISet nei = GUB.getSuccOrNeighOf(element);
             for (int i : nei) {
                 if (lb.contains(i)) {
@@ -201,7 +206,7 @@ public class SpatialGraphVar extends AbstractVariable implements SetVar {
             contradiction(cause, "");
             return true;
         }
-        if (ub.remove(element)) {
+        if (getGUB().removeNode(element)) {
             int[] nei = GUB.getSuccOrNeighOf(element).toArray();
             for (int i : nei) {
                 GUB.removeEdge(i, element);

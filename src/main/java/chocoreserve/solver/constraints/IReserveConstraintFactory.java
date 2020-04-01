@@ -195,4 +195,8 @@ public interface IReserveConstraintFactory {
     default IReserveConstraint nbEdges(AbstractRegion region) {
         return new NbEdges(self(), region);
     }
+
+    default IReserveConstraint perimeter(AbstractRegion region) {
+        return new PerimeterSquareGridFourConnected(self(), region);
+    }
 }

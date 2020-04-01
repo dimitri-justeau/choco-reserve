@@ -60,8 +60,8 @@ public class PropSizeMaxCCSpatialGraph extends Propagator<Variable> {
 		super(new Variable[]{graph, sizeMaxCC}, PropagatorPriority.QUADRATIC, false);
 		this.g = graph;
 		this.sizeMaxCC = sizeMaxCC;
-		this.GLBCCFinder = new ConnectivityFinderSpatialGraph(g.getMandatoryNodes(), g.getGrid(), g.getNeighborhood());
-		this.GUBCCFinder = new ConnectivityFinderSpatialGraph(g.getPotentialNodes(), g.getGrid(), g.getNeighborhood());
+		this.GLBCCFinder = new ConnectivityFinderSpatialGraph(g.getGLB());
+		this.GUBCCFinder = new ConnectivityFinderSpatialGraph(g.getGUB());
 	}
 
 	/* Methods */

@@ -46,13 +46,19 @@ public class Region extends AbstractRegion {
     private IntVar nbCC;
     private SetType setVarSetType;
     transient int[] LBNodes, UBNodes;
+    private boolean ubDecr;
 
     public Region(String name, INeighborhood neighborhood, SetType setVarSetType, int[] LBNodes, int[] UBNodes) {
+        this(name, neighborhood, setVarSetType, LBNodes, UBNodes, false);
+    }
+
+    public Region(String name, INeighborhood neighborhood, SetType setVarSetType, int[] LBNodes, int[] UBNodes, boolean ubDecr) {
         super(name);
         this.neighborhood = neighborhood;
         this.setVarSetType = setVarSetType;
         this.LBNodes = LBNodes;
         this.UBNodes = UBNodes;
+        this.ubDecr = ubDecr;
     }
 
     public Region(String name, INeighborhood neighborhood, SetType setVarSetType, int[] LBNodes) {
@@ -80,7 +86,8 @@ public class Region extends AbstractRegion {
                 UBNodes, setVarSetType,
                 model,
                 grid,
-                neighborhood
+                neighborhood,
+                ubDecr
         );
     }
 

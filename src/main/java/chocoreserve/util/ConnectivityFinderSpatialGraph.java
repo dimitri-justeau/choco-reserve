@@ -26,10 +26,14 @@ package chocoreserve.util;
 
 import chocoreserve.grid.Grid;
 import chocoreserve.grid.neighborhood.INeighborhood;
+import it.geosolutions.jaiext.stats.Max;
 import org.chocosolver.util.objects.graphs.IGraph;
+import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.chocosolver.util.objects.setDataStructures.SetFactory;
 
+import java.util.Arrays;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 /**
@@ -47,9 +51,7 @@ public class ConnectivityFinderSpatialGraph {
 	//***********************************************************************************
 
 	private int n;
-	private ISet nodes;
-	private Grid grid;
-	private INeighborhood neighborhood;
+	private UndirectedGraph g;
 	private int[] CCFirstNode, CCNextNode, nodeCC, p, fifo, sizeCC;
 	private int nbCC, sizeMinCC, sizeMaxCC;
 
@@ -58,19 +60,17 @@ public class ConnectivityFinderSpatialGraph {
 	 * Can also quickly tell whether g is biconnected or not (only for undirected graph)
 	 *
 	 */
-	public ConnectivityFinderSpatialGraph(ISet nodes, Grid grid, INeighborhood neighborhood) {
-		this.nodes = nodes;
-		this.grid = grid;
-		this.neighborhood = neighborhood;
-		this.n = grid.getNbCells();
+	public ConnectivityFinderSpatialGraph(UndirectedGraph g) {
+		this.g = g;
+		this.n = g.getNbMaxNodes();
 		p = new int[n];
 		fifo = new int[n];
 	}
 
 	public ISet getNeigh(int x) {
 		ISet s = SetFactory.makeBitSet(0);
-		for (int i : neighborhood.getNeighbors(grid, x)) {
-			if (nodes.contains(i)) {
+		for (int i : g.getNeighOf(x)) {
+			if (g.getNodes().contains(i)) {
 				s.add(i);
 			}
 		}
@@ -137,7 +137,7 @@ public class ConnectivityFinderSpatialGraph {
 		}
 		sizeMinCC = 0;
 		sizeMaxCC = 0;
-		ISet act = nodes;
+		ISet act = g.getNodes();
 		for (int i : act) {
 			p[i] = -1;
 		}
@@ -186,5 +186,70 @@ public class ConnectivityFinderSpatialGraph {
 		nodeCC[node] = cc;
 		CCNextNode[node] = CCFirstNode[cc];
 		CCFirstNode[cc] = node;
+	}
+
+	public int[] getCC(int ccIndex) {
+		int[] cc = new int[sizeCC[ccIndex]];
+		int j = 0;
+		int i = getCCFirstNode()[ccIndex];
+		while (i != -1) {
+			cc[j++] = i;
+			i = getCCNextNode()[i];
+		}
+		return cc;
+	}
+
+	public int[] getCC(int ccIndex, int startFrom) {
+		int[] cc = new int[sizeCC[ccIndex]];
+		int j = 0;
+		int i = getCCFirstNode()[ccIndex];
+		int nbExcluded = 0;
+		boolean start = false;
+		while (i != -1) {
+			if (!start) {
+				if (i == startFrom) {
+					start = true;
+				} else {
+					nbExcluded++;
+					i = getCCNextNode()[i];
+					continue;
+				}
+			}
+			cc[j++] = i;
+			i = getCCNextNode()[i];
+		}
+		if (nbExcluded > 0) {
+			return Arrays.copyOfRange(cc, 0, Integer.max(cc.length - nbExcluded, 0));
+		}
+		return cc;
+	}
+
+	public int[] getCC(int ccIndex, int startFrom, ISet exclude) {
+		int[] cc = new int[sizeCC[ccIndex]];
+		int j = 0;
+		int i = getCCFirstNode()[ccIndex];
+		int nbExcluded = 0;
+		boolean start = false;
+		while (i != -1) {
+			if (!start) {
+				if (i == startFrom) {
+					start = true;
+				} else {
+					nbExcluded++;
+					i = getCCNextNode()[i];
+					continue;
+				}
+			}
+			if (!exclude.contains(i)) {
+				cc[j++] = i;
+			} else {
+				nbExcluded++;
+			}
+			i = getCCNextNode()[i];
+		}
+		if (nbExcluded > 0) {
+			return Arrays.copyOfRange(cc, 0, Integer.max(cc.length - nbExcluded, 0));
+		}
+		return cc;
 	}
 }

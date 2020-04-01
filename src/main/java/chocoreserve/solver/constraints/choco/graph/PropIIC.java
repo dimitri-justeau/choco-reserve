@@ -39,6 +39,7 @@ import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
 import org.chocosolver.util.ESat;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
+import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.chocosolver.util.procedure.IntProcedure;
 
 import java.util.*;
@@ -141,8 +142,8 @@ public class PropIIC extends Propagator<Variable> {
         if (g.getLB() instanceof UndirectedGraphIncrementalCC) {
             UndirectedGraphIncrementalCC gincr = (UndirectedGraphIncrementalCC) g.getLB();
             // 1-  get the connected component of the added node
-            Set<Integer> cc = gincr.getConnectedComponent(gincr.getRoot(node));
-            int[] ccarray = cc.stream().mapToInt(i -> i).sorted().toArray();
+            ISet cc = gincr.getConnectedComponent(gincr.getRoot(node));
+            int[] ccarray = Arrays.stream(cc.toArray()).sorted().toArray();
             int[] dists = new int[ccarray.length];
             // 2- Compute the shortest paths between the added node and all connected component nodes.
             for (int i = 0; i < ccarray.length; i++) {
@@ -345,8 +346,8 @@ public class PropIIC extends Propagator<Variable> {
             UndirectedGraphIncrementalCC gincr = (UndirectedGraphIncrementalCC) g.getLB();
             for (int root : gincr.getRoots()) {
                 // 1-  get the connected component of the current root
-                Set<Integer> cc = gincr.getConnectedComponent(root);
-                int[] ccarray = cc.stream().mapToInt(i -> i).sorted().toArray();
+                ISet cc = gincr.getConnectedComponent(root);
+                int[] ccarray = Arrays.stream(cc.toArray()).sorted().toArray();
                 for (int i = 0; i < ccarray.length; i++) {
                     for (int j = ccarray.length - 1; j >= i; j--) {
                         int source = ccarray[i];

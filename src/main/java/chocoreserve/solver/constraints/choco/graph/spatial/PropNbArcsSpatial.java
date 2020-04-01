@@ -131,30 +131,30 @@ public class PropNbArcsSpatial extends Propagator<Variable> {
 	private void filter(int nbK, int nbE) throws ContradictionException {
 		k.updateLowerBound(nbK, this);
 		k.updateUpperBound(nbE, this);
-//		if (nbK != nbE && k.isInstantiated()) {
-//			ISet nei;
-//			ISet env = g.getPotentialNodes();
-//			if (k.getValue() == nbE) {
-//				for (int i : env) {
-//					nei = g.getPotNeighOf(i);
-//					for (int j : nei) {
-//						g.enforceNode(j, this);
-//					}
-//				}
-//			}
-//			if (k.getValue() == nbK) {
-//				ISet neiKer;
-//				for (int i : env) {
-//					nei = g.getPotNeighOf(i);
-//					neiKer = g.getMandNeighOf(i);
-//					for (int j : nei) {
-//						if (!neiKer.contains(j)) {
-//							g.removeNode(j, this);
-//						}
-//					}
-//				}
-//			}
-//		}
+		if (nbK != nbE && k.isInstantiated()) {
+			ISet nei;
+			ISet env = g.getPotentialNodes();
+			if (k.getValue() == nbE) {
+				for (int i : env) {
+					nei = g.getPotNeighOf(i);
+					for (int j : nei) {
+						g.enforceNode(j, this);
+					}
+				}
+			}
+			if (k.getValue() == nbK) {
+				ISet neiKer;
+				for (int i : env) {
+					nei = g.getPotNeighOf(i);
+					neiKer = g.getMandNeighOf(i);
+					for (int j : nei) {
+						if (!neiKer.contains(j)) {
+							g.removeNode(j, this);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	//***********************************************************************************

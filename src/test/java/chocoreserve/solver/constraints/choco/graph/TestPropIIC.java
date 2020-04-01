@@ -28,7 +28,10 @@ import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.PartialRegularSquareGrid;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.ReserveModel;
+import chocoreserve.solver.constraints.choco.graph.spatial.PropIICSpatialGraph;
+import chocoreserve.solver.constraints.choco.graph.spatial.PropIICSpatialGraphAlt;
 import chocoreserve.solver.region.Region;
+import chocoreserve.solver.variable.SpatialGraphVar;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
 import org.chocosolver.solver.Solver;
@@ -390,51 +393,54 @@ public class TestPropIIC {
 
     @Test
     public void testIncr() {
-        RegularSquareGrid grid = new RegularSquareGrid(5, 5);
+        RegularSquareGrid grid = new RegularSquareGrid(4, 4);
         INeighborhood n4 = Neighborhoods.FOUR_CONNECTED;
-        Region forest = new Region("forest", n4);
+        Region forest = new Region("forest", n4, SetType.BIPARTITESET, new int[] {}, null, false);
         Region out = new Region("out", n4);
         ReserveModel resModel = new ReserveModel(grid, out, forest);
         GraphModel model = resModel.getChocoModel();
-//        UndirectedGraphVar g = forest.getGraphVar();
-//
-//        IntVar iic = model.intVar(0, 10000);
-//        PropIIC propIIC = new PropIIC(grid, g, iic, 4);
+        SpatialGraphVar g = forest.getSetVar();
+
+        IntVar iic = model.intVar(0, 10000);
+        PropIICSpatialGraph propIIC = new PropIICSpatialGraph(g, iic, 4);
 //        propIIC.computeAllPairsShortestPathsLB(grid);
-//
-//        System.out.println("IIC(LB) = " + (iic.getLB()));
-//        System.out.println("IIC(UB) = " + (iic.getUB()));
-//
-//        Constraint c = new Constraint("IIC", propIIC);
-//        model.post(c);
-//
-//        Solver solver = model.getSolver();
-//
-//        solver.plugMonitor((IMonitorSolution) () -> {
+
+        System.out.println("IIC(LB) = " + (iic.getLB()));
+        System.out.println("IIC(UB) = " + (iic.getUB()));
+
+        Constraint c = new Constraint("IIC", propIIC);
+        model.post(c);
+
+        model.disjoint(forest.getSetVar(), model.setVar(0, 1, 2, 3, 4, 5, 6)).post();
+
+        Solver solver = model.getSolver();
+        solver.showStatistics();
+
+        solver.plugMonitor((IMonitorSolution) () -> {
 //            propIIC.computeAllPairsShortestPathsUB(grid);
-//            resModel.printSolution();
-//            System.out.println("IIC(LB) = " + (iic.getLB()));
-//            System.out.println("IIC(UB) = " + (iic.getUB()));
-////            System.out.println("Nb CC = " + ((UndirectedGraphIncrementalCC) g.getLB()).getNbCC());
-////            for (int i = 0; i < 4; i++) {
-////                String s = "";
-////                for (int j = 0; j < 4; j++) {
-////                    int d = propIIC.allPairsShortestPathsUB[i].quickGet(j);
-////                    s += d + " ";
-//////                    Assert.assertEquals(d, propIIC.allPairsShortestPathsLB[i].quickGet(j));
-////                }
-////                System.out.println(s);
-////            }
-////            System.out.println("-----");
-////            for (int i = 0; i < 4; i++) {
-////                String s = "";
-////                for (int j = 0; j < 4; j++) {
-////                    s += propIIC.allPairsShortestPathsLB[i].quickGet(j) + " ";
-////                }
-////                System.out.println(s);
-////            }
-//        });
-//
-//        solver.findOptimalSolution(forest.getNbSites(), true);
+            resModel.printSolution();
+            System.out.println("IIC(LB) = " + (iic.getLB()));
+            System.out.println("IIC(UB) = " + (iic.getUB()));
+//            System.out.println("Nb CC = " + ((UndirectedGraphIncrementalCC) g.getLB()).getNbCC());
+//            for (int i = 0; i < 4; i++) {
+//                String s = "";
+//                for (int j = 0; j < 4; j++) {
+//                    int d = propIIC.allPairsShortestPathsUB[i].quickGet(j);
+//                    s += d + " ";
+////                    Assert.assertEquals(d, propIIC.allPairsShortestPathsLB[i].quickGet(j));
+//                }
+//                System.out.println(s);
+//            }
+//            System.out.println("-----");
+//            for (int i = 0; i < 4; i++) {
+//                String s = "";
+//                for (int j = 0; j < 4; j++) {
+//                    s += propIIC.allPairsShortestPathsLB[i].quickGet(j) + " ";
+//                }
+//                System.out.println(s);
+//            }
+        });
+
+        solver.findOptimalSolution(forest.getNbSites(), true);
     }
 }

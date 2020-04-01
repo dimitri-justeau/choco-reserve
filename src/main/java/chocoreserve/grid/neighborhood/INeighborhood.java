@@ -88,16 +88,27 @@ public interface INeighborhood<T extends Grid> {
         return partialGraph;
     }
 
-    /**
-     * @param grid A grid.
-     * @param model The GraphModel to be associated with the graph.
-     * @param cells The cells to be included in the graph.
-     * @param setType The SetType to use for encoding the graph.
-     * @return The partial graph associated to a subset of cells of the grid.
-     */
     default UndirectedGraph getPartialGraphUB(T grid, Model model, int[] cells, SetType setType) {
+        return getPartialGraphUB(grid, model, cells, setType, false);
+    }
+
+
+        /**
+         * @param grid A grid.
+         * @param model The GraphModel to be associated with the graph.
+         * @param cells The cells to be included in the graph.
+         * @param setType The SetType to use for encoding the graph.
+         * @return The partial graph associated to a subset of cells of the grid.
+         */
+    default UndirectedGraph getPartialGraphUB(T grid, Model model, int[] cells, SetType setType, boolean decr) {
         int nbCells = grid.getNbCells();
-        UndirectedGraph partialGraph = new UndirectedGraph(model, nbCells, setType, false);
+        UndirectedGraph partialGraph;
+        if (decr) {
+            partialGraph = new UndirectedGraphDecrementalCC(model, nbCells, setType, false);
+
+        } else {
+            partialGraph = new UndirectedGraph(model, nbCells, setType, false);
+        }
         for (int i : cells) {
             partialGraph.addNode(i);
         }
@@ -109,7 +120,9 @@ public interface INeighborhood<T extends Grid> {
                 }
             }
         }
-//        partialGraph.init();
+        if (decr) {
+            ((UndirectedGraphDecrementalCC) partialGraph).init();
+        }
         return partialGraph;
     }
 }

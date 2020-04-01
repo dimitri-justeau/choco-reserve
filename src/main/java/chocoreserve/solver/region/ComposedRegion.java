@@ -54,11 +54,17 @@ public class ComposedRegion extends AbstractRegion {
     private Region[] regions;
     private int[] LBNodes;
     private int[] UBNodes;
+    private  boolean ubDecr;
 
     public ComposedRegion(String name, Region... regions) {
+        this(name, false, regions);
+    }
+
+    public ComposedRegion(String name, boolean ubDecr, Region... regions) {
         super(name);
         this.regions = regions;
         this.neighborhood = regions[0].getNeighborhood();
+        this.ubDecr = ubDecr;
         Set<Integer> lb = new HashSet<>();
         Set<Integer> ub = new HashSet<>();
         boolean ubNull = false;
@@ -99,7 +105,8 @@ public class ComposedRegion extends AbstractRegion {
                 UBNodes, SET_VAR_SET_TYPE,
                 model,
                 grid,
-                neighborhood
+                neighborhood,
+                ubDecr
         );
         model.union(setVars, setVar).post();
     }
