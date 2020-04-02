@@ -135,9 +135,19 @@ public class UndirectedGraphIncrementalCC extends UndirectedGraph {
     }
 
     public ISet getConnectedComponent(int root) {
-        ISet cc = SetFactory.makeBitSet(0);
+        ISet cc = SetFactory.makeBipartiteSet(0);
         for (int i = 0; i < getNbMaxNodes(); i++) {
             if (getRoot(i) == root && getNodes().contains(i)) {
+                cc.add(i);
+            }
+        }
+        return cc;
+    }
+
+    public ISet getConnectedComponent(int root, int startFrom, ISet exclude) {
+        ISet cc = SetFactory.makeBipartiteSet(0);
+        for (int i = startFrom; i < getNbMaxNodes(); i++) {
+            if (getRoot(i) == root && !exclude.contains(i) && getNodes().contains(i)) {
                 cc.add(i);
             }
         }

@@ -199,57 +199,19 @@ public class ConnectivityFinderSpatialGraph {
 		return cc;
 	}
 
-	public int[] getCC(int ccIndex, int startFrom) {
-		int[] cc = new int[sizeCC[ccIndex]];
+	public int[] getCC(int ccIndex, ISet exclude) {
+		int[] cc = new int[getSizeCC()[ccIndex]];
+		int excluded = 0;
 		int j = 0;
 		int i = getCCFirstNode()[ccIndex];
-		int nbExcluded = 0;
-		boolean start = false;
 		while (i != -1) {
-			if (!start) {
-				if (i == startFrom) {
-					start = true;
-				} else {
-					nbExcluded++;
-					i = getCCNextNode()[i];
-					continue;
-				}
-			}
-			cc[j++] = i;
-			i = getCCNextNode()[i];
-		}
-		if (nbExcluded > 0) {
-			return Arrays.copyOfRange(cc, 0, Integer.max(cc.length - nbExcluded, 0));
-		}
-		return cc;
-	}
-
-	public int[] getCC(int ccIndex, int startFrom, ISet exclude) {
-		int[] cc = new int[sizeCC[ccIndex]];
-		int j = 0;
-		int i = getCCFirstNode()[ccIndex];
-		int nbExcluded = 0;
-		boolean start = false;
-		while (i != -1) {
-			if (!start) {
-				if (i == startFrom) {
-					start = true;
-				} else {
-					nbExcluded++;
-					i = getCCNextNode()[i];
-					continue;
-				}
-			}
 			if (!exclude.contains(i)) {
 				cc[j++] = i;
 			} else {
-				nbExcluded++;
+				excluded++;
 			}
 			i = getCCNextNode()[i];
 		}
-		if (nbExcluded > 0) {
-			return Arrays.copyOfRange(cc, 0, Integer.max(cc.length - nbExcluded, 0));
-		}
-		return cc;
+		return Arrays.copyOfRange(cc, 0, cc.length - excluded);
 	}
 }

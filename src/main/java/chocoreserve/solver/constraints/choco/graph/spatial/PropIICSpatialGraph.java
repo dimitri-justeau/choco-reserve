@@ -26,14 +26,8 @@ package chocoreserve.solver.constraints.choco.graph.spatial;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.variable.SpatialGraphVar;
 import chocoreserve.util.ConnectivityFinderSpatialGraph;
-import chocoreserve.util.objects.graphs.UndirectedGraphDecrementalCC;
 import chocoreserve.util.objects.graphs.UndirectedGraphIncrementalCC;
-import org.chocosolver.graphsolver.variables.GraphEventType;
-import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
-import org.chocosolver.graphsolver.variables.delta.GraphDeltaMonitor;
-import org.chocosolver.memory.IStateBitSet;
 import org.chocosolver.memory.IStateDouble;
-import org.chocosolver.memory.IStateInt;
 import org.chocosolver.memory.IStateIntVector;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
@@ -43,18 +37,14 @@ import org.chocosolver.solver.variables.Variable;
 import org.chocosolver.solver.variables.delta.monitor.SetDeltaMonitor;
 import org.chocosolver.solver.variables.events.SetEventType;
 import org.chocosolver.util.ESat;
-import org.chocosolver.util.objects.graphs.DirectedGraph;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.chocosolver.util.objects.setDataStructures.SetFactory;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 import org.chocosolver.util.procedure.IntProcedure;
+import org.chocosolver.util.tools.ArrayUtils;
 
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Stack;
-import java.util.stream.IntStream;
 
 /**
  * Propagator for the Integral Index of Connectivity in a landscape graph.
@@ -76,7 +66,7 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
     private ConnectivityFinderSpatialGraph connectivityFinderGUB;
     private ISet removed;
     private ISet added;
-    private ISet[] fixed;
+    private ISet[] fixedPairs;
     private ISet onShortestPath;
 
     public PropIICSpatialGraph(SpatialGraphVar g, IntVar iic, int precision) {
@@ -91,7 +81,6 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
         this.areaLandscape = g.getGrid().getNbCells();
         this.allPairsShortestPathsLB = new IStateIntVector[areaLandscape];
         this.allPairsShortestPathsUB = new IStateIntVector[areaLandscape];
-//        this.onShortestPath = new DirectedGraph(getModel(), areaLandscape, SetType.SMALLBIPARTITESET, true);
         // Initialize every distance to -1
         for (int i = 0; i < areaLandscape; i++) {
             if (g.getPotentialNodes().contains(i)) {
@@ -112,8 +101,8 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
         removed = SetFactory.makeBitSet(0);
         added = SetFactory.makeBitSet(0);
 
-        onShortestPath = SetFactory.makeStoredSet(SetType.BIPARTITESET, 0, getModel());
-        this.fixed = new ISet[areaLandscape];
+        onShortestPath = SetFactory.makeStoredSet(SetType.BITSET, 0, getModel());
+        this.fixedPairs = new ISet[areaLandscape];
     }
 
 
@@ -225,80 +214,86 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
     }
 
     public void updateAddNode(int node) throws ContradictionException {
-        double iicDelta = 0;
-        if (g.getGLB() instanceof UndirectedGraphIncrementalCC) {
-            UndirectedGraphIncrementalCC gincr = (UndirectedGraphIncrementalCC) g.getGLB();
-            // 0- The added node has a zero length shortest path to itself
-            iicDelta += 1.0;
-            allPairsShortestPathsLB[node].quickSet(node, 0);
-            // 1- get the connected component of the added node
-            int[] cc = Arrays.stream(gincr.getConnectedComponent(gincr.getRoot(node)).toArray()).sorted().toArray();
-            int[] dists = new int[areaLandscape];
-            for (int i = 0; i < areaLandscape; i++) {
-                dists[i] = -1;
+        UndirectedGraphIncrementalCC glb = g.getGLB();
+        // 0- The added node has a zero length shortest path to itself
+        allPairsShortestPathsLB[node].quickSet(node, 0);
+        // 1- get the connected component of the added node
+        int[] cc = glb.getConnectedComponent(glb.getRoot(node)).toArray();
+        Arrays.sort(cc);
+        int[] dists = new int[areaLandscape];
+        for (int i = 0; i < areaLandscape; i++) {
+            dists[i] = -1;
+        }
+        // 2- Compute the shortest paths between the added node and all connected component nodes.
+        for (int dest : cc) {
+            if (dists[dest] != -1) {
+                continue;
             }
-            // 2- Compute the shortest paths between the added node and all connected component nodes.
-//            System.out.println();
-            for (int dest : cc) {
-                if (dists[dest] != -1) {
+            int[][] mdaResult = minimumDetour(grid, glb, node, dest);
+            int minDist = mdaResult[0][0];
+            int[] shortestPath = mdaResult[1];
+            for (int x = 1; x < shortestPath.length; x++) {
+                int manDist = manDists[node][shortestPath[x]];
+                int delta = x - manDist;
+                int start = shortestPath[x] > node ? node : shortestPath[x];
+                int end = shortestPath[x] > node ? shortestPath[x] : node;
+                allPairsShortestPathsLB[start].quickSet(end, delta);
+                dists[shortestPath[x]] = x;
+            }
+        }
+        // 3- For each pair of node in the CC, check whether the added node has created a path (two CC merged)
+        //    or if it has shortened an existing path.
+        for (int i = 0; i < cc.length; i++) {
+            int source = cc[i];
+            int[] cc1Bis = cc;
+            if (fixedPairs[source] != null) {
+                cc1Bis = glb.getConnectedComponent(glb.getRoot(source), source, fixedPairs[source]).toArray();
+                Arrays.sort(cc1Bis);
+            }
+            for (int j = cc1Bis.length - 1; cc1Bis[j] > source; j--) {
+                int dest = cc1Bis[j];
+                int dist = allPairsShortestPathsLB[source].quickGet(dest);
+                // a. The shortest path is already optimal.
+                if (dist == 0) {
                     continue;
                 }
-                int[][] mdaResult = minimumDetour(grid, g.getGLB(), node, dest);
-                int minDist = mdaResult[0][0];
-                int[] shortestPath = mdaResult[1];
-                for (int x = 1; x < shortestPath.length; x++) {
-                    int manDist = manDists[node][shortestPath[x]];
-                    int delta = x - manDist;
-                    int start = shortestPath[x] > node ? node : shortestPath[x];
-                    int end = shortestPath[x] > node ? shortestPath[x] : node;
-                    int oldDist = allPairsShortestPathsLB[start].quickGet(end);
-                    if (oldDist >= 0) {
-                        iicDelta -= 2.0 / (1 + oldDist);
+                int a = dists[source];
+                int b = dists[dest];
+                int distThrough = a + b;
+                int manDist = manDists[source][dest];
+                // b. The added node has merged two CCs and is an articulation point.
+                if (dist == -1 || dist == Integer.MAX_VALUE) {
+                    allPairsShortestPathsLB[source].quickSet(dest, distThrough - manDist);
+                    // Check whether the pair is fixed
+                    if (distThrough - manDist == allPairsShortestPathsUB[source].quickGet(dest)) {
+                        if (fixedPairs[source] == null) {
+                            fixedPairs[source] = SetFactory.makeStoredSet(SetType.BITSET, 0, getModel());
+                        }
+                        fixedPairs[source].add(dest);
+                        if (fixedPairs[dest] == null) {
+                            fixedPairs[dest] = SetFactory.makeStoredSet(SetType.BITSET, 0, getModel());
+                        }
+                        fixedPairs[dest].add(source);
                     }
-                    iicDelta += 2.0 / (1 + delta);
-                    allPairsShortestPathsLB[start].quickSet(end, delta);
-//                    allPairsShortestPathsLB[shortestPath[x]].quickSet(node, delta);
-
-                    dists[shortestPath[x]] = x;
+                    continue;
                 }
-            }
-            // 3- For each pair of node in the CC, check whether the added node has created a path (two CC merged)
-            //    or if it has shortened an existing path.
-            for (int i = 0; i < cc.length; i++) {
-                for (int j = i + 1; j < cc.length; j++) {
-                    int source = cc[i];
-                    int dest = cc[j];
-                    int dist = allPairsShortestPathsLB[source].quickGet(dest);
-                    // a. The shortest path is already optimal.
-                    if (dist == 0) {
-                        continue;
-                    }
-                    int a = dists[source];
-                    int b = dists[dest];
-                    int distThrough = a + b;
-                    int manDist = manDists[source][dest];
-                    // b. The added node has merged two CCs and is an articulation point.
-                    if (dist == -1 || dist == Integer.MAX_VALUE) {
-                        iicDelta += source == dest ? 0 : 2.0 / (1 + distThrough - manDist);
-                        allPairsShortestPathsLB[source].quickSet(dest, distThrough - manDist);
-                        continue;
-                    }
-                    // c. The added node has shortened an existing path.
-                    if ((dist + manDist) > distThrough) {
-                        iicDelta -= source == dest ? 0 : 2.0 / (1 + dist);
-                        iicDelta += source == dest ? 0 : 2.0 / (1 + distThrough - manDist);
-                        allPairsShortestPathsLB[source].quickSet(dest, distThrough - manDist);
-//                        allPairsShortestPathsLB[dest].quickSet(source, distThrough - manDist);
+                // c. The added node has shortened an existing path.
+                if ((dist + manDist) > distThrough) {
+                    allPairsShortestPathsLB[source].quickSet(dest, distThrough - manDist);
+                    // Check whether the pair is fixed
+                    if (distThrough - manDist == allPairsShortestPathsUB[source].quickGet(dest)) {
+                        if (fixedPairs[source] == null) {
+                            fixedPairs[source] = SetFactory.makeStoredSet(SetType.BITSET, 0, getModel());
+                        }
+                        fixedPairs[source].add(dest);
+                        if (fixedPairs[dest] == null) {
+                            fixedPairs[dest] = SetFactory.makeStoredSet(SetType.BITSET, 0, getModel());
+                        }
+                        fixedPairs[dest].add(source);
                     }
                 }
             }
         }
-//        double oldIIC = iic_lb.get();
-//        double newIIC = oldIIC + iicDelta;
-//        iic_lb.set(newIIC);
-//        int val = (int) (newIIC * Math.pow(10, precision) / Math.pow(areaLandscape, 2));
-//        System.out.println("Incr = " + val + " (old = " + iic_lb.get() + ")");
-//        iic.updateLowerBound(val, this);
     }
 
     public boolean[][] updateRemoveNode(int node, boolean[][] checked_, ISet checkedCC) throws ContradictionException {
@@ -312,7 +307,7 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
 
         // 1-  get the connected component(s) of the removed node
         ISet ccs = SetFactory.makeBipartiteSet(0);
-        for (int i : g.getPotentialNodes().toArray()) {
+        for (int i : g.getPotentialNodes()) {
             int d;
             if (i < node) {
                 d = allPairsShortestPathsUB[i].quickGet(node);
@@ -324,18 +319,16 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
             }
         }
 
-        int[] ccsArray = ccs.toArray();
-
 //        int useless = 0;
 //        int done = 0;
 //        int avoided = 0;
 
-        for (int ci = 0; ci < ccsArray.length; ci++) {
-            int ccIndex1 = ccsArray[ci];
+        for (int ccIndex1 : ccs) {
             if (checkedCC.contains(ccIndex1)) {
                 continue;
             }
             int[] cc1 = connectivityFinderGUB.getCC(ccIndex1);
+            Arrays.sort(cc1);
 
             // 2- Disconnect separated nodes
 //            for (int cj = ci + 1; cj < ccsArray.length; cj++) {
@@ -360,14 +353,12 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
             int nonFixedPairs = 0;
             for (int i = 0; i < cc1.length; i++) {
                 int source = cc1[i];
-                int[] cc1Bis;
-                if (fixed[source] == null) {
-                    cc1Bis = connectivityFinderGUB.getCC(ccIndex1, cc1[i]);
-                } else {
-                    cc1Bis = connectivityFinderGUB.getCC(ccIndex1, cc1[i], fixed[source]);
-//                    System.out.println("FIXED AVOIDED = " + fixed[source].size());
+                int[] cc1Bis = cc1;
+                if (fixedPairs[source] != null) {
+                    cc1Bis = connectivityFinderGUB.getCC(ccIndex1, fixedPairs[source]);
+                    Arrays.sort(cc1Bis);
                 }
-                for (int j = cc1Bis.length - 1; j >= 0; j--) {
+                for (int j = cc1Bis.length - 1; cc1Bis[j] > source; j--) {
                     int dest = cc1Bis[j];
 
                     int from = source > dest ? dest : source;
@@ -382,14 +373,14 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
                     if (g.getMandatoryNodes().contains(from)) {
                         int LBDist = allPairsShortestPathsLB[from].quickGet(to) + manDists[source][dest];
                         if (previousDist == LBDist) {
-                            if (fixed[from] == null) {
-                                fixed[from] = SetFactory.makeStoredSet(SetType.BIPARTITESET, 0, getModel());
+                            if (fixedPairs[from] == null) {
+                                fixedPairs[from] = SetFactory.makeStoredSet(SetType.BITSET, 0, getModel());
                             }
-                            fixed[from].add(to);
-                            if (fixed[to] == null) {
-                                fixed[to] = SetFactory.makeStoredSet(SetType.BIPARTITESET, 0, getModel());
+                            fixedPairs[from].add(to);
+                            if (fixedPairs[to] == null) {
+                                fixedPairs[to] = SetFactory.makeStoredSet(SetType.BITSET, 0, getModel());
                             }
-                            fixed[to].add(from);
+                            fixedPairs[to].add(from);
 //                            avoided++;
                             continue;
                         }
@@ -428,10 +419,10 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
                     // Every subpath of the shortest path between source and dist is a shortest path
                     // cf. Theorem 3 of Hadlock 1977.
                     for (int x = 0; x < shortestPath.length; x++) {
-                        int z = shortestPath[x];
-                        if (z != source && z != dest && !g.getMandatoryNodes().contains(z)) {
-                            onShortestPath.add(z);
-                        }
+//                        int z = shortestPath[x];
+//                        if (z != source && z != dest && !g.getMandatoryNodes().contains(z)) {
+//                            onShortestPath.add(z);
+//                        }
                         for (int y = x + 1; y < shortestPath.length; y++) {
                             int manDist = manDists[shortestPath[x]][shortestPath[y]];
                             int delta = Math.abs(y - x) - manDist;
@@ -440,6 +431,23 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
                             if (!checked[start][end]) {
                                 if (allPairsShortestPathsUB[start].quickGet(end) != delta) {
                                     allPairsShortestPathsUB[start].quickSet(end, delta);
+                                }
+                                if (g.getMandatoryNodes().contains(start) && allPairsShortestPathsLB[start].quickGet(end) == delta) {
+                                    if (fixedPairs[start] == null) {
+                                        fixedPairs[start] = SetFactory.makeStoredSet(SetType.BITSET, 0, getModel());
+                                    }
+                                    fixedPairs[start].add(end);
+                                    if (fixedPairs[end] == null) {
+                                        fixedPairs[end] = SetFactory.makeStoredSet(SetType.BITSET, 0, getModel());
+                                    }
+                                    fixedPairs[end].add(start);
+                                } else {
+                                    for (int w = x + 1; w < y; w++) {
+                                        int z = shortestPath[w];
+                                        if (!g.getMandatoryNodes().contains(z)) {
+                                            onShortestPath.add(z);
+                                        }
+                                    }
                                 }
                                 checked[start][end] = true;
                             }
@@ -483,7 +491,8 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
         int[] roots = g.getGLB().getRoots().toArray();
         int[][] ccs = new int[roots.length][];
         for (int i =  0; i < roots.length; i++) {
-            ccs[i] = Arrays.stream(g.getGLB().getConnectedComponent(roots[i]).toArray()).sorted().toArray();
+            ccs[i] = g.getGLB().getConnectedComponent(roots[i]).toArray();
+            Arrays.sort(ccs[i]);
         }
         for (int[] cc : ccs) {
             for (int i = 0; i < cc.length; i++) {
@@ -507,7 +516,8 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
         double iicVal = 0;
         for (int ccIndex = 0; ccIndex < connectivityFinderGUB.getNBCC(); ccIndex++) {
             // 1-  get the connected component of the current root
-            int[] ccarray = Arrays.stream(connectivityFinderGUB.getCC(ccIndex)).sorted().toArray();
+            int[] ccarray = connectivityFinderGUB.getCC(ccIndex);
+            Arrays.sort(ccarray);
             for (int i = 0; i < ccarray.length; i++) {
                 for (int j = i; j < ccarray.length; j++) {
                     int source = ccarray[i];
@@ -546,7 +556,8 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
             for (int root : gincr.getRoots()) {
                 // 1-  get the connected component of the current root
                 ISet cc = gincr.getConnectedComponent(root);
-                int[] ccarray = Arrays.stream(cc.toArray()).sorted().toArray();
+                int[] ccarray = cc.toArray();
+                Arrays.sort(ccarray);
                 for (int i = 0; i < ccarray.length; i++) {
                     int source = ccarray[i];
                     allPairsShortestPathsLB[source].quickSet(source, 0);
@@ -602,33 +613,33 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
 //                }
 //            }
 //        }
-        int maxDelta = 0;
         int nonFixed = 0;
+        int fixed = 0;
         boolean[][] checked = new boolean[areaLandscape][areaLandscape];
         for (int ccIndex = 0; ccIndex < connectivityFinderGUB.getNBCC(); ccIndex++) {
             // 1-  get the connected component of the current root
-            int[] ccarray = Arrays.stream(connectivityFinderGUB.getCC(ccIndex)).sorted().toArray();
+            int[] ccarray = connectivityFinderGUB.getCC(ccIndex);
+            Arrays.sort(ccarray);
             for (int i = 0; i < ccarray.length; i++) {
                 int source = ccarray[i];
                 allPairsShortestPathsUB[source].quickSet(source, 0);
                 for (int j = ccarray.length - 1; j > i; j--) {
                     int dest = ccarray[j];
+                    if (checked[source][dest]) {
+                        continue;
+                    }
                     if (g.getMandatoryNodes().contains(source) && allPairsShortestPathsLB[source].quickGet(dest) == 0) {
-                        if (fixed[source] == null) {
-                            fixed[source] = SetFactory.makeStoredSet(SetType.BIPARTITESET, 0, getModel());
+                        if (fixedPairs[source] == null) {
+                            fixedPairs[source] = SetFactory.makeStoredSet(SetType.BITSET, 0, getModel());
                         }
-                        fixed[source].add(dest);
-                        if (fixed[dest] == null) {
-                            fixed[dest] = SetFactory.makeStoredSet(SetType.BIPARTITESET, 0, getModel());
+                        fixedPairs[source].add(dest);
+                        if (fixedPairs[dest] == null) {
+                            fixedPairs[dest] = SetFactory.makeStoredSet(SetType.BITSET, 0, getModel());
                         }
-                        fixed[dest].add(source);
+                        fixedPairs[dest].add(source);
 //                        allPairsShortestPathsUB[source].quickSet(dest, 0);
 //                        allPairsShortestPathsUB[dest].quickSet(source, 0);
-                        continue;
-                    } else {
-                        nonFixed++;
-                    }
-                    if (checked[source][dest]) {
+                        fixed++;
                         continue;
                     }
                     // MDA algorithm
@@ -638,40 +649,32 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
                     // Every subpath of the shortest path between source and dist is a shortest path
                     // cf. Theorem 3 of Hadlock 1977.
                     for (int x = 0; x < shortestPath.length; x++) {
-                        int z = shortestPath[x];
-                        if (!g.getMandatoryNodes().contains(source) || allPairsShortestPathsLB[source].quickGet(dest) == minDist - manDists[source][dest]) {
-                            if (z != source && z != dest && !g.getMandatoryNodes().contains(z)) {
-                                onShortestPath.add(z);
-                            }
-                        }
                         for (int y = x + 1; y < shortestPath.length; y++) {
                             int manDist = manDists[shortestPath[x]][shortestPath[y]];
                             int delta = Math.abs(y - x) - manDist;
                             int start = shortestPath[x] > shortestPath[y] ? shortestPath[y] : shortestPath[x];
                             int end = shortestPath[x] > shortestPath[y] ? shortestPath[x] : shortestPath[y];
                             if (!checked[start][end]) {
-                                if (delta > maxDelta) {
-                                    maxDelta = delta;
-                                }
                                 allPairsShortestPathsUB[start].quickSet(end, delta);
-                                //                            allPairsShortestPathsUB[end].quickSet(start, delta);
                                 if (g.getMandatoryNodes().contains(start) && allPairsShortestPathsLB[start].quickGet(end) == delta) {
-                                    if (fixed[start] == null) {
-                                        fixed[start] = SetFactory.makeStoredSet(SetType.BIPARTITESET, 0, getModel());
+                                    if (fixedPairs[start] == null) {
+                                        fixedPairs[start] = SetFactory.makeStoredSet(SetType.BITSET, 0, getModel());
                                     }
-                                    fixed[start].add(end);
-                                    if (fixed[end] == null) {
-                                        fixed[end] = SetFactory.makeStoredSet(SetType.BIPARTITESET, 0, getModel());
+                                    fixedPairs[start].add(end);
+                                    if (fixedPairs[end] == null) {
+                                        fixedPairs[end] = SetFactory.makeStoredSet(SetType.BITSET, 0, getModel());
                                     }
-                                    fixed[end].add(start);
+                                    fixedPairs[end].add(start);
+                                    fixed++;
+                                } else {
+                                    nonFixed++;
+                                    for (int w = x + 1; w < y; w++) {
+                                        int z = shortestPath[w];
+                                        if (!g.getMandatoryNodes().contains(z)) {
+                                            onShortestPath.add(z);
+                                        }
+                                    }
                                 }
-//                                for (int z = x + 1; z < y; z++) {
-//                                    int on = shortestPath[z];
-//                                    if (!g.getMandatoryNodes().contains(on)) {
-//                                        onShortestPath.addArc(on, start);
-//                                        onShortestPath.addArc(start, end);
-//                                    }
-//                                }
                                 checked[start][end] = true;
                             }
                         }
@@ -680,8 +683,8 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
             }
         }
         System.out.println("NON FIXED = " + nonFixed);
-//        System.out.println("NB PAIRS = " + nbPairs);
-//        System.out.println("ON SHORTEST PATH = " + onShortestPath.size());
+        System.out.println("FIXED = " + fixed);
+        System.out.println("ON SHORTEST PATH = " + onShortestPath.size());
     }
 
     /**
