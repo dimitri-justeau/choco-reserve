@@ -158,8 +158,8 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
             gdm.unfreeze();
 
             if (g.isInstantiated()) {
-                System.out.println("IIC (LB) = " + ( (iic.getLB())));
-                System.out.println("IIC (UB) = " + ( (iic.getUB())));
+//                System.out.println("IIC (LB) = " + ( (iic.getLB())));
+//                System.out.println("IIC (UB) = " + ( (iic.getUB())));
 
 
 //        for (int i = 0; i < areaLandscape; i++) {
