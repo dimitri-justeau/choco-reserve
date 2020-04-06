@@ -42,20 +42,19 @@ import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.chocosolver.util.objects.setDataStructures.SetFactory;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 import org.chocosolver.util.procedure.IntProcedure;
-import org.chocosolver.util.tools.ArrayUtils;
 
 import java.util.Arrays;
 
 /**
  * Propagator for the Integral Index of Connectivity in a landscape graph.
  */
-public class PropIICSpatialGraph extends Propagator<Variable> {
+public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
 
     private RegularSquareGrid grid;
-    private SpatialGraphVar g;
+    private SpatialGraphVar g, subProblem1, subProblem2;
     private IStateDouble iic_lb;
     private IStateDouble iic_ub;
-    private IntVar iic;
+    private IntVar iic, subIic1, subIic2;
     private int areaLandscape, precision;
     private SetDeltaMonitor gdm;
     private IntProcedure forceG;
@@ -69,10 +68,15 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
     private ISet[] fixedPairs;
     private ISet onShortestPath;
 
-    public PropIICSpatialGraph(SpatialGraphVar g, IntVar iic, int precision) {
+    public PropIICSpatialGraphDynamicCuts(SpatialGraphVar g, IntVar iic, int precision,
+                                          SpatialGraphVar subProblem1, IntVar subIic1, SpatialGraphVar subProblem2, IntVar subIic2) {
         super(new Variable[]{g, iic}, PropagatorPriority.VERY_SLOW, true);
         this.grid = (RegularSquareGrid) g.getGrid();
         this.g = g;
+        this.subProblem1 = subProblem1;
+        this.subProblem2 = subProblem2;
+        this.subIic1 = subIic1;
+        this.subIic2 = subIic2;
         this.gdm = g.monitorDelta(this);
         this.iic = iic;
         this.precision = precision;
@@ -487,16 +491,6 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
 
     public void computeIIC_LB() throws ContradictionException {
         double iicVal = 0;
-//        for (int i : g.getMandatoryNodes()) {
-//            for (int j = 0; j < areaLandscape; j++) {
-//                if (g.getGLB().getNodes().contains(j) && g.getGLB().getRoot(i) == g.getGLB().getRoot(j)) {
-//                    int dist = allPairsShortestPathsLB[i].quickGet(j);
-//                    if (dist != -1 && dist != Integer.MAX_VALUE) {
-//                        iicVal += 1.0 / (1 + dist);
-//                    }
-//                }
-//            }
-//        }
         int[] roots = g.getGLB().getRoots().toArray();
         int[][] ccs = new int[roots.length][];
         for (int i =  0; i < roots.length; i++) {
@@ -517,7 +511,6 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
         }
         iic_lb.set(iicVal);
         int val = (int) (iic_lb.get() * Math.pow(10, precision) / Math.pow(areaLandscape, 2));
-//        System.out.println("LB = " + val + " // " + iic.getLB());
         iic.updateLowerBound(val, this);
     }
 
@@ -540,8 +533,113 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
         }
         iic_ub.set(iicVal);
         int val = (int) (iic_ub.get() * Math.pow(10, precision) / Math.pow(areaLandscape, 2));
-//            System.out.println("UB = " + val);
         iic.updateUpperBound(val, this);
+    }
+
+    public void computeIIC_LB_SubProblem1() throws ContradictionException {
+        double iicVal = 0;
+        int[] roots = g.getGLB().getRoots().toArray();
+        int[][] ccs = new int[roots.length][];
+        for (int i =  0; i < roots.length; i++) {
+            ccs[i] = g.getGLB().getConnectedComponent(roots[i]).toArray();
+            Arrays.sort(ccs[i]);
+        }
+        for (int[] cc : ccs) {
+            for (int i = 0; i < cc.length; i++) {
+                if (subProblem1.getMandatoryNodes().contains(i)) {
+                    for (int j = i; j < cc.length; j++) {
+                        if (subProblem1.getMandatoryNodes().contains(j)) {
+                            int source = cc[i];
+                            int dest = cc[j];
+                            int dist = allPairsShortestPathsLB[source].quickGet(dest);
+                            if (dist != -1 && dist != Integer.MAX_VALUE) {
+                                iicVal += (i != j) ? 2.0 / (1 + dist) : 1.0 / (1 + dist);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        int val = (int) (iicVal * Math.pow(10, precision) / Math.pow(areaLandscape, 2));
+        subIic1.updateLowerBound(val, this);
+    }
+
+    public void computeIIC_LB_SubProblem2() throws ContradictionException {
+        double iicVal = 0;
+        int[] roots = g.getGLB().getRoots().toArray();
+        int[][] ccs = new int[roots.length][];
+        for (int i =  0; i < roots.length; i++) {
+            ccs[i] = g.getGLB().getConnectedComponent(roots[i]).toArray();
+            Arrays.sort(ccs[i]);
+        }
+        for (int[] cc : ccs) {
+            for (int i = 0; i < cc.length; i++) {
+                if (subProblem2.getMandatoryNodes().contains(i)) {
+                    for (int j = i; j < cc.length; j++) {
+                        if (subProblem2.getMandatoryNodes().contains(j)) {
+                            int source = cc[i];
+                            int dest = cc[j];
+                            int dist = allPairsShortestPathsLB[source].quickGet(dest);
+                            if (dist != -1 && dist != Integer.MAX_VALUE) {
+                                iicVal += (i != j) ? 2.0 / (1 + dist) : 1.0 / (1 + dist);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        int val = (int) (iicVal * Math.pow(10, precision) / Math.pow(areaLandscape, 2));
+        subIic2.updateLowerBound(val, this);
+    }
+
+    public void computeIIC_UB_SubProblem1() throws ContradictionException {
+        double iicVal = 0;
+        for (int ccIndex = 0; ccIndex < connectivityFinderGUB.getNBCC(); ccIndex++) {
+            // 1-  get the connected component of the current root
+            int[] ccarray = connectivityFinderGUB.getCC(ccIndex);
+            Arrays.sort(ccarray);
+            for (int i = 0; i < ccarray.length; i++) {
+                if (subProblem1.getMandatoryNodes().contains(i)) {
+                    for (int j = i; j < ccarray.length; j++) {
+                        if (subProblem1.getMandatoryNodes().contains(j)) {
+                            int source = ccarray[i];
+                            int dest = ccarray[j];
+                            int dist = allPairsShortestPathsUB[source].quickGet(dest);
+                            if (dist != -1 && dist != Integer.MAX_VALUE) {
+                                iicVal += (source != dest) ? 2.0 / (1 + dist) : 1.0 / (1 + dist);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        int val = (int) (iicVal * Math.pow(10, precision) / Math.pow(areaLandscape, 2));
+        subIic1.updateUpperBound(val, this);
+    }
+
+    public void computeIIC_UB_SubProblem2() throws ContradictionException {
+        double iicVal = 0;
+        for (int ccIndex = 0; ccIndex < connectivityFinderGUB.getNBCC(); ccIndex++) {
+            // 1-  get the connected component of the current root
+            int[] ccarray = connectivityFinderGUB.getCC(ccIndex);
+            Arrays.sort(ccarray);
+            for (int i = 0; i < ccarray.length; i++) {
+                if (subProblem2.getMandatoryNodes().contains(i)) {
+                    for (int j = i; j < ccarray.length; j++) {
+                        if (subProblem2.getMandatoryNodes().contains(j)) {
+                            int source = ccarray[i];
+                            int dest = ccarray[j];
+                            int dist = allPairsShortestPathsUB[source].quickGet(dest);
+                            if (dist != -1 && dist != Integer.MAX_VALUE) {
+                                iicVal += (source != dest) ? 2.0 / (1 + dist) : 1.0 / (1 + dist);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        int val = (int) (iicVal * Math.pow(10, precision) / Math.pow(areaLandscape, 2));
+        subIic2.updateUpperBound(val, this);
     }
 
     public void computeAllPairsShortestPathsLB(RegularSquareGrid grid) {
