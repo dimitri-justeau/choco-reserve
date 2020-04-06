@@ -161,16 +161,24 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
             }
             removed.clear();
             computeIIC_UB();
+
             int ub1 = computeIIC_UB_SubProblem1();
             int ub2 = computeIIC_UB_SubProblem2();
-            gdm.unfreeze();
 
             if (iic_lb.get() != iic_ub.get() && iic.isInstantiated()) {
                 int val = (int) (iic_ub.get() * Math.pow(10, precision) / Math.pow(areaLandscape, 2));
                 if (iic.getValue() == val) {
                     for (int i : g.getPotentialNodes()) {
                         g.enforceNode(i, this);
+                        subProblem1.enforceNode(i, this);
+                        subProblem2.enforceNode(i, this);
                     }
+                    for (int i = 0; i < areaLandscape; i++) {
+                        for (int j = i; j < areaLandscape; j++) {
+                            allPairsShortestPathsLB[i].quickSet(j, allPairsShortestPathsUB[i].quickGet(j))
+                        }
+                    }
+                    iic_lb.set(iic_ub.get());
                 }
             }
 
@@ -178,6 +186,14 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
                 if (subIic1.getValue() == ub1) {
                     for (int i : subProblem1.getPotentialNodes()) {
                         subProblem1.enforceNode(i, this);
+                        g.enforceNode(i, this);
+                    }
+                    int[] nodes = subProblem1.getPotentialNodes().toArray();
+                    Arrays.sort(nodes);
+                    for (int i = 0; i < nodes.length; i++) {
+                        for (int j = i; j < nodes.length; j++) {
+                            allPairsShortestPathsLB[nodes[i]].quickSet(nodes[j], allPairsShortestPathsUB[nodes[i]].quickGet(nodes[j]));
+                        }
                     }
                 }
             }
@@ -186,9 +202,19 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
                 if (subIic2.getValue() == ub2) {
                     for (int i : subProblem2.getPotentialNodes()) {
                         subProblem2.enforceNode(i, this);
+                        g.enforceNode(i, this);
+                    }
+                    int[] nodes = subProblem2.getPotentialNodes().toArray();
+                    Arrays.sort(nodes);
+                    for (int i = 0; i < nodes.length; i++) {
+                        for (int j = i; j < nodes.length; j++) {
+                            allPairsShortestPathsLB[nodes[i]].quickSet(nodes[j], allPairsShortestPathsUB[nodes[i]].quickGet(nodes[j]));
+                        }
                     }
                 }
             }
+
+            gdm.unfreeze();
 
 //            if (g.isInstantiated()) {
 //                System.out.println("IIC (LB) = " + ( (iic.getLB())));
