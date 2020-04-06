@@ -604,10 +604,10 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
             Arrays.sort(ccarray);
             for (int i = 0; i < ccarray.length; i++) {
                 int source = ccarray[i];
-                if (subProblem1.getMandatoryNodes().contains(source)) {
+                if (subProblem1.getPotentialNodes().contains(source)) {
                     for (int j = i; j < ccarray.length; j++) {
                         int dest = ccarray[j];
-                        if (subProblem1.getMandatoryNodes().contains(dest)) {
+                        if (subProblem1.getPotentialNodes().contains(dest)) {
                             int dist = allPairsShortestPathsUB[source].quickGet(dest);
                             if (dist != -1 && dist != Integer.MAX_VALUE) {
                                 iicVal += (source != dest) ? 2.0 / (1 + dist) : 1.0 / (1 + dist);
@@ -629,10 +629,10 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
             Arrays.sort(ccarray);
             for (int i = 0; i < ccarray.length; i++) {
                 int source = ccarray[i];
-                if (subProblem2.getMandatoryNodes().contains(source)) {
+                if (subProblem2.getPotentialNodes().contains(source)) {
                     for (int j = i; j < ccarray.length; j++) {
                         int dest = ccarray[j];
-                        if (subProblem2.getMandatoryNodes().contains(dest)) {
+                        if (subProblem2.getPotentialNodes().contains(dest)) {
                             int dist = allPairsShortestPathsUB[source].quickGet(dest);
                             if (dist != -1 && dist != Integer.MAX_VALUE) {
                                 iicVal += (source != dest) ? 2.0 / (1 + dist) : 1.0 / (1 + dist);
