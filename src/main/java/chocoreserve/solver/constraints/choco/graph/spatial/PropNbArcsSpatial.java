@@ -55,7 +55,7 @@ public class PropNbArcsSpatial extends Propagator<Variable> {
 	private ISetDeltaMonitor sdm;
 	private IntProcedure elementForced, elementRemoved;
 	private IStateInt nbK, nbE;
-	private ISet removed;
+	private ISet removed, added;
 
 
 	//***********************************************************************************
@@ -70,8 +70,9 @@ public class PropNbArcsSpatial extends Propagator<Variable> {
 		this.nbK = getModel().getEnvironment().makeInt(0);
 		this.nbE = getModel().getEnvironment().makeInt(0);
 		this.removed = SetFactory.makeBitSet(0);
+		this.added = SetFactory.makeBitSet(0);
 		this.elementForced = element -> {
-			nbK.set(nbK.get() + g.getMandNeighOf(element).size());
+			added.add(element);
 		};
 		this.elementRemoved = element -> {
 			removed.add(element);
@@ -99,33 +100,50 @@ public class PropNbArcsSpatial extends Propagator<Variable> {
 
 	@Override
 	public void propagate(int idxVarInProp, int mask) throws ContradictionException {
-		if (idxVarInProp == 0) {
-			sdm.freeze();
-			sdm.forEach(elementRemoved, SetEventType.REMOVE_FROM_ENVELOPE);
+		sdm.freeze();
 
-			int removedEdges = 0;
-			int edgesBetweenRemoved = 0;
-			for (int i : removed) {
-				ISet nei = g.getNeighborhood().getNeighbors(g.getGrid(), i);
-				removedEdges += nei.size();
-				for (int j : nei) {
-					if (!g.getPotentialNodes().contains(j)) {
-						removedEdges -= 1;
-					}
-					if (removed.contains(j)) {
-						edgesBetweenRemoved += 1;
-					}
+		sdm.forEach(elementRemoved, SetEventType.REMOVE_FROM_ENVELOPE);
+		sdm.forEach(elementForced, SetEventType.ADD_TO_KER);
+
+		int removedEdges = 0;
+		int edgesBetweenRemoved = 0;
+		for (int i : removed) {
+			ISet nei = g.getNeighborhood().getNeighbors(g.getGrid(), i);
+			removedEdges += nei.size();
+			for (int j : nei) {
+				if (!g.getPotentialNodes().contains(j)) {
+					removedEdges -= 1;
+				}
+				if (removed.contains(j)) {
+					edgesBetweenRemoved += 1;
 				}
 			}
-			edgesBetweenRemoved /= 2;
-			removedEdges += edgesBetweenRemoved;
-			nbE.set(nbE.get() - removedEdges);
-			removed.clear();
-
-			sdm.forEach(elementForced, SetEventType.ADD_TO_KER);
-			sdm.unfreeze();
 		}
+		edgesBetweenRemoved /= 2;
+		removedEdges += edgesBetweenRemoved;
+		nbE.set(nbE.get() - removedEdges);
+
+		int addedEdges = 0;
+		int edgesBetweenAdded = 0;
+		for (int i : added) {
+			ISet nei = g.getMandNeighOf(i);
+			addedEdges += nei.size();
+			for (int j : nei) {
+				if (added.contains(j)) {
+					edgesBetweenAdded += 1;
+				}
+			}
+		}
+		edgesBetweenAdded /= 2;
+		addedEdges -= edgesBetweenAdded;
+		nbK.set(nbK.get() + addedEdges);
+
+		added.clear();
+		removed.clear();
+
 		filter(nbK.get(), nbE.get());
+
+		sdm.unfreeze();
 	}
 
 	private void filter(int nbK, int nbE) throws ContradictionException {
@@ -135,14 +153,18 @@ public class PropNbArcsSpatial extends Propagator<Variable> {
 			ISet nei;
 			ISet env = g.getPotentialNodes();
 			if (k.getValue() == nbE) {
+//				sdm.freeze();
 				for (int i : env) {
 					nei = g.getPotNeighOf(i);
 					for (int j : nei) {
 						g.enforceNode(j, this);
 					}
 				}
+				this.nbK.set(nbE);
+//				sdm.unfreeze();
 			}
 			if (k.getValue() == nbK) {
+//				sdm.freeze();
 				ISet neiKer;
 				for (int i : env) {
 					nei = g.getPotNeighOf(i);
@@ -153,6 +175,8 @@ public class PropNbArcsSpatial extends Propagator<Variable> {
 						}
 					}
 				}
+				this.nbE.set(nbK);
+//				sdm.unfreeze();
 			}
 		}
 	}
@@ -181,6 +205,7 @@ public class PropNbArcsSpatial extends Propagator<Variable> {
 		nbK /= 2;
 		nbE /= 2;
 		if (nbK > k.getUB() || nbE < k.getLB()) {
+			System.out.println("nbE = " + nbE + " / " + k.getUB() + " --  nbK = " + nbK + " / " + k.getLB());
 			return ESat.FALSE;
 		}
 		if (k.isInstantiated() && g.isInstantiated()) {

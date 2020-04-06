@@ -31,6 +31,7 @@ import chocoreserve.solver.region.Region;
 import chocoreserve.solver.variable.SpatialGraphVar;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.search.loop.monitors.IMonitorSolution;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.setDataStructures.SetType;
@@ -97,7 +98,7 @@ public class TestPropPerimeterSquareGridFourConnected {
         SpatialGraphVar g = in.getSetVar();
         IntVar perimeter = model.intVar("perimeter", 0, 100);
         PropPerimeterSquareGridFourConnected propPerimeter = new PropPerimeterSquareGridFourConnected(g, perimeter);
-//        model.post(new Constraint("Perimeter", propPerimeter));
+        model.post(new Constraint("Perimeter", propPerimeter));
         int expectedExtLB = 16;
         Assert.assertEquals(expectedExtLB, propPerimeter.getPerimeterGLB());
         int[] bounds = propPerimeter.getBounds();

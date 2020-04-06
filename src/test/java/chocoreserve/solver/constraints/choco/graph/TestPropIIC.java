@@ -441,6 +441,6 @@ public class TestPropIIC {
 //            }
         });
 
-        solver.findOptimalSolution(forest.getNbSites(), true);
+        solver.findOptimalSolution(iic, true);
     }
 }
