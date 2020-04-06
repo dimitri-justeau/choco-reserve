@@ -145,6 +145,8 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
                 updateAddNode(node);
             }
             computeIIC_LB();
+            computeIIC_LB_SubProblem1();
+            computeIIC_LB_SubProblem2();
             added.clear();
 
             connectivityFinderGUB.findAllCC();
@@ -159,6 +161,8 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
             }
             removed.clear();
             computeIIC_UB();
+            computeIIC_UB_SubProblem1();
+            computeIIC_UB_SubProblem2();
             gdm.unfreeze();
 
             if (iic_lb.get() != iic_ub.get() && iic.isInstantiated()) {
