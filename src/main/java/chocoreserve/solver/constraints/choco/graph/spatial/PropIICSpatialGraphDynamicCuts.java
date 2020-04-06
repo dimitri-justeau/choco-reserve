@@ -183,7 +183,7 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
             }
 
             if (lb2 != ub2 && subIic2.isInstantiated()) {
-                if (subIic2.getValue() == ub1) {
+                if (subIic2.getValue() == ub2) {
                     for (int i : subProblem2.getPotentialNodes()) {
                         subProblem2.enforceNode(i, this);
                     }
