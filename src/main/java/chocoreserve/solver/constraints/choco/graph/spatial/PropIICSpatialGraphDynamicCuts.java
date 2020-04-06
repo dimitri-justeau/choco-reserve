@@ -550,11 +550,11 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
         }
         for (int[] cc : ccs) {
             for (int i = 0; i < cc.length; i++) {
-                if (subProblem1.getMandatoryNodes().contains(i)) {
+                int source = cc[i];
+                if (subProblem1.getMandatoryNodes().contains(source)) {
                     for (int j = i; j < cc.length; j++) {
-                        if (subProblem1.getMandatoryNodes().contains(j)) {
-                            int source = cc[i];
-                            int dest = cc[j];
+                        int dest = cc[j];
+                        if (subProblem1.getMandatoryNodes().contains(dest)) {
                             int dist = allPairsShortestPathsLB[source].quickGet(dest);
                             if (dist != -1 && dist != Integer.MAX_VALUE) {
                                 iicVal += (i != j) ? 2.0 / (1 + dist) : 1.0 / (1 + dist);
@@ -578,11 +578,11 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
         }
         for (int[] cc : ccs) {
             for (int i = 0; i < cc.length; i++) {
-                if (subProblem2.getMandatoryNodes().contains(i)) {
+                int source = cc[i];
+                if (subProblem2.getMandatoryNodes().contains(source)) {
                     for (int j = i; j < cc.length; j++) {
-                        if (subProblem2.getMandatoryNodes().contains(j)) {
-                            int source = cc[i];
-                            int dest = cc[j];
+                        int dest = cc[j];
+                        if (subProblem2.getMandatoryNodes().contains(dest)) {
                             int dist = allPairsShortestPathsLB[source].quickGet(dest);
                             if (dist != -1 && dist != Integer.MAX_VALUE) {
                                 iicVal += (i != j) ? 2.0 / (1 + dist) : 1.0 / (1 + dist);
@@ -603,11 +603,11 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
             int[] ccarray = connectivityFinderGUB.getCC(ccIndex);
             Arrays.sort(ccarray);
             for (int i = 0; i < ccarray.length; i++) {
-                if (subProblem1.getMandatoryNodes().contains(i)) {
+                int source = ccarray[i];
+                if (subProblem1.getMandatoryNodes().contains(source)) {
                     for (int j = i; j < ccarray.length; j++) {
-                        if (subProblem1.getMandatoryNodes().contains(j)) {
-                            int source = ccarray[i];
-                            int dest = ccarray[j];
+                        int dest = ccarray[j];
+                        if (subProblem1.getMandatoryNodes().contains(dest)) {
                             int dist = allPairsShortestPathsUB[source].quickGet(dest);
                             if (dist != -1 && dist != Integer.MAX_VALUE) {
                                 iicVal += (source != dest) ? 2.0 / (1 + dist) : 1.0 / (1 + dist);
@@ -628,11 +628,11 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
             int[] ccarray = connectivityFinderGUB.getCC(ccIndex);
             Arrays.sort(ccarray);
             for (int i = 0; i < ccarray.length; i++) {
-                if (subProblem2.getMandatoryNodes().contains(i)) {
+                int source = ccarray[i];
+                if (subProblem2.getMandatoryNodes().contains(source)) {
                     for (int j = i; j < ccarray.length; j++) {
-                        if (subProblem2.getMandatoryNodes().contains(j)) {
-                            int source = ccarray[i];
-                            int dest = ccarray[j];
+                        int dest = ccarray[j];
+                        if (subProblem2.getMandatoryNodes().contains(dest)) {
                             int dist = allPairsShortestPathsUB[source].quickGet(dest);
                             if (dist != -1 && dist != Integer.MAX_VALUE) {
                                 iicVal += (source != dest) ? 2.0 / (1 + dist) : 1.0 / (1 + dist);
