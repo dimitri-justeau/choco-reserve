@@ -145,8 +145,8 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
                 updateAddNode(node);
             }
             computeIIC_LB();
-            computeIIC_LB_SubProblem1();
-            computeIIC_LB_SubProblem2();
+            int lb1 = computeIIC_LB_SubProblem1();
+            int lb2 = computeIIC_LB_SubProblem2();
             added.clear();
 
             connectivityFinderGUB.findAllCC();
@@ -161,20 +161,36 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
             }
             removed.clear();
             computeIIC_UB();
-            computeIIC_UB_SubProblem1();
-            computeIIC_UB_SubProblem2();
+            int ub1 = computeIIC_UB_SubProblem1();
+            int ub2 = computeIIC_UB_SubProblem2();
             gdm.unfreeze();
 
             if (iic_lb.get() != iic_ub.get() && iic.isInstantiated()) {
                 int val = (int) (iic_ub.get() * Math.pow(10, precision) / Math.pow(areaLandscape, 2));
                 if (iic.getValue() == val) {
-                    for (int i : g.getMandatoryNodes()) {
+                    for (int i : g.getPotentialNodes()) {
                         g.enforceNode(i, this);
                     }
                 }
             }
 
-            if (g.isInstantiated()) {
+            if (lb1 != ub1 && subIic1.isInstantiated()) {
+                if (subIic1.getValue() == ub1) {
+                    for (int i : subProblem1.getPotentialNodes()) {
+                        subProblem1.enforceNode(i, this);
+                    }
+                }
+            }
+
+            if (lb2 != ub2 && subIic2.isInstantiated()) {
+                if (subIic2.getValue() == ub1) {
+                    for (int i : subProblem2.getPotentialNodes()) {
+                        subProblem2.enforceNode(i, this);
+                    }
+                }
+            }
+
+//            if (g.isInstantiated()) {
 //                System.out.println("IIC (LB) = " + ( (iic.getLB())));
 //                System.out.println("IIC (UB) = " + ( (iic.getUB())));
 
@@ -198,9 +214,9 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
 
 //                int val = (int) (iic_lb.get() * Math.pow(10, precision) / Math.pow(areaLandscape, 2));
 //                iic.updateUpperBound(val, this);
-            } else {
+//            } else {
 //                computeIIC_UB();
-            }
+//            }
         }
     }
 
@@ -540,7 +556,7 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
         iic.updateUpperBound(val, this);
     }
 
-    public void computeIIC_LB_SubProblem1() throws ContradictionException {
+    public int computeIIC_LB_SubProblem1() throws ContradictionException {
         double iicVal = 0;
         int[] roots = g.getGLB().getRoots().toArray();
         int[][] ccs = new int[roots.length][];
@@ -566,9 +582,10 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
         }
         int val = (int) (iicVal * Math.pow(10, precision) / Math.pow(areaLandscape, 2));
         subIic1.updateLowerBound(val, this);
+        return val;
     }
 
-    public void computeIIC_LB_SubProblem2() throws ContradictionException {
+    public int computeIIC_LB_SubProblem2() throws ContradictionException {
         double iicVal = 0;
         int[] roots = g.getGLB().getRoots().toArray();
         int[][] ccs = new int[roots.length][];
@@ -594,9 +611,10 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
         }
         int val = (int) (iicVal * Math.pow(10, precision) / Math.pow(areaLandscape, 2));
         subIic2.updateLowerBound(val, this);
+        return val;
     }
 
-    public void computeIIC_UB_SubProblem1() throws ContradictionException {
+    public int computeIIC_UB_SubProblem1() throws ContradictionException {
         double iicVal = 0;
         for (int ccIndex = 0; ccIndex < connectivityFinderGUB.getNBCC(); ccIndex++) {
             // 1-  get the connected component of the current root
@@ -619,9 +637,10 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
         }
         int val = (int) (iicVal * Math.pow(10, precision) / Math.pow(areaLandscape, 2));
         subIic1.updateUpperBound(val, this);
+        return val;
     }
 
-    public void computeIIC_UB_SubProblem2() throws ContradictionException {
+    public int computeIIC_UB_SubProblem2() throws ContradictionException {
         double iicVal = 0;
         for (int ccIndex = 0; ccIndex < connectivityFinderGUB.getNBCC(); ccIndex++) {
             // 1-  get the connected component of the current root
@@ -644,6 +663,7 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
         }
         int val = (int) (iicVal * Math.pow(10, precision) / Math.pow(areaLandscape, 2));
         subIic2.updateUpperBound(val, this);
+        return val;
     }
 
     public void computeAllPairsShortestPathsLB(RegularSquareGrid grid) {

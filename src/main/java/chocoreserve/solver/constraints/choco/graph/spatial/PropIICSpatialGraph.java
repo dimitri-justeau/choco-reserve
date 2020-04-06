@@ -160,13 +160,13 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
             if (iic_lb.get() != iic_ub.get() && iic.isInstantiated()) {
                 int val = (int) (iic_ub.get() * Math.pow(10, precision) / Math.pow(areaLandscape, 2));
                 if (iic.getValue() == val) {
-                    for (int i : g.getMandatoryNodes()) {
+                    for (int i : g.getPotentialNodes()) {
                         g.enforceNode(i, this);
                     }
                 }
             }
 
-            if (g.isInstantiated()) {
+//            if (g.isInstantiated()) {
 //                System.out.println("IIC (LB) = " + ( (iic.getLB())));
 //                System.out.println("IIC (UB) = " + ( (iic.getUB())));
 
@@ -190,9 +190,9 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
 
 //                int val = (int) (iic_lb.get() * Math.pow(10, precision) / Math.pow(areaLandscape, 2));
 //                iic.updateUpperBound(val, this);
-            } else {
+//            } else {
 //                computeIIC_UB();
-            }
+//            }
         }
     }
 
