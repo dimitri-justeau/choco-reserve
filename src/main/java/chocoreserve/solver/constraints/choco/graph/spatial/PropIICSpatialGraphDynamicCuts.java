@@ -165,13 +165,15 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
             int ub1 = computeIIC_UB_SubProblem1();
             int ub2 = computeIIC_UB_SubProblem2();
 
+            gdm.unfreeze();
+
             if (iic_lb.get() != iic_ub.get() && iic.isInstantiated()) {
                 int val = (int) (iic_ub.get() * Math.pow(10, precision) / Math.pow(areaLandscape, 2));
                 if (iic.getValue() == val) {
                     for (int i : g.getPotentialNodes()) {
                         g.enforceNode(i, this);
-                        subProblem1.enforceNode(i, this);
-                        subProblem2.enforceNode(i, this);
+//                        subProblem1.enforceNode(i, this);
+//                        subProblem2.enforceNode(i, this);
                     }
                     for (int i = 0; i < areaLandscape; i++) {
                         for (int j = i; j < areaLandscape; j++) {
@@ -186,7 +188,7 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
                 if (subIic1.getValue() == ub1) {
                     for (int i : subProblem1.getPotentialNodes()) {
                         subProblem1.enforceNode(i, this);
-                        g.enforceNode(i, this);
+//                        g.enforceNode(i, this);
                     }
                     int[] nodes = subProblem1.getPotentialNodes().toArray();
                     Arrays.sort(nodes);
@@ -202,7 +204,7 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
                 if (subIic2.getValue() == ub2) {
                     for (int i : subProblem2.getPotentialNodes()) {
                         subProblem2.enforceNode(i, this);
-                        g.enforceNode(i, this);
+//                        g.enforceNode(i, this);
                     }
                     int[] nodes = subProblem2.getPotentialNodes().toArray();
                     Arrays.sort(nodes);
@@ -213,8 +215,6 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
                     }
                 }
             }
-
-            gdm.unfreeze();
 
 //            if (g.isInstantiated()) {
 //                System.out.println("IIC (LB) = " + ( (iic.getLB())));

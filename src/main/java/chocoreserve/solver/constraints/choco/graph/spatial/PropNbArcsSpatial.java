@@ -141,9 +141,9 @@ public class PropNbArcsSpatial extends Propagator<Variable> {
 		added.clear();
 		removed.clear();
 
-		filter(nbK.get(), nbE.get());
-
 		sdm.unfreeze();
+
+		filter(nbK.get(), nbE.get());
 	}
 
 	private void filter(int nbK, int nbE) throws ContradictionException {
