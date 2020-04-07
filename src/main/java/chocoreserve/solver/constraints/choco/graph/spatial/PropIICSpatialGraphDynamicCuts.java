@@ -175,9 +175,11 @@ public class PropIICSpatialGraphDynamicCuts extends Propagator<Variable> {
 //                        subProblem1.enforceNode(i, this);
 //                        subProblem2.enforceNode(i, this);
                     }
-                    for (int i = 0; i < areaLandscape; i++) {
-                        for (int j = i; j < areaLandscape; j++) {
-                            allPairsShortestPathsLB[i].quickSet(j, allPairsShortestPathsUB[i].quickGet(j));
+                    int[] nodes = g.getPotentialNodes().toArray();
+                    Arrays.sort(nodes);
+                    for (int i = 0; i < nodes.length; i++) {
+                        for (int j = i; j < nodes.length; j++) {
+                            allPairsShortestPathsLB[nodes[i]].quickSet(nodes[j], allPairsShortestPathsUB[nodes[i]].quickGet(nodes[j]));
                         }
                     }
                     iic_lb.set(iic_ub.get());
