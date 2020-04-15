@@ -63,7 +63,7 @@ public class PropNbArcsSpatial extends Propagator<Variable> {
 	//***********************************************************************************
 
 	public PropNbArcsSpatial(SpatialGraphVar graph, IntVar k) {
-		super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, true);
+		super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, false);
 		this.g = graph;
 		this.k = k;
 		this.sdm = g.monitorDelta(this);
@@ -95,7 +95,7 @@ public class PropNbArcsSpatial extends Propagator<Variable> {
 		nbEinit /= 2;
 		this.nbK.set(nbKinit);
 		this.nbE.set(nbEinit);
-		filter(nbK.get(), nbE.get());
+		filter(nbKinit, nbEinit);
 	}
 
 	@Override
@@ -141,9 +141,9 @@ public class PropNbArcsSpatial extends Propagator<Variable> {
 		added.clear();
 		removed.clear();
 
-		filter(nbK.get(), nbE.get());
-
 		sdm.unfreeze();
+
+		filter(nbK.get(), nbE.get());
 	}
 
 	private void filter(int nbK, int nbE) throws ContradictionException {

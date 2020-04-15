@@ -163,6 +163,14 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
                     for (int i : g.getPotentialNodes()) {
                         g.enforceNode(i, this);
                     }
+                    int[] nodes = g.getPotentialNodes().toArray();
+                    Arrays.sort(nodes);
+                    for (int i = 0; i < nodes.length; i++) {
+                        for (int j = i; j < nodes.length; j++) {
+                            allPairsShortestPathsLB[nodes[i]].quickSet(nodes[j], allPairsShortestPathsUB[nodes[i]].quickGet(nodes[j]));
+                        }
+                    }
+                    iic_lb.set(iic_ub.get());
                 }
             }
 
