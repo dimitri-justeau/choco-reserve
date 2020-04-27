@@ -493,7 +493,7 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
         return checked;
     }
 
-    public void computeIIC_LB() throws ContradictionException {
+    public int computeIIC_LB() throws ContradictionException {
         double iicVal = 0;
 //        for (int i : g.getMandatoryNodes()) {
 //            for (int j = 0; j < areaLandscape; j++) {
@@ -527,9 +527,10 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
         int val = (int) (iic_lb.get() * Math.pow(10, precision) / Math.pow(areaLandscape, 2));
 //        System.out.println("LB = " + val + " // " + iic.getLB());
         iic.updateLowerBound(val, this);
+        return val;
     }
 
-    public void computeIIC_UB() throws ContradictionException {
+    public int computeIIC_UB() throws ContradictionException {
         double iicVal = 0;
         for (int ccIndex = 0; ccIndex < connectivityFinderGUB.getNBCC(); ccIndex++) {
             // 1-  get the connected component of the current root
@@ -550,6 +551,7 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
         int val = (int) (iic_ub.get() * Math.pow(10, precision) / Math.pow(areaLandscape, 2));
 //            System.out.println("UB = " + val);
         iic.updateUpperBound(val, this);
+        return val;
     }
 
     public void computeAllPairsShortestPathsLB(RegularSquareGrid grid) {
