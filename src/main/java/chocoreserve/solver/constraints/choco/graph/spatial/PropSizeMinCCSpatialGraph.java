@@ -225,26 +225,28 @@ public class PropSizeMinCCSpatialGraph extends Propagator<Variable> {
 //			}
         }
         // 11 and 12
-        int nbCandidates = 0;
-        int candidate1 = -1, candidate2 = -1;
-        int s1 = -1, s2 = -1;
-        for (int cc = 0; cc < GLBCCFinder.getNBCC(); cc++) {
-            int size = GLBCCFinder.getSizeCC()[cc];
-            if (size <= sizeMinCC.getUB() && size >= sizeMinCC.getLB()) {
-                if (nbCandidates == 0) {
-                    candidate1 = cc;
-                    s1 = size;
-                }
-                if (nbCandidates == 1) {
-                    candidate2 = cc;
-                    s2 = size;
-                }
-                nbCandidates++;
-            }
-            if (nbCandidates > 2) {
-                break;
-            }
-        }
+//        int nbCandidates = 0;
+//        int candidate1 = -1;
+//        int candidate2 = -1;
+//        int s1 = -1;
+//        int s2 = -1;
+//        for (int cc = 0; cc < GLBCCFinder.getNBCC(); cc++) {
+//            int size = GLBCCFinder.getSizeCC()[cc];
+//            if (size <= sizeMinCC.getUB() && size >= sizeMinCC.getLB()) {
+//                if (nbCandidates == 0) {
+//                    candidate1 = cc;
+//                    s1 = size;
+//                }
+//                if (nbCandidates == 1) {
+//                    candidate2 = cc;
+//                    s2 = size;
+//                }
+//                nbCandidates++;
+//            }
+//            if (nbCandidates > 2) {
+//                break;
+//            }
+//        }
         // 11.
 //		if (nbCandidates == 1 && nbNodesU == 0) {
 //			Map<Integer, Set<Integer>> ccNeighbors = getGLBCCPotentialNeighbors(candidate1);

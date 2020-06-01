@@ -134,14 +134,10 @@ public class TestPropSmallestEnclosingCircle {
 
             double[] c = new double[]{minidisk[0], minidisk[1]};
             double r = minidisk[2];
-            int nbBorder = 0;
             for (int i : pts) {
                 double[] p = coordinates[i];
                 double dist = Math.sqrt(Math.pow(c[0] - p[0], 2) + Math.pow(c[1] - p[1], 2));
                 Assert.assertTrue(dist <= r);
-                if ((dist <= r + eps) && (r - eps <= dist)) {
-                    nbBorder++;
-                }
             }
         }
 
@@ -272,16 +268,16 @@ public class TestPropSmallestEnclosingCircle {
      */
     public class MinidiskCanvas extends Canvas {
 
-        int[] points;
-        double[][] coordinates;
-        double[] minidisk;
-        int xmin;
-        int xmax;
-        int xshift;
-        int ymin;
-        int ymax;
-        int yshift;
-        int scale;
+        private int[] points;
+        private double[][] coordinates;
+        private double[] minidisk;
+        private int xmin;
+        private int xmax;
+        private int xshift;
+        private int ymin;
+        private int ymax;
+        private int yshift;
+        private int scale;
 
         public MinidiskCanvas(int[] points, double[][] coordinates, double[] minidisk,
                               int xmin, int xmax, int xshift, int ymin, int ymax, int yshift, int scale) {

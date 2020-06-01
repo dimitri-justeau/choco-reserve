@@ -112,10 +112,6 @@ public class PropSetCovering extends Propagator<Variable> {
         N.updateLowerBound(Math.max(N.getLB(), IntStream.of(T.getLB().toArray()).map(i -> C[i]).sum()), this);
     }
 
-    private void computeLbScMD() {
-
-    }
-
     @Override
     public ESat isEntailed() {
         Set<Integer> cover = new HashSet<>();

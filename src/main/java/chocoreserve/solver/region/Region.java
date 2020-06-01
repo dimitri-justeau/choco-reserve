@@ -37,8 +37,6 @@ import java.util.stream.IntStream;
  */
 public class Region extends AbstractRegion {
 
-    private final SetType SET_VAR_SET_TYPE = SetType.BIPARTITESET;
-
     private INeighborhood neighborhood;
     private IntVar nbCC;
     private SetType setVarSetType;

@@ -35,8 +35,6 @@ import org.chocosolver.util.objects.setDataStructures.SetFactory;
 public class TwoWideHeightConnected<T extends RegularSquareGrid> implements INeighborhood<T> {
 
     public ISet getNeighbors(T grid, int i) {
-        int nbCols = grid.getNbCols();
-        int nbRows = grid.getNbRows();
         HeightConnected height = Neighborhoods.HEIGHT_CONNECTED;
         ISet neighbors = SetFactory.makeBitSet(0);
         ISet heightneigh = height.getNeighbors(grid, i);

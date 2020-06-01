@@ -115,7 +115,7 @@ public class ShapefileGrid extends Grid {
     }
 
     public String getFeatureId(SimpleFeature feature) {
-        if (idColumn.equals("")) {
+        if ("".equals(idColumn)) {
             return feature.getID();
         }
         return feature.getAttribute(idColumn).toString();

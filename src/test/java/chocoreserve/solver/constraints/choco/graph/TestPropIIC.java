@@ -99,11 +99,7 @@ public class TestPropIIC {
         RealVar iic = model.realVar(0, 1, 1e-5);
         PropIICExp propIIC = new PropIICExp(g, iic);
 
-        long t = System.currentTimeMillis();
         int[][] dists = propIIC.allPairsShortestPaths(g.getUB());
-        long t1 = System.currentTimeMillis();
-        int[][] distsMDA = propIIC.allPairsShortestPathsMDA(grid, g.getUB());
-        long t2 = System.currentTimeMillis();
 
         int[] expected0 = new int[]{
                 0, 1, 2, 3, 4,
@@ -126,30 +122,10 @@ public class TestPropIIC {
         Assert.assertTrue(Arrays.equals(dists[18], expected18));
 
         int[][] distsLB = propIIC.allPairsShortestPaths(g.getLB());
-        int[][] distsLBMDA = propIIC.allPairsShortestPathsMDA(grid, g.getLB());
 
         Assert.assertEquals(distsLB[0][24], 12);
         Assert.assertEquals(distsLB[0][16], -1);
         Assert.assertEquals(distsLB[0][4], Integer.MAX_VALUE);
-
-//        System.out.println("Dist 11 - 15 = " + propIIC.minimumDetour(grid, LB, 15, 11)[0][0]);
-
-//        for (int i = 0; i < distsLB.length; i++) {
-//            System.out.println("\nNode = " + i);
-//            System.out.println(Arrays.toString(distsLB[i]));
-//            System.out.println(Arrays.toString(distsLBMDA[i]));
-//        }
-
-//        Assert.assertTrue(Arrays.deepEquals(distsLBMDA, distsLB));
-
-//        Assert.assertEquals(distsLBMDA[0][24], 12);
-//        System.out.println(Arrays.toString(propIIC.minimumDetour(grid, LB, 0, 24)[1]));
-//        Assert.assertEquals(distsLBMDA[0][16], -1);
-//        Assert.assertEquals(distsLBMDA[0][4], Integer.MAX_VALUE);
-
-//        for (int[] dist : distsLB) {
-//            System.out.println(Arrays.toString(dist));
-//        }
 
         System.out.println("IIC_MDA(LB) = " + propIIC.computeIIC_MDA(grid, g.getLB()));
         System.out.println("IIC_DIJ(LB) = " + propIIC.computeIIC(g.getLB()));
@@ -240,13 +216,10 @@ public class TestPropIIC {
             System.out.println(Arrays.toString(r));
         }
 
-        long t0 = System.currentTimeMillis();
         //System.out.println("IIC(LB) = " + propIIC.computeIIC(g.getLB()));
         //System.out.println("IIC(UB) = " + propIIC.computeIIC(g.getUB()));
-        long t1 = System.currentTimeMillis();
         System.out.println("IIC(LB) = " + propIIC.computeIIC_MDA(grid, g.getLB()));
         System.out.println("IIC(UB) = " + propIIC.computeIIC_MDA(grid, g.getUB()));
-        long t2 = System.currentTimeMillis();
     }
 
 

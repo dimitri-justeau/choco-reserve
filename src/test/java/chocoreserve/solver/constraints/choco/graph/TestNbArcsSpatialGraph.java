@@ -63,12 +63,10 @@ public class TestNbArcsSpatialGraph {
         Region out = new Region("out", n4);
         ReserveModel resModel = new ReserveModel(grid, out, in);
         GraphModel model = resModel.getChocoModel();
-        SpatialGraphVar g = in.getSetVar();
 
         resModel.maxDiameterSpatial(in, 3).post();
 
         NbEdges cNbEdges = new NbEdges(resModel, in);
-        IntVar nbEdges = cNbEdges.nbEdges;
         cNbEdges.post();
 
         Solver solver = model.getSolver();

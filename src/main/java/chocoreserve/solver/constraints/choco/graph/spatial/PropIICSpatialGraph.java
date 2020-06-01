@@ -585,7 +585,6 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
                         }
                         // MDA algorithm
                         int[][] mdaResult = minimumDetour(grid, g.getGLB(), source, dest);
-                        int minDist = mdaResult[0][0];
                         int[] shortestPath = mdaResult[1];
                         // Every subpath of the shortest path between source and dist is a shortest path
                         // cf. Theorem 3 of Hadlock 1977.

@@ -47,7 +47,6 @@ public class PropIICExp extends Propagator<Variable> {
     public final static double EPSILON = 1e-5;
 
     private UndirectedGraphVar g;
-    private RealVar iic;
     private int areaLandscape;
     private Set<Integer> fixedNodes;
     public int[][] allPairsShortestPathsLB;
@@ -56,7 +55,6 @@ public class PropIICExp extends Propagator<Variable> {
     public PropIICExp(UndirectedGraphVar g, RealVar iic) {
         super(new Variable[]{g, iic});
         this.g = g;
-        this.iic = iic;
         this.areaLandscape = g.getUB().getNbMaxNodes();
         this.fixedNodes = new HashSet<>();
         for (int i : g.getLB().getNodes()) {

@@ -142,7 +142,6 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
         } else {
             // 2.b Else, compute the perimeter LB by repeatedly adding decreasing and neutral vertices, until
             //     both sets are empty.
-            int decr = 0;
             ISet toAdd = SetFactory.makeBipartiteSet(0);
             for (int i : neutral) {
                 toAdd.add(i);

@@ -183,7 +183,8 @@ public class UndirectedGraphDecrementalCC extends UndirectedGraph {
 
         private IGraph graph;
         private int n, x, y, current, last, nbVisited;
-        private int[] fifo, parent;
+        private int[] fifo;
+        private int[] parent;
         private boolean yReached;
 
         public ProcessA(IGraph graph, int x, int y) {
