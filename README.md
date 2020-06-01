@@ -8,7 +8,7 @@ Choco-reserve is a systematic conservation planning (SCP) framework based on con
 
 It is based on the [Choco](https://github.com/chocoteam/choco-solver) CP solver, and [Choco-graph](https://github.com/chocoteam/choco-graph), its extension for handling graph variables.
 
-Choco-reserve implements the models described in [Justeau-Allaire, Birnbaum and Lorca 2018](https://link.springer.com/chapter/10.1007/978-3-319-98334-9_33) (available for free download [here](https://www.researchgate.net/publication/327167708_Unifying_Reserve_Design_Strategies_with_Graph_Theory_and_Constraint_Programming_24th_International_Conference_CP_2018_Lille_France_August_27-31_2018_Proceedings)) and in [Justeau-Allaire, Vismara, Birnbaum and Lorca 2018](https://www.ijcai.org/Proceedings/2019/818).
+Choco-reserve implements the models described in [Justeau-Allaire, Birnbaum and Lorca 2018](https://link.springer.com/chapter/10.1007/978-3-319-98334-9_33) (available for free download [here](https://www.researchgate.net/publication/327167708_Unifying_Reserve_Design_Strategies_with_Graph_Theory_and_Constraint_Programming_24th_International_Conference_CP_2018_Lille_France_August_27-31_2018_Proceedings)) and in [Justeau-Allaire, Vismara, Birnbaum and Lorca 2019](https://www.ijcai.org/Proceedings/2019/818).
 
 ## Build from sources ##
 
