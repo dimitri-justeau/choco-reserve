@@ -41,13 +41,13 @@ import org.junit.Test;
 public class TestPropPerimeterSquareGridFourConnected {
 
     /**
-     *     -----------
-     *    | 0 | 1 | 2 |
-     *     -----------
-     *    | 3 | 4 | 5 |
-     *     -----------
-     *    | 6 | 7 | 8 |
-     *     -----------
+     * -----------
+     * | 0 | 1 | 2 |
+     * -----------
+     * | 3 | 4 | 5 |
+     * -----------
+     * | 6 | 7 | 8 |
+     * -----------
      */
     @Test
     public void testGetExteriorNodes() {
@@ -56,7 +56,7 @@ public class TestPropPerimeterSquareGridFourConnected {
         Region in = new Region(
                 "in",
                 n4, SetType.BIPARTITESET,
-                new int[] {0, 1, 2, 3, 4, 6}
+                new int[]{0, 1, 2, 3, 4, 6}
         );
         Region out = new Region("out", n4);
         ReserveModel resModel = new ReserveModel(grid, out, in);
@@ -71,17 +71,17 @@ public class TestPropPerimeterSquareGridFourConnected {
     }
 
     /**
-     *     -------------------
-     *    | 0 | 1 | 2 | 3 | 4 |
-     *     -------------------
-     *    | 5 |   |   |   | 9 |
-     *     -------------------
-     *    |   |   |   |   |   |
-     *     -------------------
-     *    |   |   |   |   |   |
-     *     -------------------
-     *    |   |   |   |   |   |
-     *     -------------------
+     * -------------------
+     * | 0 | 1 | 2 | 3 | 4 |
+     * -------------------
+     * | 5 |   |   |   | 9 |
+     * -------------------
+     * |   |   |   |   |   |
+     * -------------------
+     * |   |   |   |   |   |
+     * -------------------
+     * |   |   |   |   |   |
+     * -------------------
      */
     @Test
     public void testPerimeter() {
@@ -90,7 +90,7 @@ public class TestPropPerimeterSquareGridFourConnected {
         Region in = new Region(
                 "in",
                 n4, SetType.BIPARTITESET,
-                new int[] {0, 1, 2, 3, 4, 5, 9}
+                new int[]{0, 1, 2, 3, 4, 5, 9}
         );
         Region out = new Region("out", n4);
         ReserveModel resModel = new ReserveModel(grid, out, in);

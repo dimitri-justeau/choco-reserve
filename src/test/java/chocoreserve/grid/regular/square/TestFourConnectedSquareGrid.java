@@ -33,17 +33,17 @@ import java.util.Arrays;
 /**
  * Test case for FourConnectedSquareGrid.
  * Tests are on a 5x5 grid :
- *     -------------------
- *    | 0 | 1 | 2 | 3 | 4 |
- *     -------------------
- *    | 5 | 6 | 7 | 8 | 9 |
- *     -------------------
- *    | 10| 11| 12| 13| 14|
- *     -------------------
- *    | 15| 16| 17| 18| 19|
- *     -------------------
- *    | 20| 21| 22| 23| 24|
- *     -------------------
+ * -------------------
+ * | 0 | 1 | 2 | 3 | 4 |
+ * -------------------
+ * | 5 | 6 | 7 | 8 | 9 |
+ * -------------------
+ * | 10| 11| 12| 13| 14|
+ * -------------------
+ * | 15| 16| 17| 18| 19|
+ * -------------------
+ * | 20| 21| 22| 23| 24|
+ * -------------------
  */
 public class TestFourConnectedSquareGrid {
 
@@ -57,11 +57,11 @@ public class TestFourConnectedSquareGrid {
     public void testCoordinatesConversions() {
         RegularSquareGrid grid = new RegularSquareGrid(5, 5);
         Assert.assertEquals(5, grid.getIndexFromCoordinates(1, 0));
-        Assert.assertTrue(Arrays.equals(new int[] {1, 0}, grid.getCoordinatesFromIndex(5)));
+        Assert.assertTrue(Arrays.equals(new int[]{1, 0}, grid.getCoordinatesFromIndex(5)));
         Assert.assertEquals(18, grid.getIndexFromCoordinates(3, 3));
-        Assert.assertTrue(Arrays.equals(new int[] {3, 3}, grid.getCoordinatesFromIndex(18)));
+        Assert.assertTrue(Arrays.equals(new int[]{3, 3}, grid.getCoordinatesFromIndex(18)));
         Assert.assertEquals(11, grid.getIndexFromCoordinates(2, 1));
-        Assert.assertTrue(Arrays.equals(new int[] {2, 1}, grid.getCoordinatesFromIndex(11)));
+        Assert.assertTrue(Arrays.equals(new int[]{2, 1}, grid.getCoordinatesFromIndex(11)));
     }
 
     @Test
@@ -71,27 +71,27 @@ public class TestFourConnectedSquareGrid {
         // Cell in the middle: 12
         int[] neighbors = neigh.getNeighbors(grid, 12).toArray();
         Arrays.sort(neighbors);
-        int[] expected = new int[] {7, 11, 13, 17};
+        int[] expected = new int[]{7, 11, 13, 17};
         Assert.assertTrue(Arrays.equals(neighbors, expected));
         // Cell 0
         neighbors = neigh.getNeighbors(grid, 0).toArray();
         Arrays.sort(neighbors);
-        expected = new int[] {1, 5};
+        expected = new int[]{1, 5};
         Assert.assertTrue(Arrays.equals(neighbors, expected));
         // Cell 15
         neighbors = neigh.getNeighbors(grid, 15).toArray();
         Arrays.sort(neighbors);
-        expected = new int[] {10, 16, 20};
+        expected = new int[]{10, 16, 20};
         Assert.assertTrue(Arrays.equals(neighbors, expected));
         // Cell 9
         neighbors = neigh.getNeighbors(grid, 9).toArray();
         Arrays.sort(neighbors);
-        expected = new int[] {4, 8, 14};
+        expected = new int[]{4, 8, 14};
         Assert.assertTrue(Arrays.equals(neighbors, expected));
         // Cell 24
         neighbors = neigh.getNeighbors(grid, 24).toArray();
         Arrays.sort(neighbors);
-        expected = new int[] {19, 23};
+        expected = new int[]{19, 23};
         Assert.assertTrue(Arrays.equals(neighbors, expected));
     }
 }

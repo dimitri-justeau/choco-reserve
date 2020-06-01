@@ -25,8 +25,8 @@ package chocoreserve.solver.constraints.spatial;
 
 import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
-import chocoreserve.solver.region.Region;
 import chocoreserve.solver.ReserveModel;
+import chocoreserve.solver.region.Region;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -43,13 +43,13 @@ public class TestNbConnectedComponents {
 
     /**
      * Test case 1: 3x3 4-connected square grid, 5 CC -> 1 solution (0, 2, 4, 6, 8).
-     *     -----------
-     *    | 0 | 1 | 2 |
-     *     -----------
-     *    | 3 | 4 | 5 |
-     *     -----------
-     *    | 6 | 7 | 8 |
-     *     -----------
+     * -----------
+     * | 0 | 1 | 2 |
+     * -----------
+     * | 3 | 4 | 5 |
+     * -----------
+     * | 6 | 7 | 8 |
+     * -----------
      */
     @Test
     public void testNbConnectedComponentsSuccessCase1() {
@@ -68,16 +68,16 @@ public class TestNbConnectedComponents {
         }
         int[] nodes = core.getSetVar().getLB().toArray();
         Arrays.sort(nodes);
-        Assert.assertTrue(Arrays.equals(nodes, new int[] {0, 2, 4, 6, 8}));
+        Assert.assertTrue(Arrays.equals(nodes, new int[]{0, 2, 4, 6, 8}));
     }
 
     /**
      * Test case 1: 2x2 4-connected square grid, 2 CC -> 2 solution (0, 3) and (1, 2).
-     *     -------
-     *    | 0 | 1 |
-     *     -------
-     *    | 2 | 3 |
-     *     -------
+     * -------
+     * | 0 | 1 |
+     * -------
+     * | 2 | 3 |
+     * -------
      */
     @Test
     public void testNbConnectedComponentsSuccessCase2() {
@@ -93,9 +93,9 @@ public class TestNbConnectedComponents {
 
     /**
      * Test case 1: 1x2 4-connected square grid, 0 - 1 CC -> 4 solutions (), (0), (1) and (0, 1).
-     *     -------
-     *    | 0 | 1 |
-     *     -------
+     * -------
+     * | 0 | 1 |
+     * -------
      */
     @Test
     public void testNbConnectedComponentsSuccessCase3() {
@@ -112,13 +112,13 @@ public class TestNbConnectedComponents {
 
     /**
      * Test case 1: 3x3 4-connected square grid, 6 CC -> Fail.
-     *     -----------
-     *    | 0 | 1 | 2 |
-     *     -----------
-     *    | 3 | 4 | 5 |
-     *     -----------
-     *    | 6 | 7 | 8 |
-     *     -----------
+     * -----------
+     * | 0 | 1 | 2 |
+     * -----------
+     * | 3 | 4 | 5 |
+     * -----------
+     * | 6 | 7 | 8 |
+     * -----------
      */
     @Test
     public void testNbConnectedComponentsFailCase1() {

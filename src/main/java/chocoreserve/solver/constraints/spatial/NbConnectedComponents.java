@@ -23,9 +23,8 @@
 
 package chocoreserve.solver.constraints.spatial;
 
-import chocoreserve.solver.region.AbstractRegion;
-import chocoreserve.solver.region.Region;
 import chocoreserve.solver.ReserveModel;
+import chocoreserve.solver.region.AbstractRegion;
 
 /**
  * Number of reserves constraint.

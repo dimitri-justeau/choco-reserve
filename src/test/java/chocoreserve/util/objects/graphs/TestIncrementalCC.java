@@ -51,9 +51,12 @@ public class TestIncrementalCC {
         g.addNode(3);
         Assert.assertEquals(g.getNbCC(), 3);
 
-        g.addNode(4); g.addEdge(1, 4);
-        g.addNode(5); g.addEdge(0, 5);
-        g.addNode(6); g.addEdge(6, 2);
+        g.addNode(4);
+        g.addEdge(1, 4);
+        g.addNode(5);
+        g.addEdge(0, 5);
+        g.addNode(6);
+        g.addEdge(6, 2);
         g.addNode(7);
 
         System.out.println(g.getNbCC());

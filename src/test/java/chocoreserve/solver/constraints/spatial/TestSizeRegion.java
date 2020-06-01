@@ -25,8 +25,8 @@ package chocoreserve.solver.constraints.spatial;
 
 import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
-import chocoreserve.solver.region.Region;
 import chocoreserve.solver.ReserveModel;
+import chocoreserve.solver.region.Region;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -44,14 +44,14 @@ public class TestSizeRegion {
 
     /**
      * Success test case 1: 3x3 4-connected square grid, areaMin = areaMax = 9 -> 1 solution.
-     *
-     *     -----------
-     *    | 0 | 1 | 2 |
-     *     -----------
-     *    | 3 | 4 | 5 |
-     *     -----------
-     *    | 6 | 7 | 8 |
-     *     -----------
+     * <p>
+     * -----------
+     * | 0 | 1 | 2 |
+     * -----------
+     * | 3 | 4 | 5 |
+     * -----------
+     * | 6 | 7 | 8 |
+     * -----------
      */
     @Test
     public void testSizeRegionSuccess1() {
@@ -76,14 +76,14 @@ public class TestSizeRegion {
     /**
      * Success test case 1: 3x3 4-connected square grid, areaMin = 2, areaMax = 4.
      * Many solutions, we just test that they all satisfy the constraint.
-     *
-     *     -----------
-     *    | 0 | 1 | 2 |
-     *     -----------
-     *    | 3 | 4 | 5 |
-     *     -----------
-     *    | 6 | 7 | 8 |
-     *     -----------
+     * <p>
+     * -----------
+     * | 0 | 1 | 2 |
+     * -----------
+     * | 3 | 4 | 5 |
+     * -----------
+     * | 6 | 7 | 8 |
+     * -----------
      */
     @Test
     public void testSizeRegionSuccess2() {
@@ -110,14 +110,14 @@ public class TestSizeRegion {
 
     /**
      * Fail test case 1: 3x3 4-connected square grid, areaMin = 10, areaMax = 20.
-     *
-     *     -----------
-     *    | 0 | 1 | 2 |
-     *     -----------
-     *    | 3 | 4 | 5 |
-     *     -----------
-     *    | 6 | 7 | 8 |
-     *     -----------
+     * <p>
+     * -----------
+     * | 0 | 1 | 2 |
+     * -----------
+     * | 3 | 4 | 5 |
+     * -----------
+     * | 6 | 7 | 8 |
+     * -----------
      */
     @Test
     public void testSizeRegionFail() {

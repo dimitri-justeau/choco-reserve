@@ -26,9 +26,9 @@ package chocoreserve.solver.constraints.spatial;
 import chocoreserve.grid.Grid;
 import chocoreserve.grid.neighborhood.INeighborhood;
 import chocoreserve.grid.neighborhood.Neighborhoods;
-import chocoreserve.solver.region.AbstractRegion;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.constraints.choco.PropNeighbors;
+import chocoreserve.solver.region.AbstractRegion;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.SetVar;
 
@@ -56,8 +56,8 @@ public class BufferZone extends SpatialConstraint {
         this.region1 = region1;
         this.region2 = region2;
         this.buffer = buffer;
-        this.neighSet1 = chocoModel.setVar("neighSet1", new int[] {}, IntStream.range(0, nbCells).toArray());
-        this.neighSet2 = chocoModel.setVar("neighSet2", new int[] {}, IntStream.range(0, nbCells).toArray());
+        this.neighSet1 = chocoModel.setVar("neighSet1", new int[]{}, IntStream.range(0, nbCells).toArray());
+        this.neighSet2 = chocoModel.setVar("neighSet2", new int[]{}, IntStream.range(0, nbCells).toArray());
     }
 
 

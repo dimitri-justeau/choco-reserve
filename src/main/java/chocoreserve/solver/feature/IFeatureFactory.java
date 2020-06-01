@@ -68,7 +68,7 @@ public interface IFeatureFactory {
     }
 
     /**
-     * @param name The name of the feature.
+     * @param name           The name of the feature.
      * @param rasterFilePath The path to the raster file representing the feature.
      * @return A binary feature from a raster file.
      * @throws IOException
@@ -106,7 +106,7 @@ public interface IFeatureFactory {
     }
 
     /**
-     * @param name The name of the feature.
+     * @param name           The name of the feature.
      * @param rasterFilePath The path to the raster file representing the feature.
      * @return A quantitative feature from a raster file.
      * @throws IOException
@@ -144,7 +144,7 @@ public interface IFeatureFactory {
     }
 
     /**
-     * @param name The name of the feature.
+     * @param name           The name of the feature.
      * @param rasterFilePath The path to the raster file representing the feature.
      * @return A probabilistic feature from a raster file.
      * @throws IOException

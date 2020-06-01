@@ -38,7 +38,7 @@ import java.util.stream.IntStream;
 /**
  *
  */
-public class PropSetCovering extends Propagator<Variable>{
+public class PropSetCovering extends Propagator<Variable> {
 
     private IntVar N;
     private SetVar T;
@@ -48,7 +48,7 @@ public class PropSetCovering extends Propagator<Variable>{
     private int[] C;
 
     public PropSetCovering(IntVar N, SetVar T, Set<Integer> U, Set<Integer>[] X, int[] C) {
-        super(new Variable[] {N, T}, PropagatorPriority.LINEAR, false);
+        super(new Variable[]{N, T}, PropagatorPriority.LINEAR, false);
         this.N = N;
         this.T = T;
         this.U = U;

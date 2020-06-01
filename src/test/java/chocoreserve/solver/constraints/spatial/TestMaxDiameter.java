@@ -25,8 +25,8 @@ package chocoreserve.solver.constraints.spatial;
 
 import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
-import chocoreserve.solver.region.Region;
 import chocoreserve.solver.ReserveModel;
+import chocoreserve.solver.region.Region;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -52,7 +52,7 @@ public class TestMaxDiameter {
         reserveModel.maxDiameter(core, 3).post();
         Solver solver = reserveModel.getChocoSolver();
         List<Solution> solutions = solver.findAllSolutions();
-        Assert.assertEquals((int)(Math.pow(2, 6) - 1), solutions.size());
+        Assert.assertEquals((int) (Math.pow(2, 6) - 1), solutions.size());
     }
 
     /**

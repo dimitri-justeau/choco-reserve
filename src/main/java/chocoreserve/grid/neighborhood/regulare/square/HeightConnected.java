@@ -28,9 +28,6 @@ import chocoreserve.grid.regular.square.RegularSquareGrid;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.chocosolver.util.objects.setDataStructures.SetFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * The height-connected neighborhood in a regular square grid.
  */
@@ -58,7 +55,7 @@ public class HeightConnected<T extends RegularSquareGrid> implements INeighborho
         if ((i < nbCols * (nbRows - 1)) && (i % nbCols != 0)) {
             neighbors.add(i + nbCols - 1);
         }
-        if ((i % nbCols != 0) && i >=nbCols) {
+        if ((i % nbCols != 0) && i >= nbCols) {
             neighbors.add(i - nbCols - 1);
         }
         if (((i + 1) % nbCols != 0) && i >= nbCols) {

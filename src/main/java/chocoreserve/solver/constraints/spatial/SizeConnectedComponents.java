@@ -23,12 +23,10 @@
 
 package chocoreserve.solver.constraints.spatial;
 
+import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.constraints.choco.graph.spatial.PropSizeMaxCCSpatialGraph;
 import chocoreserve.solver.constraints.choco.graph.spatial.PropSizeMinCCSpatialGraph;
 import chocoreserve.solver.region.Region;
-import chocoreserve.solver.ReserveModel;
-import org.chocosolver.graphsolver.cstrs.connectivity.PropSizeMaxCC;
-import org.chocosolver.graphsolver.cstrs.connectivity.PropSizeMinCC;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.constraints.binary.PropGreaterOrEqualX_Y;
 import org.chocosolver.solver.variables.IntVar;
@@ -51,9 +49,9 @@ public class SizeConnectedComponents extends SpatialConstraint {
     @Override
     public void post() {
         Constraint c = new Constraint("SizeCC",
-            new PropGreaterOrEqualX_Y(new IntVar[]{maxSizeCC, minSizeCC}),
-            new PropSizeMinCCSpatialGraph(region.getSetVar(), minSizeCC),
-            new PropSizeMaxCCSpatialGraph(region.getSetVar(), maxSizeCC)
+                new PropGreaterOrEqualX_Y(new IntVar[]{maxSizeCC, minSizeCC}),
+                new PropSizeMinCCSpatialGraph(region.getSetVar(), minSizeCC),
+                new PropSizeMaxCCSpatialGraph(region.getSetVar(), maxSizeCC)
         );
         chocoModel.post(c);
     }

@@ -33,17 +33,17 @@ import java.util.Arrays;
 /**
  * Test case for HeightConnectedSquareGrid.
  * Tests are on a 5x5 grid :
- *     -------------------
- *    | 0 | 1 | 2 | 3 | 4 |
- *     -------------------
- *    | 5 | 6 | 7 | 8 | 9 |
- *     -------------------
- *    | 10| 11| 12| 13| 14|
- *     -------------------
- *    | 15| 16| 17| 18| 19|
- *     -------------------
- *    | 20| 21| 22| 23| 24|
- *     -------------------
+ * -------------------
+ * | 0 | 1 | 2 | 3 | 4 |
+ * -------------------
+ * | 5 | 6 | 7 | 8 | 9 |
+ * -------------------
+ * | 10| 11| 12| 13| 14|
+ * -------------------
+ * | 15| 16| 17| 18| 19|
+ * -------------------
+ * | 20| 21| 22| 23| 24|
+ * -------------------
  */
 public class TestHeightConnectedSquareGrid {
 
@@ -54,27 +54,27 @@ public class TestHeightConnectedSquareGrid {
         // Cell in the middle: 12
         int[] neighbors = neigh.getNeighbors(grid, 12).toArray();
         Arrays.sort(neighbors);
-        int[] expected = new int[] {6, 7, 8, 11, 13, 16, 17, 18};
+        int[] expected = new int[]{6, 7, 8, 11, 13, 16, 17, 18};
         Assert.assertTrue(Arrays.equals(neighbors, expected));
         // Cell 0
         neighbors = neigh.getNeighbors(grid, 0).toArray();
         Arrays.sort(neighbors);
-        expected = new int[] {1, 5, 6};
+        expected = new int[]{1, 5, 6};
         Assert.assertTrue(Arrays.equals(neighbors, expected));
         // Cell 15
         neighbors = neigh.getNeighbors(grid, 15).toArray();
         Arrays.sort(neighbors);
-        expected = new int[] {10, 11, 16, 20, 21};
+        expected = new int[]{10, 11, 16, 20, 21};
         Assert.assertTrue(Arrays.equals(neighbors, expected));
         // Cell 9
         neighbors = neigh.getNeighbors(grid, 9).toArray();
         Arrays.sort(neighbors);
-        expected = new int[] {3, 4, 8, 13, 14};
+        expected = new int[]{3, 4, 8, 13, 14};
         Assert.assertTrue(Arrays.equals(neighbors, expected));
         // Cell 24
         neighbors = neigh.getNeighbors(grid, 24).toArray();
         Arrays.sort(neighbors);
-        expected = new int[] {18, 19, 23};
+        expected = new int[]{18, 19, 23};
         Assert.assertTrue(Arrays.equals(neighbors, expected));
     }
 }

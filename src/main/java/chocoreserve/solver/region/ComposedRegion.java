@@ -25,17 +25,10 @@ package chocoreserve.solver.region;
 
 import chocoreserve.grid.Grid;
 import chocoreserve.grid.neighborhood.INeighborhood;
-import chocoreserve.solver.constraints.choco.graph.PropInducedNeighborhood;
 import chocoreserve.solver.variable.SpatialGraphVar;
-import chocoreserve.util.objects.graphs.UndirectedGraphIncrementalCC;
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
-import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.SetVar;
-import org.chocosolver.solver.variables.impl.SetVarImpl;
-import org.chocosolver.util.objects.graphs.UndirectedGraph;
 import org.chocosolver.util.objects.setDataStructures.SetType;
-import org.chocosolver.util.tools.ArrayUtils;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -54,7 +47,7 @@ public class ComposedRegion extends AbstractRegion {
     private Region[] regions;
     private int[] LBNodes;
     private int[] UBNodes;
-    private  boolean ubDecr;
+    private boolean ubDecr;
 
     public ComposedRegion(String name, Region... regions) {
         this(name, false, regions);

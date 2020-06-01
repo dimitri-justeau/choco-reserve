@@ -23,7 +23,9 @@
 
 package chocoreserve.grid;
 
-import org.geotools.data.*;
+import org.geotools.data.DataStore;
+import org.geotools.data.DataStoreFinder;
+import org.geotools.data.FeatureSource;
 import org.geotools.data.shapefile.ShapefileDumper;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.factory.CommonFactoryFinder;
@@ -42,7 +44,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * Grid loaded from a shapefile.
@@ -70,7 +71,7 @@ public class ShapefileGrid extends Grid {
 
         FeatureCollection<SimpleFeatureType, SimpleFeature> collection = getFeatureCollection(Filter.INCLUDE);
 
-        LOGGER.info("Shapefile successfully loaded (" +  collection.size() + " sites)!");
+        LOGGER.info("Shapefile successfully loaded (" + collection.size() + " sites)!");
         LOGGER.info("Computing neighborhood...");
 
         this.shapeIds = new String[collection.size()];
@@ -88,7 +89,7 @@ public class ShapefileGrid extends Grid {
                 shapeIdToInternalId.put(getFeatureId(feature), i);
                 neighbors.put(getFeatureId(feature), new HashSet<>());
                 MultiPolygon geom = (MultiPolygon) feature.getDefaultGeometryProperty().getValue();
-                centroids.put(shapeIds[i], new double[] {geom.getCentroid().getX(), geom.getCentroid().getY()});
+                centroids.put(shapeIds[i], new double[]{geom.getCentroid().getX(), geom.getCentroid().getY()});
                 Filter filter = ff.or(
                         ff.touches(ff.property("the_geom"), ff.literal(geom)),
                         ff.overlaps(ff.property("the_geom"), ff.literal(geom))

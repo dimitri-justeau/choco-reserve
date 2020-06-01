@@ -47,13 +47,13 @@ public class PoorestInNeighborhoodVarSelector implements VariableSelector<IntVar
     @Override
     public IntVar getVariable(IntVar[] intVars) {
         Set<Integer> neighorhood = neighborhood.getNeighborhood();
-        for (int i = poorest.ranking.length - 1; i >=0; i--) {
+        for (int i = poorest.ranking.length - 1; i >= 0; i--) {
             IntVar var = poorest.reserveModel.getSites()[poorest.ranking[i]];
             if (neighorhood.contains(i) && !var.isInstantiated()) {
                 return var;
             }
         }
-        for (int i = poorest.ranking.length - 1; i >=0; i--) {
+        for (int i = poorest.ranking.length - 1; i >= 0; i--) {
             IntVar var = poorest.reserveModel.getSites()[poorest.ranking[i]];
             if (!var.isInstantiated()) {
                 return var;

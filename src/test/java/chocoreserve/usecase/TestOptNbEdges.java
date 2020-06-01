@@ -32,7 +32,6 @@ import chocoreserve.solver.constraints.spatial.NbEdges;
 import chocoreserve.solver.region.ComposedRegion;
 import chocoreserve.solver.region.Region;
 import chocoreserve.solver.variable.SpatialGraphVar;
-
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.constraints.Constraint;
@@ -85,21 +84,21 @@ public class TestOptNbEdges {
                 "reforestA",
                 Neighborhoods.FOUR_CONNECTED,
                 SetType.BIPARTITESET,
-                new int[] {},
+                new int[]{},
                 reforestAUB
         );
         Region reforestB = new Region(
                 "reforestB",
                 Neighborhoods.FOUR_CONNECTED,
                 SetType.BIPARTITESET,
-                new int[] {},
+                new int[]{},
                 reforestBUB
         );
         Region out = new Region(
                 "out",
                 Neighborhoods.FOUR_CONNECTED,
                 SetType.BIPARTITESET,
-                new int[] {},
+                new int[]{},
                 outUB
         );
 
@@ -107,8 +106,8 @@ public class TestOptNbEdges {
 
         ReserveModel reserveModel = new ReserveModel(
                 grid,
-                new Region[] {out, forest, reforestA, reforestB},
-                new ComposedRegion[] {potentialForest}
+                new Region[]{out, forest, reforestA, reforestB},
+                new ComposedRegion[]{potentialForest}
         );
 
         GraphModel model = reserveModel.getChocoModel();
@@ -177,21 +176,21 @@ public class TestOptNbEdges {
                 "reforestA",
                 Neighborhoods.FOUR_CONNECTED,
                 SetType.BIPARTITESET,
-                new int[] {},
+                new int[]{},
                 reforestAUB
         );
         Region reforestB = new Region(
                 "reforestB",
                 Neighborhoods.FOUR_CONNECTED,
                 SetType.BIPARTITESET,
-                new int[] {},
+                new int[]{},
                 reforestBUB
         );
         Region out = new Region(
                 "out",
                 Neighborhoods.FOUR_CONNECTED,
                 SetType.BIPARTITESET,
-                new int[] {},
+                new int[]{},
                 outUB
         );
 
@@ -200,8 +199,8 @@ public class TestOptNbEdges {
 
         ReserveModel reserveModel = new ReserveModel(
                 grid,
-                new Region[] {out, forest, reforestA, reforestB},
-                new ComposedRegion[] {potentialForestA, potentialForestB}
+                new Region[]{out, forest, reforestA, reforestB},
+                new ComposedRegion[]{potentialForestA, potentialForestB}
         );
 
         GraphModel model = reserveModel.getChocoModel();
@@ -281,14 +280,14 @@ public class TestOptNbEdges {
                 "reforestA",
                 Neighborhoods.FOUR_CONNECTED,
                 SetType.BIPARTITESET,
-                new int[] {},
+                new int[]{},
                 reforestAUB
         );
         Region out = new Region(
                 "out",
                 Neighborhoods.FOUR_CONNECTED,
                 SetType.BIPARTITESET,
-                new int[] {},
+                new int[]{},
                 outUB
         );
 
@@ -297,8 +296,8 @@ public class TestOptNbEdges {
 
         ReserveModel reserveModel = new ReserveModel(
                 grid,
-                new Region[] {out, reforestA, forest},
-                new ComposedRegion[] {potentialForest}
+                new Region[]{out, reforestA, forest},
+                new ComposedRegion[]{potentialForest}
         );
 
         reserveModel.nbConnectedComponents(reforestA, 1, 1).post();

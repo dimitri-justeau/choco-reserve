@@ -31,7 +31,6 @@ import org.chocosolver.solver.variables.IntVar;
 
 /**
  * Variable selector prioritizing sites both in the neighborhood of the LB of a region and in is UB.
- *
  */
 public class IICVarSelector implements VariableSelector<IntVar> {
 

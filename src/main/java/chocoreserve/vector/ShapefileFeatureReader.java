@@ -25,7 +25,6 @@ package chocoreserve.vector;
 
 import chocoreserve.grid.ShapefileGrid;
 import chocoreserve.solver.feature.BinaryFeature;
-import chocoreserve.solver.feature.QuantitativeFeature;
 import chocoreserve.solver.feature.array.BinaryArrayFeature;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
@@ -34,8 +33,6 @@ import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.geotools.util.factory.GeoTools;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.MultiPolygon;
 import org.locationtech.jts.geom.Point;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -44,7 +41,10 @@ import org.opengis.filter.FilterFactory2;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 /**

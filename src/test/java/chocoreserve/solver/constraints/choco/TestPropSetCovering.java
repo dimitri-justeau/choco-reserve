@@ -33,7 +33,8 @@ import org.chocosolver.solver.variables.SetVar;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -50,7 +51,7 @@ public class TestPropSetCovering {
     public void testSuccess1() {
         Set<Integer> U_set = IntStream.range(0, 10).boxed().collect(Collectors.toSet());
         int[] U = U_set.stream().mapToInt(i -> i).toArray();
-        int[][] X = new int[][] {
+        int[][] X = new int[][]{
                 {0, 1, 2},
                 {2, 3, 5},
                 {7, 8, 9},
@@ -60,7 +61,7 @@ public class TestPropSetCovering {
         };
         int[] C = IntStream.range(0, X.length).map(i -> 1).toArray();
         Model model = new Model();
-        SetVar T = model.setVar(new int[] {}, IntStream.range(0, X.length).toArray());
+        SetVar T = model.setVar(new int[]{}, IntStream.range(0, X.length).toArray());
         Solver solver = model.getSolver();
         IntVar N = model.intVar(0, X.length);
         Constraint SC = new Constraint("SC", new PropSetCovering(N, T, U, X, C));
@@ -75,8 +76,8 @@ public class TestPropSetCovering {
                 Assert.assertEquals(U_set, union);
                 solutions.add(
                         IntStream.of(T.getValue().toArray())
-                            .boxed()
-                            .collect(Collectors.toSet())
+                                .boxed()
+                                .collect(Collectors.toSet())
                 );
             } while (solver.solve());
         } else {
@@ -109,7 +110,7 @@ public class TestPropSetCovering {
     public void testFindOptimal() {
         Set<Integer> U_set = new HashSet<>(IntStream.range(0, 10).boxed().collect(Collectors.toList()));
         int[] U = U_set.stream().mapToInt(i -> i).toArray();
-        int[][] X = new int[][] {
+        int[][] X = new int[][]{
                 {0, 1, 2, 3, 4},
                 {7, 6, 5},
                 {8, 9},
@@ -120,7 +121,7 @@ public class TestPropSetCovering {
         };
         int[] C = IntStream.range(0, X.length).map(i -> 1).toArray();
         Model model = new Model();
-        SetVar T = model.setVar(new int[] {}, IntStream.range(0, X.length).toArray());
+        SetVar T = model.setVar(new int[]{}, IntStream.range(0, X.length).toArray());
         Solver solver = model.getSolver();
         IntVar N = model.intVar(0, X.length);
         Constraint SC = new Constraint("SC", new PropSetCovering(N, T, U, X, C));
@@ -132,7 +133,7 @@ public class TestPropSetCovering {
             Set<Integer> values = IntStream.of(T.getValue().toArray())
                     .boxed()
                     .collect(Collectors.toSet());
-            Set<Integer> expected = IntStream.of(new int[] { 0, 1, 2 })
+            Set<Integer> expected = IntStream.of(new int[]{0, 1, 2})
                     .boxed()
                     .collect(Collectors.toSet());
             Assert.assertEquals(expected, values);

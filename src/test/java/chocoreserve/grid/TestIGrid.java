@@ -60,7 +60,7 @@ public class TestIGrid {
     public void testGetPartialGraph() {
         RegularSquareGrid grid = new RegularSquareGrid(5, 5);
         GraphModel model = new GraphModel();
-        int[] cells = new int[] {6, 7, 10, 11, 12, 15};
+        int[] cells = new int[]{6, 7, 10, 11, 12, 15};
         List<Integer> listCells = IntStream.of(cells).boxed().collect(Collectors.toList());
         UndirectedGraph g = Neighborhoods.FOUR_CONNECTED.getPartialGraph(grid, model, cells, SetType.BIPARTITESET);
         int[] nodes = g.getNodes().toArray();

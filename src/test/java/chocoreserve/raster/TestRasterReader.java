@@ -55,7 +55,8 @@ public class TestRasterReader {
         try {
             new RasterReader(fullPath);
             Assert.fail();
-        } catch (IOException e) { }
+        } catch (IOException e) {
+        }
     }
 
     @Test

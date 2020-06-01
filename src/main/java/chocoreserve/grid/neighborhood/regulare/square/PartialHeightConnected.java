@@ -25,12 +25,8 @@ package chocoreserve.grid.neighborhood.regulare.square;
 
 import chocoreserve.grid.neighborhood.INeighborhood;
 import chocoreserve.grid.regular.square.PartialRegularSquareGrid;
-import chocoreserve.grid.regular.square.RegularSquareGrid;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.chocosolver.util.objects.setDataStructures.SetFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The height-connected neighborhood in a partial regular square grid.
@@ -42,7 +38,7 @@ public class PartialHeightConnected<T extends PartialRegularSquareGrid> implemen
         int nbCols = grid.getNbCols();
         int nbRows = grid.getNbRows();
         ISet neighbors = SetFactory.makeBitSet(0);
-        if (idx % nbCols != 0  && !grid.getDiscardSet().contains(idx - 1)) {
+        if (idx % nbCols != 0 && !grid.getDiscardSet().contains(idx - 1)) {
             neighbors.add(grid.getPartialIndex(idx - 1));
         }
         if (idx >= nbCols && !grid.getDiscardSet().contains(idx - nbCols)) {
@@ -54,16 +50,16 @@ public class PartialHeightConnected<T extends PartialRegularSquareGrid> implemen
         if (idx < nbCols * (nbRows - 1) && !grid.getDiscardSet().contains(idx + nbCols)) {
             neighbors.add(grid.getPartialIndex(idx + nbCols));
         }
-        if ((idx < nbCols * (nbRows - 1)) && ((idx + 1) % nbCols != 0)  && !grid.getDiscardSet().contains(idx + nbCols + 1)) {
+        if ((idx < nbCols * (nbRows - 1)) && ((idx + 1) % nbCols != 0) && !grid.getDiscardSet().contains(idx + nbCols + 1)) {
             neighbors.add(grid.getPartialIndex(idx + nbCols + 1));
         }
-        if ((idx < nbCols * (nbRows - 1)) && (idx % nbCols != 0)  && !grid.getDiscardSet().contains(idx + nbCols - 1)) {
+        if ((idx < nbCols * (nbRows - 1)) && (idx % nbCols != 0) && !grid.getDiscardSet().contains(idx + nbCols - 1)) {
             neighbors.add(grid.getPartialIndex(idx + nbCols - 1));
         }
-        if ((idx % nbCols != 0) && idx >=nbCols && !grid.getDiscardSet().contains(idx - nbCols - 1)) {
+        if ((idx % nbCols != 0) && idx >= nbCols && !grid.getDiscardSet().contains(idx - nbCols - 1)) {
             neighbors.add(grid.getPartialIndex(idx - nbCols - 1));
         }
-        if (((idx + 1) % nbCols != 0) && idx >= nbCols  && !grid.getDiscardSet().contains(idx - nbCols + 1)) {
+        if (((idx + 1) % nbCols != 0) && idx >= nbCols && !grid.getDiscardSet().contains(idx - nbCols + 1)) {
             neighbors.add(grid.getPartialIndex(idx - nbCols + 1));
         }
         return neighbors;

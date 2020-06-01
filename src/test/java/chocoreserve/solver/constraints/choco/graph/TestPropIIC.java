@@ -49,29 +49,29 @@ import java.util.Arrays;
 /**
  * Test for PropIIC constraint.
  * LB =
- *     -------------------
- *    | 0 | 1 | 2 |   | 4 |
- *     -------------------
- *    |   |   | 7 |   | 9 |
- *     -------------------
- *    | 10| 11| 12|   |   |
- *     -------------------
- *    | 15|   |   |   |   |
- *     -------------------
- *    | 20| 21| 22| 23| 24|
- *     -------------------
+ * -------------------
+ * | 0 | 1 | 2 |   | 4 |
+ * -------------------
+ * |   |   | 7 |   | 9 |
+ * -------------------
+ * | 10| 11| 12|   |   |
+ * -------------------
+ * | 15|   |   |   |   |
+ * -------------------
+ * | 20| 21| 22| 23| 24|
+ * -------------------
  * UB =
- *     -------------------
- *    | 0 | 1 | 2 | 3 | 4 |
- *     -------------------
- *    | 5 | 6 | 7 | 8 | 9 |
- *     -------------------
- *    | 10| 11| 12| 13| 14|
- *     -------------------
- *    | 15| 16| 17| 18| 19|
- *     -------------------
- *    | 20| 21| 22| 23| 24|
- *     -------------------
+ * -------------------
+ * | 0 | 1 | 2 | 3 | 4 |
+ * -------------------
+ * | 5 | 6 | 7 | 8 | 9 |
+ * -------------------
+ * | 10| 11| 12| 13| 14|
+ * -------------------
+ * | 15| 16| 17| 18| 19|
+ * -------------------
+ * | 20| 21| 22| 23| 24|
+ * -------------------
  */
 public class TestPropIIC {
 
@@ -81,10 +81,10 @@ public class TestPropIIC {
         INeighborhood n4 = Neighborhoods.FOUR_CONNECTED;
         GraphModel model = new GraphModel("TestPropInducedNeigh");
         UndirectedGraph LB = new UndirectedGraph(model, grid.getNbCells(), SetType.BIPARTITESET, false);
-        for (int i : new int[] {0, 1, 2, 7, 10, 11, 12, 15, 20, 21, 22, 23, 24, 4, 9}) {
+        for (int i : new int[]{0, 1, 2, 7, 10, 11, 12, 15, 20, 21, 22, 23, 24, 4, 9}) {
             LB.addNode(i);
         }
-        int[][] edges = new int[][] {
+        int[][] edges = new int[][]{
                 {0, 1}, {1, 2}, {2, 7}, {7, 12}, {11, 12}, {10, 11}, {10, 15}, {15, 20}, {20, 21}, {21, 22}, {22, 23},
                 {23, 24}, {4, 9}
         };
@@ -92,9 +92,9 @@ public class TestPropIIC {
             LB.addEdge(e[0], e[1]);
         }
         UndirectedGraphVar g = model.graphVar(
-            "testGraph",
-            LB,
-            n4.getFullGraph(grid, model, SetType.BIPARTITESET)
+                "testGraph",
+                LB,
+                n4.getFullGraph(grid, model, SetType.BIPARTITESET)
         );
         RealVar iic = model.realVar(0, 1, 1e-5);
         PropIICExp propIIC = new PropIICExp(g, iic);
@@ -105,7 +105,7 @@ public class TestPropIIC {
         int[][] distsMDA = propIIC.allPairsShortestPathsMDA(grid, g.getUB());
         long t2 = System.currentTimeMillis();
 
-        int[] expected0 = new int[] {
+        int[] expected0 = new int[]{
                 0, 1, 2, 3, 4,
                 1, 2, 3, 4, 5,
                 2, 3, 4, 5, 6,
@@ -113,7 +113,7 @@ public class TestPropIIC {
                 4, 5, 6, 7, 8
         };
 
-        int[] expected18 = new int[] {
+        int[] expected18 = new int[]{
                 6, 5, 4, 3, 4,
                 5, 4, 3, 2, 3,
                 4, 3, 2, 1, 2,
@@ -186,39 +186,39 @@ public class TestPropIIC {
 
     /**
      * LB =
-     *     -----------------------
-     *    | 0 | 1 | 2 |   |   |   |
-     *     -----------------------
-     *    |   | 7 |   | 9 | 10|   |
-     *     -----------------------
-     *    | 12| 13| 14|   |   |   |
-     *     -----------------------
-     *    |   | 19| 20|   | 22|   |
-     *     -----------------------
-     *    | 24|   | 26|   | 28|   |
-     *     -----------------------
-     *    | 30| 31| 32| 33| 34| 35|
-     *     -----------------------
-     *
-     *            -----------------------
-     *      *    | 0 | 1 | 2 |   |   |   |
-     *      *     -----------------------
-     *      *    |   | 3 |   | 4 | 5 |   |
-     *      *     -----------------------
-     *      *    | 6 | 7 | 8 |   |   |   |
-     *      *     -----------------------
-     *      *    |   | 9 | 10|   | 11|   |
-     *      *     -----------------------
-     *      *    | 12|   | 13|   | 14|   |
-     *      *     -----------------------
-     *      *    | 15| 16| 17| 18| 19| 20|
-     *      *     -----------------------
+     * -----------------------
+     * | 0 | 1 | 2 |   |   |   |
+     * -----------------------
+     * |   | 7 |   | 9 | 10|   |
+     * -----------------------
+     * | 12| 13| 14|   |   |   |
+     * -----------------------
+     * |   | 19| 20|   | 22|   |
+     * -----------------------
+     * | 24|   | 26|   | 28|   |
+     * -----------------------
+     * | 30| 31| 32| 33| 34| 35|
+     * -----------------------
+     * <p>
+     * -----------------------
+     * *    | 0 | 1 | 2 |   |   |   |
+     * *     -----------------------
+     * *    |   | 3 |   | 4 | 5 |   |
+     * *     -----------------------
+     * *    | 6 | 7 | 8 |   |   |   |
+     * *     -----------------------
+     * *    |   | 9 | 10|   | 11|   |
+     * *     -----------------------
+     * *    | 12|   | 13|   | 14|   |
+     * *     -----------------------
+     * *    | 15| 16| 17| 18| 19| 20|
+     * *     -----------------------
      */
     @Test
     public void testIICPartialRegularSquareGrid() {
 
         PartialRegularSquareGrid grid = new PartialRegularSquareGrid(6, 6,
-                new int[] {3, 4, 5, 6, 8, 11, 15, 16, 17, 18, 21, 23, 25, 27, 29});
+                new int[]{3, 4, 5, 6, 8, 11, 15, 16, 17, 18, 21, 23, 25, 27, 29});
         INeighborhood n4 = Neighborhoods.PARTIAL_FOUR_CONNECTED;
         GraphModel model = new GraphModel("TestPropInducedNeigh");
         UndirectedGraph LB = new UndirectedGraph(model, grid.getNbCells(), SetType.BIPARTITESET, false);
@@ -252,13 +252,13 @@ public class TestPropIIC {
 
     /**
      * LB =
-     *     -----------
-     *    | 0 | 1 | 2 |
-     *     -----------
-     *    |   | 4 |   |
-     *     -----------
-     *    | 6 | 7 | 8 |
-     *     -----------
+     * -----------
+     * | 0 | 1 | 2 |
+     * -----------
+     * |   | 4 |   |
+     * -----------
+     * | 6 | 7 | 8 |
+     * -----------
      */
     @Test
     public void testIIC1() {
@@ -268,7 +268,7 @@ public class TestPropIIC {
         UndirectedGraph LB = n4.getPartialGraph(
                 grid,
                 model,
-                new int[] {0, 1, 2, 4, 5, 6, 7, 8},
+                new int[]{0, 1, 2, 4, 5, 6, 7, 8},
                 SetType.BIPARTITESET
         );
         UndirectedGraphVar g = model.graphVar(
@@ -284,7 +284,7 @@ public class TestPropIIC {
         LB = n4.getPartialGraph(
                 grid,
                 model,
-                new int[] {0, 1, 2, 3, 4, 6, 7, 8},
+                new int[]{0, 1, 2, 3, 4, 6, 7, 8},
                 SetType.BIPARTITESET
         );
         System.out.println(propIIC.computeIIC_MDA(grid, LB));
@@ -292,13 +292,13 @@ public class TestPropIIC {
 
     /**
      * LB =
-     *     -------------------------------
-     *    | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
-     *     -------------------------------
-     *    | 8 |   | 10| 11| 12| 13|   | 15|
-     *     -------------------------------
-     *    | 16| 17| 18|   |   | 21| 22| 23|
-     *     -------------------------------
+     * -------------------------------
+     * | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+     * -------------------------------
+     * | 8 |   | 10| 11| 12| 13|   | 15|
+     * -------------------------------
+     * | 16| 17| 18|   |   | 21| 22| 23|
+     * -------------------------------
      */
     @Test
     public void testIIC2() {
@@ -308,7 +308,7 @@ public class TestPropIIC {
         UndirectedGraph LB = n4.getPartialGraph(
                 grid,
                 model,
-                new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 21, 22, 23},
+                new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 21, 22, 23},
                 SetType.BIPARTITESET
         );
         UndirectedGraphVar g = model.graphVar(
@@ -324,7 +324,7 @@ public class TestPropIIC {
         LB = n4.getPartialGraph(
                 grid,
                 model,
-                new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 21, 22, 23},
+                new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 21, 22, 23},
                 SetType.BIPARTITESET
         );
         System.out.println(propIIC.computeIIC_MDA(grid, LB));
@@ -332,7 +332,7 @@ public class TestPropIIC {
         LB = n4.getPartialGraph(
                 grid,
                 model,
-                new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23},
+                new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23},
                 SetType.BIPARTITESET
         );
         System.out.println(propIIC.computeIIC_MDA(grid, LB));
@@ -340,7 +340,7 @@ public class TestPropIIC {
         LB = n4.getPartialGraph(
                 grid,
                 model,
-                new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 19, 21, 22, 23},
+                new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 19, 21, 22, 23},
                 SetType.BIPARTITESET
         );
         System.out.println(propIIC.computeIIC_MDA(grid, LB));
@@ -348,7 +348,7 @@ public class TestPropIIC {
         LB = n4.getPartialGraph(
                 grid,
                 model,
-                new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 20, 21, 22, 23},
+                new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 20, 21, 22, 23},
                 SetType.BIPARTITESET
         );
         System.out.println(propIIC.computeIIC_MDA(grid, LB));
@@ -357,7 +357,7 @@ public class TestPropIIC {
         LB = n4.getPartialGraph(
                 grid,
                 model,
-                new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23},
+                new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23},
                 SetType.BIPARTITESET
         );
         System.out.println(propIIC.computeIIC_MDA(grid, LB));
@@ -366,7 +366,7 @@ public class TestPropIIC {
         LB = n4.getPartialGraph(
                 grid,
                 model,
-                new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23},
+                new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23},
                 SetType.BIPARTITESET
         );
         System.out.println(propIIC.computeIIC_MDA(grid, LB));
@@ -375,7 +375,7 @@ public class TestPropIIC {
         LB = n4.getPartialGraph(
                 grid,
                 model,
-                new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 21, 22, 23},
+                new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 21, 22, 23},
                 SetType.BIPARTITESET
         );
         System.out.println(propIIC.computeIIC_MDA(grid, LB));
@@ -384,7 +384,7 @@ public class TestPropIIC {
         LB = n4.getPartialGraph(
                 grid,
                 model,
-                new int[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 20, 21, 22, 23},
+                new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 20, 21, 22, 23},
                 SetType.BIPARTITESET
         );
         System.out.println(propIIC.computeIIC_MDA(grid, LB));
@@ -394,7 +394,7 @@ public class TestPropIIC {
     public void testIncr() {
         RegularSquareGrid grid = new RegularSquareGrid(4, 4);
         INeighborhood n4 = Neighborhoods.FOUR_CONNECTED;
-        Region forest = new Region("forest", n4, SetType.BIPARTITESET, new int[] {}, null, false);
+        Region forest = new Region("forest", n4, SetType.BIPARTITESET, new int[]{}, null, false);
         Region out = new Region("out", n4);
         ReserveModel resModel = new ReserveModel(grid, out, forest);
         GraphModel model = resModel.getChocoModel();

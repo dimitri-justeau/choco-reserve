@@ -32,26 +32,24 @@ import chocoreserve.solver.region.Region;
 import chocoreserve.solver.variable.SpatialGraphVar;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.search.loop.monitors.IMonitorSolution;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.setDataStructures.SetType;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class TestNbArcsSpatialGraph {
 
     /**
-     *     -------------------
-     *    | 0 | 1 | 2 | 3 | 4 |
-     *     -------------------
-     *    | 5 |   |   |   | 9 |
-     *     -------------------
-     *    |   |   |   |   |   |
-     *     -------------------
-     *    |   |   |   |   |   |
-     *     -------------------
-     *    |   |   |   |   |   |
-     *     -------------------
+     * -------------------
+     * | 0 | 1 | 2 | 3 | 4 |
+     * -------------------
+     * | 5 |   |   |   | 9 |
+     * -------------------
+     * |   |   |   |   |   |
+     * -------------------
+     * |   |   |   |   |   |
+     * -------------------
+     * |   |   |   |   |   |
+     * -------------------
      */
     @Test
     public void testNbArcs() {
@@ -60,7 +58,7 @@ public class TestNbArcsSpatialGraph {
         Region in = new Region(
                 "in",
                 n4, SetType.BIPARTITESET,
-                new int[] {0, 1, 2, 3, 4, 5, 9}
+                new int[]{0, 1, 2, 3, 4, 5, 9}
         );
         Region out = new Region("out", n4);
         ReserveModel resModel = new ReserveModel(grid, out, in);

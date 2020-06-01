@@ -26,14 +26,10 @@ package chocoreserve.solver.search.selectors.variables;
 import chocoreserve.grid.Grid;
 import chocoreserve.grid.neighborhood.INeighborhood;
 import chocoreserve.solver.region.AbstractRegion;
-import chocoreserve.solver.region.Region;
 import org.chocosolver.solver.search.strategy.selectors.variables.VariableSelector;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.setDataStructures.ISet;
-import org.chocosolver.util.tools.ArrayUtils;
 
-import java.awt.*;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -43,7 +39,6 @@ import java.util.stream.IntStream;
 
 /**
  * Variable selector prioritizing sites both in the neighborhood of the LB of a region and in is UB.
- *
  */
 public class NeighborhoodVarSelector implements VariableSelector<IntVar> {
 

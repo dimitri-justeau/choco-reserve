@@ -1,7 +1,5 @@
 package chocoreserve.solver.constraints.choco;
 
-import java.util.HashSet;
-
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -11,12 +9,14 @@ import org.chocosolver.solver.variables.events.SetEventType;
 import org.chocosolver.util.ESat;
 import org.chocosolver.util.procedure.IntProcedure;
 
+import java.util.HashSet;
+
 /**
  * @author P. Vismara (2018) <a href=
- *         "mailto:philippe.vismara@supagro.fr">philippe.vismara@supagro.fr</a><br/>
- *         Ensures that N = Neighbors(X) <br/>
- *         where Neighbors(X) = U_{x in X} adjList[x]<br/>
- *         Caution: X and Neighbors(X) are generally not disjoined
+ * "mailto:philippe.vismara@supagro.fr">philippe.vismara@supagro.fr</a><br/>
+ * Ensures that N = Neighbors(X) <br/>
+ * where Neighbors(X) = U_{x in X} adjList[x]<br/>
+ * Caution: X and Neighbors(X) are generally not disjoined
  */
 public class PropNeighbors extends Propagator<SetVar> {
 
@@ -32,22 +32,20 @@ public class PropNeighbors extends Propagator<SetVar> {
     //***********************************************************************************
     // CONSTRUCTOR
     //***********************************************************************************
+
     /**
      * Ensures that N = Neighbors(X) <br/>
      * where Neighbors(X) = U_{x in X} adjList[x]
      *
-     * @param X
-     *            a region variable
-     * @param N
-     *            a region variable
-     * @param adjLists
-     *            = adjacency list. For example, <code>adjLists[x][0] = y</code>
-     *            means that <code>y</code> is the first neighbor of
-     *            <code>x</code> and <code>adjLists[x].length</code> is the
-     *            degree of vertex <code>x</code>.
+     * @param X        a region variable
+     * @param N        a region variable
+     * @param adjLists = adjacency list. For example, <code>adjLists[x][0] = y</code>
+     *                 means that <code>y</code> is the first neighbor of
+     *                 <code>x</code> and <code>adjLists[x].length</code> is the
+     *                 degree of vertex <code>x</code>.
      */
     public PropNeighbors(SetVar X, SetVar N, int[][] adjLists) {
-        super(new SetVar[] { X, N }, PropagatorPriority.LINEAR, false);
+        super(new SetVar[]{X, N}, PropagatorPriority.LINEAR, false);
         //
         this.adjLists = adjLists;
 

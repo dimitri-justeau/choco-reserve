@@ -23,29 +23,30 @@
 
 package chocoreserve.raster;
 
-import chocoreserve.grid.Grid;
-import org.chocosolver.util.objects.graphs.UndirectedGraph;
-import org.geotools.coverage.grid.GridCoordinates2D;
 import org.geotools.coverage.grid.GridCoverage2D;
-import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.gce.geotiff.GeoTiffReader;
 
 import java.io.File;
 import java.io.IOException;
 
 /**
- *  Raster file reader. For now, only GeoTIFF files are accepted.
+ * Raster file reader. For now, only GeoTIFF files are accepted.
  */
 public class RasterReader {
 
-    /** Raster file path */
+    /**
+     * Raster file path
+     */
     private String filePath;
 
-    /** Metadata of the raster */
+    /**
+     * Metadata of the raster
+     */
     private int width, height;
 
     /**
      * Constructor.
+     *
      * @param rasterFilePath The path to the raster file.
      */
     public RasterReader(String rasterFilePath) throws IOException {

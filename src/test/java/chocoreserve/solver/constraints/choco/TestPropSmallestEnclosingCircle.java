@@ -32,14 +32,12 @@ import org.chocosolver.solver.variables.RealVar;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.swing.*;
 import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.IntStream;
 
 /**
  *
@@ -53,7 +51,7 @@ public class TestPropSmallestEnclosingCircle {
         BoolVar[] points = model.boolVarArray(25);
         double[][] coordinates = new double[25][];
         for (int i = 0; i < 25; i++) {
-            coordinates[i] = new double[] {Math.floorDiv(i, 5), i % 5};
+            coordinates[i] = new double[]{Math.floorDiv(i, 5), i % 5};
         }
         RealVar radius = model.realVar(0, Math.sqrt(50));
         RealVar x = model.realVar(0, 5);
@@ -65,7 +63,7 @@ public class TestPropSmallestEnclosingCircle {
         Assert.assertEquals(0, kernel.length);
         points[0].setToTrue(smallestCircle);
         kernel = (int[]) method.invoke(smallestCircle);
-        Assert.assertTrue(Arrays.equals(new int[] {0}, kernel));
+        Assert.assertTrue(Arrays.equals(new int[]{0}, kernel));
     }
 
     @Test
@@ -74,48 +72,50 @@ public class TestPropSmallestEnclosingCircle {
         BoolVar[] points = model.boolVarArray(25);
         double[][] coordinates = new double[25][];
         for (int i = 0; i < 25; i++) {
-            coordinates[i] = new double[] {Math.floorDiv(i, 5), i % 5};
-        }        RealVar radius = model.realVar(0, Math.sqrt(50));
+            coordinates[i] = new double[]{Math.floorDiv(i, 5), i % 5};
+        }
+        RealVar radius = model.realVar(0, Math.sqrt(50));
         RealVar x = model.realVar(0, 5);
         RealVar y = model.realVar(0, 5);
         PropSmallestEnclosingCircle smallestCircle = new PropSmallestEnclosingCircle(points, coordinates, radius, x, y);
         Method method = PropSmallestEnclosingCircle.class.getDeclaredMethod("getEnvelopePoints");
         method.setAccessible(true);
         int[] env = (int[]) method.invoke(smallestCircle);
-        Assert.assertEquals(5*5, env.length);
+        Assert.assertEquals(5 * 5, env.length);
     }
 
     @Test
-    public void testMinidisk() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException{
+    public void testMinidisk() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Model model = new Model();
         BoolVar[] points = model.boolVarArray(25);
         double[][] coordinates = new double[25][];
         for (int i = 0; i < 25; i++) {
-            coordinates[i] = new double[] {i % 5, Math.floorDiv(i, 5)};
-        }        RealVar radius = model.realVar(0, Math.sqrt(50));
+            coordinates[i] = new double[]{i % 5, Math.floorDiv(i, 5)};
+        }
+        RealVar radius = model.realVar(0, Math.sqrt(50));
         RealVar x = model.realVar(0, 5);
         RealVar y = model.realVar(0, 5);
         PropSmallestEnclosingCircle smallestCircle = new PropSmallestEnclosingCircle(points, coordinates, radius, x, y);
         Method method = PropSmallestEnclosingCircle.class.getDeclaredMethod("minidisk", int[].class);
         method.setAccessible(true);
-        double eps =  PropSmallestEnclosingCircle.EPSILON;
+        double eps = PropSmallestEnclosingCircle.EPSILON;
         // Case 1: 0 points.
-        double[] minidisk = (double[]) method.invoke(smallestCircle, new int[] {});
+        double[] minidisk = (double[]) method.invoke(smallestCircle, new int[]{});
         Assert.assertEquals(0, minidisk.length);
         // Case 2: 1 point.
-        minidisk = (double[]) method.invoke(smallestCircle, new int[] {0});
-        Assert.assertTrue(Arrays.equals(new double[] {0, 0, eps}, minidisk));
+        minidisk = (double[]) method.invoke(smallestCircle, new int[]{0});
+        Assert.assertTrue(Arrays.equals(new double[]{0, 0, eps}, minidisk));
         // Case 3: 2 points.
-        minidisk = (double[]) method.invoke(smallestCircle, new int[] {0, 2});
-        Assert.assertTrue(Arrays.equals(new double[] {1, 0, 1 + eps}, minidisk));
+        minidisk = (double[]) method.invoke(smallestCircle, new int[]{0, 2});
+        Assert.assertTrue(Arrays.equals(new double[]{1, 0, 1 + eps}, minidisk));
         // Case 4: 3 points.
-        minidisk = (double[]) method.invoke(smallestCircle, new int[] {0, 2, 6});
-        Assert.assertTrue(Arrays.equals(new double[] {1, 0, 1 + eps}, minidisk));
+        minidisk = (double[]) method.invoke(smallestCircle, new int[]{0, 2, 6});
+        Assert.assertTrue(Arrays.equals(new double[]{1, 0, 1 + eps}, minidisk));
         // Case 5: 4 points
-        minidisk = (double[]) method.invoke(smallestCircle, new int[] {5, 9, 17});
-        Assert.assertTrue(Arrays.equals(new double[] {2, 1, 2 + eps}, minidisk));
+        minidisk = (double[]) method.invoke(smallestCircle, new int[]{5, 9, 17});
+        Assert.assertTrue(Arrays.equals(new double[]{2, 1, 2 + eps}, minidisk));
         // Case 6: many points, many times !
-        int[][] pointSets = new int[][] {
+        int[][] pointSets = new int[][]{
                 {1, 2, 3, 8, 5, 9, 17, 20, 24},
                 {4, 6, 12, 13, 11, 19, 23, 7, 8},
                 {3, 6, 11, 14, 10, 17, 21, 19, 0},
@@ -153,14 +153,16 @@ public class TestPropSmallestEnclosingCircle {
         BoolVar[] points = model.boolVarArray(25);
         double[][] coordinates = new double[25][];
         for (int i = 0; i < 25; i++) {
-            coordinates[i] = new double[] {i % 5, Math.floorDiv(i, 5)};
+            coordinates[i] = new double[]{i % 5, Math.floorDiv(i, 5)};
         }
         RealVar radius = model.realVar(0, Math.sqrt(50) / 2, 1e-5);
         RealVar x = model.realVar(-5, 5, 1e-5);
         RealVar y = model.realVar(-5, 5, 1e-5);
-        double eps =  PropSmallestEnclosingCircle.EPSILON;
+        double eps = PropSmallestEnclosingCircle.EPSILON;
         Set<Integer> setTrue = new HashSet<>();
-        setTrue.add(0); setTrue.add(1); setTrue.add(2);
+        setTrue.add(0);
+        setTrue.add(1);
+        setTrue.add(2);
         for (int i = 0; i < points.length; i++) {
             if (setTrue.contains(i)) {
                 model.arithm(points[i], "=", 1).post();
@@ -186,12 +188,12 @@ public class TestPropSmallestEnclosingCircle {
     public void testEnumerate1() {
         Model model = new Model();
         BoolVar[] points = model.boolVarArray(5);
-        double[][] coordinates = new double[][] {
-            {3.3, 2.5},
-            {8.0, 9.5},
-            {2.0, 2.0},
-            {1.9, 0.5},
-            {7.2, 5.6}
+        double[][] coordinates = new double[][]{
+                {3.3, 2.5},
+                {8.0, 9.5},
+                {2.0, 2.0},
+                {1.9, 0.5},
+                {7.2, 5.6}
         };
         RealVar radius = model.realVar(0, Math.sqrt(200) / 2, 1e-5);
         RealVar x = model.realVar(-10, 10, 1e-5);
@@ -211,7 +213,7 @@ public class TestPropSmallestEnclosingCircle {
     public void testEnumerate2() {
         Model model = new Model();
         BoolVar[] points = model.boolVarArray(9);
-        double[][] coordinates = new double[][] {
+        double[][] coordinates = new double[][]{
                 {0.0, 0.0},
                 {1.0, 0.0},
                 {-1.0, 0.0},
@@ -248,7 +250,7 @@ public class TestPropSmallestEnclosingCircle {
     public void testFail() {
         Model model = new Model();
         BoolVar[] points = model.boolVarArray(5);
-        double[][] coordinates = new double[][] {
+        double[][] coordinates = new double[][]{
                 {0.0, 0.0},
                 {1.0, 0.0},
                 {-1.0, 0.0},

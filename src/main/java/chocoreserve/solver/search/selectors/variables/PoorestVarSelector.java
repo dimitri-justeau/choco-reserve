@@ -59,7 +59,7 @@ public class PoorestVarSelector implements VariableSelector<IntVar> {
 
     @Override
     public IntVar getVariable(IntVar[] intVars) {
-        for (int i = ranking.length - 1; i >=0; i--) {
+        for (int i = ranking.length - 1; i >= 0; i--) {
             IntVar var = reserveModel.getSites()[ranking[i]];
             if (!var.isInstantiated()) {
                 return var;

@@ -25,8 +25,8 @@ package chocoreserve.solver.constraints.spatial;
 
 import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
-import chocoreserve.solver.region.Region;
 import chocoreserve.solver.ReserveModel;
+import chocoreserve.solver.region.Region;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.variables.IntVar;
@@ -42,19 +42,19 @@ public class TestSizeConnectedComponents {
 
     /**
      * Success test case 1: 3x3 4-connected square grid, 2 CC of size 3 -> 4 solutions :
-     *
-     *  (0, 1, 2, 6, 7, 8) - horizontal split
-     *  (0, 1, 3, 5, 7, 8) - diagonal split 1
-     *  (0, 2, 3, 5, 6, 8) - vertical split
-     *  (1, 2, 3, 5, 6, 7) - diagonal split 2
-     *
-     *     -----------
-     *    | 0 | 1 | 2 |
-     *     -----------
-     *    | 3 | 4 | 5 |
-     *     -----------
-     *    | 6 | 7 | 8 |
-     *     -----------
+     * <p>
+     * (0, 1, 2, 6, 7, 8) - horizontal split
+     * (0, 1, 3, 5, 7, 8) - diagonal split 1
+     * (0, 2, 3, 5, 6, 8) - vertical split
+     * (1, 2, 3, 5, 6, 7) - diagonal split 2
+     * <p>
+     * -----------
+     * | 0 | 1 | 2 |
+     * -----------
+     * | 3 | 4 | 5 |
+     * -----------
+     * | 6 | 7 | 8 |
+     * -----------
      */
     @Test
     public void testSizeConnectedComponentsSuccess1() {
@@ -73,14 +73,14 @@ public class TestSizeConnectedComponents {
 
     /**
      * Success est case 2: 1x4 4-connected square grid, 1 CC of size [3, 4] -> 3 solutions :
-     *
-     *  (0, 1, 2)
-     *  (1, 2, 3)
-     *  (0, 1, 2, 3)
-     *
-     *     ---------------
-     *    | 0 | 1 | 2 | 3 |
-     *     ---------------
+     * <p>
+     * (0, 1, 2)
+     * (1, 2, 3)
+     * (0, 1, 2, 3)
+     * <p>
+     * ---------------
+     * | 0 | 1 | 2 | 3 |
+     * ---------------
      */
     @Test
     public void testSizeConnectedComponentsSuccess2() {

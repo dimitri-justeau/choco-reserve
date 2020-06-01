@@ -23,13 +23,12 @@
 
 package chocoreserve.solver.constraints.spatial;
 
-import chocoreserve.solver.region.AbstractRegion;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.constraints.choco.PropSmallestEnclosingCircle;
+import chocoreserve.solver.region.AbstractRegion;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.RealVar;
-import org.chocosolver.util.tools.ArrayUtils;
 
 import java.util.Arrays;
 
@@ -62,17 +61,17 @@ public class Radius extends SpatialConstraint {
                 radius,
                 reserveModel.getChocoModel().realVar(
                         Arrays.stream(reserveModel.getGrid().getCartesianCoordinates())
-                            .mapToDouble(c -> c[0]).min().getAsDouble(),
+                                .mapToDouble(c -> c[0]).min().getAsDouble(),
                         Arrays.stream(reserveModel.getGrid().getCartesianCoordinates())
                                 .mapToDouble(c -> c[0]).max().getAsDouble(),
                         1e-5
                 ),
                 reserveModel.getChocoModel().realVar(
-                    Arrays.stream(reserveModel.getGrid().getCartesianCoordinates())
-                            .mapToDouble(c -> c[1]).min().getAsDouble(),
-                    Arrays.stream(reserveModel.getGrid().getCartesianCoordinates())
-                            .mapToDouble(c -> c[1]).max().getAsDouble(),
-                    1e-5
+                        Arrays.stream(reserveModel.getGrid().getCartesianCoordinates())
+                                .mapToDouble(c -> c[1]).min().getAsDouble(),
+                        Arrays.stream(reserveModel.getGrid().getCartesianCoordinates())
+                                .mapToDouble(c -> c[1]).max().getAsDouble(),
+                        1e-5
                 )
         );
     }

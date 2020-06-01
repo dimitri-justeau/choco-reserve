@@ -24,16 +24,16 @@
 package chocoreserve.solver.constraints;
 
 import chocoreserve.grid.neighborhood.INeighborhood;
-import chocoreserve.solver.constraints.features.AllCovered;
-import chocoreserve.solver.region.AbstractRegion;
-import chocoreserve.solver.region.Region;
 import chocoreserve.solver.ReserveModel;
+import chocoreserve.solver.constraints.features.AllCovered;
 import chocoreserve.solver.constraints.features.CoveredFeatures;
 import chocoreserve.solver.constraints.features.MinProbability;
 import chocoreserve.solver.constraints.features.RedundantFeatures;
 import chocoreserve.solver.constraints.spatial.*;
 import chocoreserve.solver.feature.BinaryFeature;
 import chocoreserve.solver.feature.ProbabilisticFeature;
+import chocoreserve.solver.region.AbstractRegion;
+import chocoreserve.solver.region.Region;
 import org.chocosolver.solver.variables.IntVar;
 
 
@@ -64,7 +64,7 @@ public interface IReserveConstraintFactory {
      * Creates a coveredFeatures constraint. The coveredFeatures constraint holds iff each feature involved in
      * the constraint is present in at least one planning unit of the reserve system.
      *
-     * @param region The region where the constraint must be posted.
+     * @param region   The region where the constraint must be posted.
      * @param features An array of features.
      * @return A CoveredFeatures constraint.
      */
@@ -80,8 +80,8 @@ public interface IReserveConstraintFactory {
      * Creates a redundantFeatures constraint. The redundantFeatures constraint holds iff each feature involved in
      * the constraint is present in at least k distinct planning units of the reserve system.
      *
-     * @param region The region where the constraint must be posted.
-     * @param k A int representing the minimum number of distinct planning units on which each feature must be present.
+     * @param region   The region where the constraint must be posted.
+     * @param k        A int representing the minimum number of distinct planning units on which each feature must be present.
      * @param features An array of features.
      * @return A RedundantFeatures constraint.
      */
@@ -93,8 +93,8 @@ public interface IReserveConstraintFactory {
      * Creates a minProbability constraint. The minProbability constraint holds iff each feature involved in the
      * constraint is covered with a minimum probability of alpha in the reserve system.
      *
-     * @param region The region where the constraint must be posted.
-     * @param alpha A double represent the minimum probability of presence for each feature in the reserve system.
+     * @param region   The region where the constraint must be posted.
+     * @param alpha    A double represent the minimum probability of presence for each feature in the reserve system.
      * @param features An array of features.
      * @return A MinProbability constraint.
      */
@@ -124,8 +124,8 @@ public interface IReserveConstraintFactory {
      * connected components (reserves) between nbMin and nbMax.
      *
      * @param region The region where the constraint must be posted.
-     * @param nbMin An int representing the minimum number of reserves.
-     * @param nbMax An int representing the maximum number of reserves.
+     * @param nbMin  An int representing the minimum number of reserves.
+     * @param nbMax  An int representing the maximum number of reserves.
      * @return A NbReserves constraint.
      */
     default IReserveConstraint nbConnectedComponents(AbstractRegion region, int nbMin, int nbMax) {
@@ -149,12 +149,12 @@ public interface IReserveConstraintFactory {
      * Creates an areaReserveSystem constraint. The areaReserveSystem constraint holds iff the total area of the
      * reserve system (in number of planning units) is between areaMin and areaMax.
      *
-     * @param region The region where the constraint must be posted.
+     * @param region  The region where the constraint must be posted.
      * @param areaMin An int representing the minimum total area of the reserve system.
      * @param areaMax An int representing the maximum total area of the reserve system.
      * @return An areaReserveSystem constraint.
      */
-    default IReserveConstraint sizeRegion(AbstractRegion region, int areaMin, int areaMax){
+    default IReserveConstraint sizeRegion(AbstractRegion region, int areaMin, int areaMax) {
         return new SizeRegion(self(), region, areaMin, areaMax);
     }
 
@@ -162,7 +162,7 @@ public interface IReserveConstraintFactory {
      * Creates a maxDiameter constraint. The maxDiameter constraint holds iff the maximum distance between the centers
      * of the sites is <= maxDiameter.
      *
-     * @param region The region where the constraint must be posted.
+     * @param region      The region where the constraint must be posted.
      * @param maxDiameter The maximum diameter.
      * @return A maxDiameter constraint.
      */
@@ -180,7 +180,7 @@ public interface IReserveConstraintFactory {
      *
      * @param region1 The region to be buffered from region2.
      * @param region2 The region to be buffered from region1.
-     * @param buffer The buffer region between region1 and region2.
+     * @param buffer  The buffer region between region1 and region2.
      * @return A bufferZone constraint.
      */
     default IReserveConstraint bufferZone(AbstractRegion region1, AbstractRegion region2, AbstractRegion buffer) {

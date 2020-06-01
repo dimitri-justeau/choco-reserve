@@ -25,11 +25,8 @@ package chocoreserve.solver.region;
 
 import chocoreserve.grid.Grid;
 import chocoreserve.grid.neighborhood.INeighborhood;
-import chocoreserve.solver.constraints.choco.graph.spatial.PropNbCCSpatialGraph;
 import chocoreserve.solver.variable.SpatialGraphVar;
-
 import org.chocosolver.graphsolver.GraphModel;
-import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 
@@ -66,7 +63,7 @@ public class Region extends AbstractRegion {
     }
 
     public Region(String name, INeighborhood neighborhood, SetType setVarSetType) {
-        this(name, neighborhood, setVarSetType, new int[] {}, null);
+        this(name, neighborhood, setVarSetType, new int[]{}, null);
     }
 
     public Region(String name, INeighborhood neighborhood) {

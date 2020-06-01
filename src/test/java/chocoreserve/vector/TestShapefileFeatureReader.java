@@ -43,22 +43,22 @@ public class TestShapefileFeatureReader {
         String occPath = getClass().getClassLoader().getResource("vector/testOcc/testOcc.shp").getPath();
         ShapefileGrid grid = new ShapefileGrid(gridPath);
         Map<String, BinaryFeature> fs = ShapefileFeatureReader.binaryFeaturesFromShapefile(occPath, "occType", grid);
-        Assert.assertTrue(Arrays.equals(fs.get("species_a").getBinaryData(), new int[] {
+        Assert.assertTrue(Arrays.equals(fs.get("species_a").getBinaryData(), new int[]{
                 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         }));
-        Assert.assertTrue(Arrays.equals(fs.get("species_b").getBinaryData(), new int[] {
+        Assert.assertTrue(Arrays.equals(fs.get("species_b").getBinaryData(), new int[]{
                 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         }));
-        Assert.assertTrue(Arrays.equals(fs.get("species_c").getBinaryData(), new int[] {
+        Assert.assertTrue(Arrays.equals(fs.get("species_c").getBinaryData(), new int[]{
                 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         }));
-        Assert.assertTrue(Arrays.equals(fs.get("species_d").getBinaryData(), new int[] {
+        Assert.assertTrue(Arrays.equals(fs.get("species_d").getBinaryData(), new int[]{
                 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0
         }));
-        Assert.assertTrue(Arrays.equals(fs.get("species_e").getBinaryData(), new int[] {
+        Assert.assertTrue(Arrays.equals(fs.get("species_e").getBinaryData(), new int[]{
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         }));
-        Assert.assertTrue(Arrays.equals(fs.get("species_f").getBinaryData(), new int[] {
+        Assert.assertTrue(Arrays.equals(fs.get("species_f").getBinaryData(), new int[]{
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
         }));
     }

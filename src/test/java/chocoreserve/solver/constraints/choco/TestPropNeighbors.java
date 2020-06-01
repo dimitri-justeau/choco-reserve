@@ -57,11 +57,11 @@ public class TestPropNeighbors {
 
         // Set variables
         SetVar U = model.setVar(universe); // Universe
-        SetVar C = model.setVar("C", new int[] {}, universe); // Core
-        SetVar neighC = model.setVar("neighC", new int[] {}, universe); // Core neigh.
-        SetVar O = model.setVar("O", new int[] {}, universe); // Out
-        SetVar neighO = model.setVar("neighO", new int[] {}, universe); // Out neigh.
-        SetVar B = model.setVar("B", new int[] {}, universe); // Buffer
+        SetVar C = model.setVar("C", new int[]{}, universe); // Core
+        SetVar neighC = model.setVar("neighC", new int[]{}, universe); // Core neigh.
+        SetVar O = model.setVar("O", new int[]{}, universe); // Out
+        SetVar neighO = model.setVar("neighO", new int[]{}, universe); // Out neigh.
+        SetVar B = model.setVar("B", new int[]{}, universe); // Buffer
 
         // Constraints
         PropNeighbors propNeighC = new PropNeighbors(C, neighC, adjLists);
@@ -72,7 +72,7 @@ public class TestPropNeighbors {
         model.post(new Constraint("propNeighO", propNeighO));
         model.disjoint(C, neighO).post();
         model.disjoint(O, neighC).post();
-        model.intersection(new SetVar[] {neighC, neighO}, B).post();
+        model.intersection(new SetVar[]{neighC, neighO}, B).post();
 
         // Solve
         Solver solver = model.getSolver();

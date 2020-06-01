@@ -24,11 +24,9 @@
 package chocoreserve.solver.constraints.spatial;
 
 import chocoreserve.solver.ReserveModel;
-import chocoreserve.solver.constraints.choco.PropSmallestEnclosingCircle;
 import chocoreserve.solver.constraints.choco.graph.spatial.PropSmallestEnclosingCircleSpatialGraph;
 import chocoreserve.solver.region.AbstractRegion;
 import org.chocosolver.solver.constraints.Constraint;
-import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.RealVar;
 
 import java.util.Arrays;

@@ -25,9 +25,9 @@ package chocoreserve.solver.constraints.features;
 
 import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
-import chocoreserve.solver.region.Region;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.feature.BinaryFeature;
+import chocoreserve.solver.region.Region;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.junit.Assert;
@@ -40,17 +40,17 @@ public class TestRedundantFeatures {
 
     /**
      * Success test case 1:
-     *     - 3x3 4-connected square grid.
-     *     - 1 binary feature present in only 3 planning units (0, 1, 2).
-     *     - Must be 3-redundant.
-     *
-     *     -----------
-     *    | X | X | X |
-     *     -----------
-     *    |   |   |   |
-     *     -----------
-     *    |   |   |   |
-     *     -----------
+     * - 3x3 4-connected square grid.
+     * - 1 binary feature present in only 3 planning units (0, 1, 2).
+     * - Must be 3-redundant.
+     * <p>
+     * -----------
+     * | X | X | X |
+     * -----------
+     * |   |   |   |
+     * -----------
+     * |   |   |   |
+     * -----------
      */
     @Test
     public void testSuccess1() {
@@ -60,7 +60,7 @@ public class TestRedundantFeatures {
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         BinaryFeature feature = reserveModel.binaryFeature(
                 "binary",
-                new int[] {1, 1, 1, 0, 0, 0, 0, 0, 0}
+                new int[]{1, 1, 1, 0, 0, 0, 0, 0, 0}
         );
         reserveModel.redundantFeatures(core, 3, feature).post();
         Solver solver = reserveModel.getChocoSolver();
@@ -74,18 +74,18 @@ public class TestRedundantFeatures {
 
     /**
      * Success test case 2:
-     *     - 3x3 4-connected square grid.
-     *     - 1 binary feature (A) present in 2 planning units (0, 1).
-     *     - 1 binary feature (B) present in 4 planning units (0, 2, 4, 6).
-     *     - Both must be 2-redundant.
-     *
-     *     -----------
-     *    | AB | A | B |
-     *     ------------
-     *    |    | B |   |
-     *     ------------
-     *    | B  |   |   |
-     *     ------------
+     * - 3x3 4-connected square grid.
+     * - 1 binary feature (A) present in 2 planning units (0, 1).
+     * - 1 binary feature (B) present in 4 planning units (0, 2, 4, 6).
+     * - Both must be 2-redundant.
+     * <p>
+     * -----------
+     * | AB | A | B |
+     * ------------
+     * |    | B |   |
+     * ------------
+     * | B  |   |   |
+     * ------------
      */
     @Test
     public void testSuccess2() {
@@ -95,11 +95,11 @@ public class TestRedundantFeatures {
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         BinaryFeature featureA = reserveModel.binaryFeature(
                 "A",
-                new int[] {1, 1, 0, 0, 0, 0, 0, 0, 0}
+                new int[]{1, 1, 0, 0, 0, 0, 0, 0, 0}
         );
         BinaryFeature featureB = reserveModel.binaryFeature(
                 "B",
-                new int[] {1, 0, 1, 0, 1, 0, 1, 0, 0}
+                new int[]{1, 0, 1, 0, 1, 0, 1, 0, 0}
         );
         reserveModel.redundantFeatures(core, 2, featureA, featureB).post();
         Solver solver = reserveModel.getChocoSolver();
@@ -114,9 +114,9 @@ public class TestRedundantFeatures {
 
     /**
      * Fail test case:
-     *     - 3x3 4-connected square grid.
-     *     - 1 binary feature present in 2 planning units (0, 1).
-     *     - Must be 3-redundant.
+     * - 3x3 4-connected square grid.
+     * - 1 binary feature present in 2 planning units (0, 1).
+     * - Must be 3-redundant.
      */
     @Test
     public void testFail() {
@@ -126,7 +126,7 @@ public class TestRedundantFeatures {
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         BinaryFeature feature = reserveModel.binaryFeature(
                 "binary",
-                new int[] {1, 1, 0, 0, 0, 0, 0, 0, 0}
+                new int[]{1, 1, 0, 0, 0, 0, 0, 0, 0}
         );
         reserveModel.redundantFeatures(core, 3, feature).post();
         Solver solver = reserveModel.getChocoSolver();

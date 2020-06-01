@@ -39,14 +39,14 @@ public interface INeighborhood<T extends Grid> {
 
     /**
      * @param grid A grid.
-     * @param i The index of a cell.
+     * @param i    The index of a cell.
      * @return The neighbors of i in the grid.
      */
     ISet getNeighbors(T grid, int i);
 
     /**
-     * @param grid A grid.
-     * @param model The GraphModel to be associated with the graph.
+     * @param grid    A grid.
+     * @param model   The GraphModel to be associated with the graph.
      * @param setType The SetType to use for encoding the graph.
      * @return The full spatial graph associated to the grid. Full means that there will be one node for each cell.
      */
@@ -65,9 +65,9 @@ public interface INeighborhood<T extends Grid> {
     }
 
     /**
-     * @param grid A grid.
-     * @param model The GraphModel to be associated with the graph.
-     * @param cells The cells to be included in the graph.
+     * @param grid    A grid.
+     * @param model   The GraphModel to be associated with the graph.
+     * @param cells   The cells to be included in the graph.
      * @param setType The SetType to use for encoding the graph.
      * @return The partial graph associated to a subset of cells of the grid.
      */
@@ -93,13 +93,13 @@ public interface INeighborhood<T extends Grid> {
     }
 
 
-        /**
-         * @param grid A grid.
-         * @param model The GraphModel to be associated with the graph.
-         * @param cells The cells to be included in the graph.
-         * @param setType The SetType to use for encoding the graph.
-         * @return The partial graph associated to a subset of cells of the grid.
-         */
+    /**
+     * @param grid    A grid.
+     * @param model   The GraphModel to be associated with the graph.
+     * @param cells   The cells to be included in the graph.
+     * @param setType The SetType to use for encoding the graph.
+     * @return The partial graph associated to a subset of cells of the grid.
+     */
     default UndirectedGraph getPartialGraphUB(T grid, Model model, int[] cells, SetType setType, boolean decr) {
         int nbCells = grid.getNbCells();
         UndirectedGraph partialGraph;

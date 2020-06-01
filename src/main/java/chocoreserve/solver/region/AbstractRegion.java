@@ -25,7 +25,6 @@ package chocoreserve.solver.region;
 
 import chocoreserve.exception.RegionAlreadyLinkedToModelError;
 import chocoreserve.exception.RegionNotLinkedToModelError;
-
 import chocoreserve.grid.Grid;
 import chocoreserve.grid.neighborhood.INeighborhood;
 import chocoreserve.solver.ReserveModel;
@@ -34,7 +33,6 @@ import chocoreserve.solver.variable.SpatialGraphVar;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.SetVar;
 
 
 /**
@@ -94,5 +92,5 @@ public abstract class AbstractRegion {
         return reserveModel;
     }
 
-    public abstract  INeighborhood getNeighborhood();
+    public abstract INeighborhood getNeighborhood();
 }

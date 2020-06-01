@@ -24,9 +24,6 @@
 package chocoreserve.grid.regular.square;
 
 import chocoreserve.grid.Grid;
-import org.chocosolver.util.tools.ArrayUtils;
-
-import java.util.Arrays;
 
 /**
  * Regular square grid.
@@ -67,7 +64,7 @@ public class RegularSquareGrid extends Grid {
     public int[] getCoordinatesFromIndex(int index) {
         int row = Math.floorDiv(index, getNbCols());
         int col = index % getNbCols();
-        return new int[] {row, col};
+        return new int[]{row, col};
     }
 
     /**
@@ -91,7 +88,7 @@ public class RegularSquareGrid extends Grid {
         double[][] coords = new double[getNbCells()][];
         for (int y = 0; y < getNbRows(); y++) {
             for (int x = 0; x < getNbCols(); x++) {
-                coords[getIndexFromCoordinates(y, x)] = new double[] {x, y};
+                coords[getIndexFromCoordinates(y, x)] = new double[]{x, y};
             }
         }
         return coords;
@@ -100,6 +97,6 @@ public class RegularSquareGrid extends Grid {
     @Override
     public double[] getCartesianCoordinates(int site) {
         int[] coords = getCoordinatesFromIndex(site);
-        return new double[] {(double) coords[0], (double) coords[1]};
+        return new double[]{(double) coords[0], (double) coords[1]};
     }
 }

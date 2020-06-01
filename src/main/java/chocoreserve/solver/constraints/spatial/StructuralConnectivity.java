@@ -25,14 +25,10 @@ package chocoreserve.solver.constraints.spatial;
 
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.region.Region;
-import org.chocosolver.solver.variables.BoolVar;
 import org.chocosolver.solver.variables.IntVar;
-import org.chocosolver.solver.variables.SetVar;
 import org.chocosolver.util.tools.ArrayUtils;
 
 import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.IntStream;
 
 /**
  *
@@ -43,7 +39,7 @@ public class StructuralConnectivity extends SpatialConstraint {
     public IntVar N;
     public IntVar[] struct;
 
-      private int[][] overlappingStructuralUnits;
+    private int[][] overlappingStructuralUnits;
 
     public StructuralConnectivity(ReserveModel reserveModel, Region region, int min, int max,
                                   int[][] overlappingStructuralUnits) {

@@ -29,7 +29,7 @@ import chocoreserve.solver.region.AbstractRegion;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.IntVar;
 
-public class NbEdges extends SpatialConstraint{
+public class NbEdges extends SpatialConstraint {
 
     private AbstractRegion region;
     public IntVar nbEdges;

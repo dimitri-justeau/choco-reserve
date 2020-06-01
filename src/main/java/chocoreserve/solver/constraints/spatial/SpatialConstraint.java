@@ -25,8 +25,6 @@ package chocoreserve.solver.constraints.spatial;
 
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.constraints.ReserveConstraint;
-import org.chocosolver.graphsolver.variables.UndirectedGraphVar;
-import org.chocosolver.solver.variables.IntVar;
 
 /**
  * Abstract base class for spatial constraints

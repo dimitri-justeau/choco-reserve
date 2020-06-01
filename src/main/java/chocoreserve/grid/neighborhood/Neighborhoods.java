@@ -23,7 +23,12 @@
 
 package chocoreserve.grid.neighborhood;
 
-import chocoreserve.grid.neighborhood.regulare.square.*;
+
+import chocoreserve.grid.neighborhood.regulare.square.FourConnected;
+import chocoreserve.grid.neighborhood.regulare.square.HeightConnected;
+import chocoreserve.grid.neighborhood.regulare.square.PartialFourConnected;
+import chocoreserve.grid.neighborhood.regulare.square.PartialHeightConnected;
+import chocoreserve.grid.neighborhood.regulare.square.TwoWideHeightConnected;
 
 /**
  * Utility class for accessing neighborhoods.

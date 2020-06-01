@@ -26,7 +26,6 @@ package chocoreserve.solver.variable;
 import chocoreserve.grid.Grid;
 import chocoreserve.grid.neighborhood.INeighborhood;
 import chocoreserve.util.objects.graphs.UndirectedGraphIncrementalCC;
-
 import org.chocosolver.solver.ICause;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.constraints.Constraint;
@@ -83,7 +82,7 @@ public class SpatialGraphVar extends AbstractVariable implements SetVar {
     }
 
 
-        public Grid getGrid() {
+    public Grid getGrid() {
         return grid;
     }
 
@@ -149,11 +148,11 @@ public class SpatialGraphVar extends AbstractVariable implements SetVar {
 
     @Override
     public IntVar getCard() {
-        if(!hasCard()){
-            int ubc =  ub.size(), lbc = lb.size();
-            if(ubc==lbc) cardinality = model.intVar(ubc);
-            else{
-                cardinality = model.intVar(name+".card", lbc, ubc);
+        if (!hasCard()) {
+            int ubc = ub.size(), lbc = lb.size();
+            if (ubc == lbc) cardinality = model.intVar(ubc);
+            else {
+                cardinality = model.intVar(name + ".card", lbc, ubc);
                 new Constraint(ConstraintsName.SETCARD, new PropCardinality(this, cardinality)).post();
             }
         }
@@ -167,8 +166,8 @@ public class SpatialGraphVar extends AbstractVariable implements SetVar {
 
     @Override
     public void setCard(IntVar card) {
-        if(!hasCard()){
-            cardinality=card;
+        if (!hasCard()) {
+            cardinality = card;
             new Constraint(ConstraintsName.SETCARD, new PropCardinality(this, card)).post();
         } else {
             model.arithm(cardinality, "=", card).post();
@@ -257,10 +256,10 @@ public class SpatialGraphVar extends AbstractVariable implements SetVar {
 
     @Override
     public String toString() {
-        if(isInstantiated()){
-            return getName()+" = "+getLB().toString();
-        }else {
-            return getName()+" = ["+getLB()+", "+getUB()+"]";
+        if (isInstantiated()) {
+            return getName() + " = " + getLB().toString();
+        } else {
+            return getName() + " = [" + getLB() + ", " + getUB() + "]";
         }
     }
 

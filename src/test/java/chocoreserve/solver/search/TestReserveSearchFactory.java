@@ -25,9 +25,9 @@ package chocoreserve.solver.search;
 
 import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
-import chocoreserve.solver.region.Region;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.feature.BinaryFeature;
+import chocoreserve.solver.region.Region;
 import org.chocosolver.solver.Solver;
 import org.junit.Assert;
 import org.junit.Test;
@@ -46,11 +46,11 @@ public class TestReserveSearchFactory {
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         BinaryFeature featureA = reserveModel.binaryFeature(
                 "A",
-                new int[] {1, 1, 0, 0, 0, 0, 0, 0, 0}
+                new int[]{1, 1, 0, 0, 0, 0, 0, 0, 0}
         );
         BinaryFeature featureB = reserveModel.binaryFeature(
                 "B",
-                new int[] {1, 0, 1, 0, 1, 0, 1, 0, 0}
+                new int[]{1, 0, 1, 0, 1, 0, 1, 0, 0}
         );
         reserveModel.redundantFeatures(core, 2, featureA, featureB).post();
         Solver solver = reserveModel.getChocoSolver();
@@ -66,11 +66,11 @@ public class TestReserveSearchFactory {
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         BinaryFeature featureA = reserveModel.binaryFeature(
                 "A",
-                new int[] {1, 1, 0, 0, 0, 0, 0, 0, 0}
+                new int[]{1, 1, 0, 0, 0, 0, 0, 0, 0}
         );
         BinaryFeature featureB = reserveModel.binaryFeature(
                 "B",
-                new int[] {1, 0, 1, 0, 1, 0, 1, 0, 0}
+                new int[]{1, 0, 1, 0, 1, 0, 1, 0, 0}
         );
         reserveModel.redundantFeatures(core, 2, featureA, featureB).post();
         Solver solver = reserveModel.getChocoSolver();

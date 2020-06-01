@@ -36,8 +36,9 @@ import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
 
-import java.util.*;
-import java.util.stream.IntStream;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Base model for the Nature Reserve Problem. Defines the variables and constraints that are common to every
@@ -46,19 +47,29 @@ import java.util.stream.IntStream;
  */
 public class ReserveModel<T extends Grid> implements IReserveModel<T>, IReserveConstraintFactory, IFeatureFactory {
 
-    /** The grid on which applies the model */
+    /**
+     * The grid on which applies the model
+     */
     private T grid;
 
-    /** The features referenced by the model */
+    /**
+     * The features referenced by the model
+     */
     private Map<String, Feature> features;
 
-    /** The choco model */
+    /**
+     * The choco model
+     */
     private GraphModel model;
 
-    /** Decision variables */
+    /**
+     * Decision variables
+     */
     private IntVar[] sites;
 
-    /** Regions */
+    /**
+     * Regions
+     */
     private Region[] regions;
     private ComposedRegion[] composedRegions;
 
@@ -146,11 +157,11 @@ public class ReserveModel<T extends Grid> implements IReserveModel<T>, IReserveC
     // -------------------------- //
 
     public void printSolution() {
-        printSolution(new String[] {" ", "-", "+", "#"});
+        printSolution(new String[]{" ", "-", "+", "#"});
     }
 
     public void printGrid() {
-        printGrid(new String[] {" ", "-", "+", "#"});
+        printGrid(new String[]{" ", "-", "+", "#"});
     }
 
     public void printGrid(String[] display) {

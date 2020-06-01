@@ -59,8 +59,11 @@ public class TestNeighborhoodVarSelector {
                 intVars -> {
                     if (!b[0]) {
                         Set<Integer> expected = new HashSet<>();
-                        expected.add(1); expected.add(10);
-                        expected.add(2); expected.add(4); expected.add(13);
+                        expected.add(1);
+                        expected.add(10);
+                        expected.add(2);
+                        expected.add(4);
+                        expected.add(13);
                         Assert.assertEquals(expected, varSelector.getNeighborhood());
                         b[0] = true;
                     }

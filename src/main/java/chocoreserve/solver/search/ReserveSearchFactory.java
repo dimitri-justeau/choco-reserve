@@ -41,12 +41,13 @@ public class ReserveSearchFactory {
 
     /**
      * Discard poor search strategy (non-deterministic - planning units are shuffled before ranking):
-     *      - Ranks the planning units according to the diversity of features.
-     *      - Branches on the "poorest" planning units and instantiate them to 0.
-     * @param reserveModel The reserve model.
+     * - Ranks the planning units according to the diversity of features.
+     * - Branches on the "poorest" planning units and instantiate them to 0.
+     *
+     * @param reserveModel         The reserve model.
      * @param probabilityThreshold A threshold for probabilistic features scoring.
      *                             The probability value is added iff it is > probabilityThreshold.
-     * @param features The features for computing the score.
+     * @param features             The features for computing the score.
      * @return The discard poor search strategy.
      */
     public static IntStrategy discardPoor(ReserveModel reserveModel, double probabilityThreshold,
@@ -60,9 +61,10 @@ public class ReserveSearchFactory {
 
     /**
      * Discard poor search strategy (non-deterministic - planning units are shuffled before ranking):
-     *      - Ranks the planning units according to the diversity of features.
-     *      - Branches on the "poorest" planning units and instantiate them to 0.
-     * @param reserveModel The reserve model.
+     * - Ranks the planning units according to the diversity of features.
+     * - Branches on the "poorest" planning units and instantiate them to 0.
+     *
+     * @param reserveModel         The reserve model.
      * @param probabilityThreshold A threshold for probabilistic features scoring.
      *                             The probability value is added iff it is > probabilityThreshold.
      * @return The discard poor search strategy.
@@ -74,12 +76,13 @@ public class ReserveSearchFactory {
 
     /**
      * Discard poor search strategy (deterministic - planning units are not shuffled before ranking):
-     *      - Ranks the planning units according to the diversity of features.
-     *      - Branches on the "poorest" planning units and instantiate them to 0.
-     * @param reserveModel The reserve model.
+     * - Ranks the planning units according to the diversity of features.
+     * - Branches on the "poorest" planning units and instantiate them to 0.
+     *
+     * @param reserveModel         The reserve model.
      * @param probabilityThreshold A threshold for probabilistic features scoring.
      *                             The probability value is added iff it is > probabilityThreshold.
-     * @param features The features for computing the score.
+     * @param features             The features for computing the score.
      * @return The discard poor search strategy.
      */
     public static IntStrategy discardPoorDeterministic(ReserveModel reserveModel, double probabilityThreshold,
@@ -93,9 +96,10 @@ public class ReserveSearchFactory {
 
     /**
      * Discard poor search strategy (deterministic - planning units are not shuffled before ranking):
-     *      - Ranks the planning units according to the diversity of features.
-     *      - Branches on the "poorest" planning units and instantiate them to 0.
-     * @param reserveModel The reserve model.
+     * - Ranks the planning units according to the diversity of features.
+     * - Branches on the "poorest" planning units and instantiate them to 0.
+     *
+     * @param reserveModel         The reserve model.
      * @param probabilityThreshold A threshold for probabilistic features scoring.
      *                             The probability value is added iff it is > probabilityThreshold.
      * @return The discard poor search strategy.

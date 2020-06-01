@@ -54,7 +54,7 @@ public class PropIICExp extends Propagator<Variable> {
     public int[][] allPairsShortestPathsUB;
 
     public PropIICExp(UndirectedGraphVar g, RealVar iic) {
-        super(new Variable[] {g, iic});
+        super(new Variable[]{g, iic});
         this.g = g;
         this.iic = iic;
         this.areaLandscape = g.getUB().getNbMaxNodes();
@@ -143,6 +143,7 @@ public class PropIICExp extends Propagator<Variable> {
 
     /**
      * Repeat Dijkstra's algorithm on each vertex of the graph, avoiding symmetries.
+     *
      * @return
      */
     public int[][] allPairsShortestPaths(UndirectedGraph graph) {
@@ -252,6 +253,7 @@ public class PropIICExp extends Propagator<Variable> {
 
     /**
      * Repeat Minimum Detour Algorithm on each vertex of the graph, avoiding symmetries.
+     *
      * @return
      */
     public int[][] allPairsShortestPathsMDA(RegularSquareGrid grid, UndirectedGraph graph) {
@@ -297,6 +299,7 @@ public class PropIICExp extends Propagator<Variable> {
 
     /**
      * Minimum Detour Algorithm for grid graphs (Hadlock 1977).
+     *
      * @param source
      * @param dest
      * @return [ [dist], [path] ]
@@ -304,10 +307,10 @@ public class PropIICExp extends Propagator<Variable> {
     public int[][] minimumDetour(RegularSquareGrid grid, UndirectedGraph graph, int source, int dest) {
 
         if (!graph.getNodes().contains(source)) {
-            return new int[][] { {-1}, null };
+            return new int[][]{{-1}, null};
         }
         if (!graph.getNodes().contains(dest)) {
-            return new int[][] { {-1}, null };
+            return new int[][]{{-1}, null};
         }
 
         // When the graph has maintains connected component, avoid running the algorithm for two nodes
@@ -317,7 +320,7 @@ public class PropIICExp extends Propagator<Variable> {
             int sourceRoot = gincr.getRoot(source);
             int destRoot = gincr.getRoot(dest);
             if (sourceRoot != destRoot) {
-                return new int[][] { {Integer.MAX_VALUE}, null };
+                return new int[][]{{Integer.MAX_VALUE}, null};
             }
         }
 
@@ -388,7 +391,7 @@ public class PropIICExp extends Propagator<Variable> {
             //System.out.println(next);
 
             if (next == -1) {
-                return new int[][] { {Integer.MAX_VALUE}, null };
+                return new int[][]{{Integer.MAX_VALUE}, null};
             }
             if (potPrev != -1) {
                 prev[next] = potPrev;
@@ -404,7 +407,7 @@ public class PropIICExp extends Propagator<Variable> {
         for (int i = dist - 1; i >= 0; i--) {
             path[i] = prev[path[i + 1]];
         }
-        return new int[][] { {dist}, path, prev};
+        return new int[][]{{dist}, path, prev};
     }
 
     public int manhattanDistance(RegularSquareGrid grid, int source, int dest) {

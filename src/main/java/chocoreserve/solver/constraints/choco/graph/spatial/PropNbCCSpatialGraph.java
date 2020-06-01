@@ -77,7 +77,7 @@ public class PropNbCCSpatialGraph extends Propagator<Variable> {
         // The number of CC cannot increase :
         // - remove unreachable nodes
         // - force articulation points and bridges
-        if(min != max) {
+        if (min != max) {
             if (nbCC.getUB() == min) {
 
                 // 1 --- remove unreachable nodes
@@ -149,8 +149,8 @@ public class PropNbCCSpatialGraph extends Propagator<Variable> {
     private int maxCC() {
         int nbK = 0;
         visitedMax.clear();
-        for(int i:g.getMandatoryNodes().toArray()) {
-            if(!visitedMax.get(i)) {
+        for (int i : g.getMandatoryNodes().toArray()) {
+            if (!visitedMax.get(i)) {
                 exploreLBFrom(i, visitedMax);
                 nbK++;
             }

@@ -23,9 +23,9 @@
 
 package chocoreserve.solver.constraints.features;
 
-import chocoreserve.solver.region.AbstractRegion;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.feature.ProbabilisticFeature;
+import chocoreserve.solver.region.AbstractRegion;
 import org.chocosolver.solver.variables.IntVar;
 
 import java.io.IOException;

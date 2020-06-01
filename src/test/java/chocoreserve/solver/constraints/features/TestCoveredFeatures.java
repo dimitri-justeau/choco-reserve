@@ -25,10 +25,10 @@ package chocoreserve.solver.constraints.features;
 
 import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
-import chocoreserve.solver.region.Region;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.feature.BinaryFeature;
 import chocoreserve.solver.feature.QuantitativeFeature;
+import chocoreserve.solver.region.Region;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.junit.Assert;
@@ -41,16 +41,16 @@ public class TestCoveredFeatures {
 
     /**
      * Success test case 1:
-     *     - 3x3 4-connected square grid.
-     *     - 1 binary feature present in only one planning unit (3).
-     *
-     *     -----------
-     *    |   |   |   |
-     *     -----------
-     *    | X |   |   |
-     *     -----------
-     *    |   |   |   |
-     *     -----------
+     * - 3x3 4-connected square grid.
+     * - 1 binary feature present in only one planning unit (3).
+     * <p>
+     * -----------
+     * |   |   |   |
+     * -----------
+     * | X |   |   |
+     * -----------
+     * |   |   |   |
+     * -----------
      */
     @Test
     public void testSuccess1() {
@@ -60,7 +60,7 @@ public class TestCoveredFeatures {
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         BinaryFeature feature = reserveModel.binaryFeature(
                 "test_binary",
-                new int[] {0, 0, 0, 1, 0, 0, 0, 0, 0 }
+                new int[]{0, 0, 0, 1, 0, 0, 0, 0, 0}
         );
         reserveModel.coveredFeatures(core, feature).post();
         Solver solver = reserveModel.getChocoSolver();
@@ -76,17 +76,17 @@ public class TestCoveredFeatures {
 
     /**
      * Success test case 1:
-     *     - 3x3 4-connected square grid.
-     *     - 1 binary feature (A) present in only one planning unit (5).
-     *     - 1 quantitative feature (B) present in three planning units (0, 8, 2).
-     *
-     *     -----------
-     *    | B |   | B |
-     *     -----------
-     *    |   |   | A |
-     *     -----------
-     *    |   |   | B |
-     *     -----------
+     * - 3x3 4-connected square grid.
+     * - 1 binary feature (A) present in only one planning unit (5).
+     * - 1 quantitative feature (B) present in three planning units (0, 8, 2).
+     * <p>
+     * -----------
+     * | B |   | B |
+     * -----------
+     * |   |   | A |
+     * -----------
+     * |   |   | B |
+     * -----------
      */
     @Test
     public void testSuccess2() {
@@ -96,11 +96,11 @@ public class TestCoveredFeatures {
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         BinaryFeature featureA = reserveModel.binaryFeature(
                 "A",
-                new int[] {0, 0, 0, 0, 0, 1, 0, 0, 0}
+                new int[]{0, 0, 0, 0, 0, 1, 0, 0, 0}
         );
         QuantitativeFeature featureB = reserveModel.quantitativeFeature(
                 "B",
-                new int[] {12, 0, 5, 0, 0, 0, 0, 0, 3}
+                new int[]{12, 0, 5, 0, 0, 0, 0, 0, 3}
         );
         reserveModel.coveredFeatures(core, featureA, featureB).post();
         Solver solver = reserveModel.getChocoSolver();
@@ -117,8 +117,8 @@ public class TestCoveredFeatures {
 
     /**
      * Success test case 1:
-     *     - 3x3 4-connected square grid.
-     *     - 1 binary feature present in no planning unit.
+     * - 3x3 4-connected square grid.
+     * - 1 binary feature present in no planning unit.
      */
     @Test
     public void testFail() {
@@ -128,7 +128,7 @@ public class TestCoveredFeatures {
         ReserveModel reserveModel = new ReserveModel(grid, core, out);
         BinaryFeature feature = reserveModel.binaryFeature(
                 "A",
-                new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0}
+                new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0}
         );
         reserveModel.coveredFeatures(core, feature).post();
         Solver solver = reserveModel.getChocoSolver();

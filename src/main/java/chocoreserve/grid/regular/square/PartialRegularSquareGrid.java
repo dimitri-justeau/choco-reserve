@@ -23,8 +23,6 @@
 
 package chocoreserve.grid.regular.square;
 
-import chocoreserve.grid.Grid;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.IntStream;
@@ -82,7 +80,7 @@ public class PartialRegularSquareGrid extends RegularSquareGrid {
         int completeIndex = getCompleteIndex(index);
         int row = Math.floorDiv(completeIndex, getNbCols());
         int col = completeIndex % getNbCols();
-        return new int[] {row, col};
+        return new int[]{row, col};
     }
 
     /**
@@ -126,7 +124,7 @@ public class PartialRegularSquareGrid extends RegularSquareGrid {
         double[][] coords = new double[getNbCells()][];
         for (int i = 0; i < getNbCells(); i++) {
             int[] coord = getCoordinatesFromIndex(i);
-            coords[i] = new double[] {coord[1], coord[0]};
+            coords[i] = new double[]{coord[1], coord[0]};
         }
         return coords;
     }

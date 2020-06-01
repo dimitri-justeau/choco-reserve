@@ -24,10 +24,8 @@
 package chocoreserve.solver.constraints.choco.graph;
 
 import chocoreserve.grid.neighborhood.INeighborhood;
-import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.neighborhood.regulare.square.FourConnected;
 import chocoreserve.grid.neighborhood.regulare.square.PartialFourConnected;
-import chocoreserve.grid.regular.square.PartialRegularSquareGrid;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.variable.SpatialGraphVar;
 import org.chocosolver.solver.constraints.Propagator;
@@ -38,9 +36,6 @@ import org.chocosolver.solver.variables.Variable;
 import org.chocosolver.util.ESat;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.chocosolver.util.objects.setDataStructures.SetFactory;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Propagator maintaining an integer variable to the perimeter of a grid graph,
@@ -53,7 +48,7 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
     private IntVar perimeter;
 
     public PropPerimeterSquareGridFourConnected(SpatialGraphVar g, IntVar perimeter) {
-        super(new Variable[] {g, perimeter}, PropagatorPriority.LINEAR, false);
+        super(new Variable[]{g, perimeter}, PropagatorPriority.LINEAR, false);
         this.grid = (RegularSquareGrid) g.getGrid();
         assert g.getGrid() instanceof RegularSquareGrid;
         INeighborhood nei = g.getNeighborhood();
@@ -90,7 +85,7 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
 
     int getPerimeter(ISet graphNodes, ISet toAdd) {
         int p = 0;
-        for (ISet set : new ISet[] {graphNodes, toAdd}){
+        for (ISet set : new ISet[]{graphNodes, toAdd}) {
             for (int node : set) {
                 ISet potNeighs = g.getPotNeighOf(node);
                 int frontierGrid = 4 - potNeighs.size();
@@ -108,7 +103,7 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
 
 
     public int getPerimeter(ISet graphNodes) {
-        return getPerimeter(graphNodes, SetFactory.makeConstantSet(new int[] {}));
+        return getPerimeter(graphNodes, SetFactory.makeConstantSet(new int[]{}));
     }
 
     public int getPerimeterGLB() {
@@ -217,7 +212,7 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
             int p2 = getPerimeter(g.getLB(), D2);
             UB = p1 > p2 ? p1 : p2;
         }
-        return new int[] {LB, UB};
+        return new int[]{LB, UB};
     }
 
     int getPotIncreasing(int node) {

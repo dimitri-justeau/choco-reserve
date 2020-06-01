@@ -51,8 +51,8 @@ public class PropSmallestEnclosingCircle extends Propagator<Variable> {
     public PropSmallestEnclosingCircle(BoolVar[] pointBools, double[][] pointCoordinates, RealVar radius,
                                        RealVar centerX, RealVar centerY) {
         super(
-                Stream.concat(Stream.of(new Variable[] {radius, centerX, centerY}),
-                              Stream.of(pointBools))
+                Stream.concat(Stream.of(new Variable[]{radius, centerX, centerY}),
+                        Stream.of(pointBools))
                         .toArray(Variable[]::new),
                 PropagatorPriority.LINEAR,
                 false
@@ -89,7 +89,7 @@ public class PropSmallestEnclosingCircle extends Propagator<Variable> {
         if (env.length == 0) {
             fails();
         }
-        if (ker.length == env.length ) {
+        if (ker.length == env.length) {
             double[] minidisk = minidisk(ker);
             double x = minidisk[0];
             double y = minidisk[1];
@@ -103,9 +103,9 @@ public class PropSmallestEnclosingCircle extends Propagator<Variable> {
             centerY.updateBounds(minidisk[1], minidisk[1], this);
             return;
         }
-        if (ker.length > 0){
+        if (ker.length > 0) {
             double[] minidisk = minidisk(ker);
-            double[] cker = new double[] {minidisk[0], minidisk[1]};
+            double[] cker = new double[]{minidisk[0], minidisk[1]};
             double rker = minidisk[2];
             if (rker > (radius.getUB() + radius.getPrecision())) {
                 fails();
@@ -126,7 +126,7 @@ public class PropSmallestEnclosingCircle extends Propagator<Variable> {
 
         int[] ker = getKernelPoints();
         int[] env = getEnvelopePoints();
-        if (env.length == 0){
+        if (env.length == 0) {
             // We assume that by definition, the empty region of points does not satisfy the constraint.
             return ESat.FALSE;
         }
@@ -180,17 +180,17 @@ public class PropSmallestEnclosingCircle extends Propagator<Variable> {
     private double[] minidisk(int[] points) {
         int nbPoints = points.length;
         if (nbPoints == 0) {
-            return new double[] {};
+            return new double[]{};
         }
         if (nbPoints == 1) {
             double[] center = coordinates[points[0]];
-            return new double[] {center[0], center[1], EPSILON};
+            return new double[]{center[0], center[1], EPSILON};
         }
         if (nbPoints == 2) {
             double[] p1 = coordinates[points[0]];
             double[] p2 = coordinates[points[1]];
             double[] center = midpoint(p1, p2);
-            return new double[] {center[0], center[1], (distance(p1, p2) / 2) + EPSILON};
+            return new double[]{center[0], center[1], (distance(p1, p2) / 2) + EPSILON};
         }
         // Shuffle the points
         List<Integer> shuffled = IntStream.of(points).boxed().collect(Collectors.toList());
@@ -211,7 +211,7 @@ public class PropSmallestEnclosingCircle extends Propagator<Variable> {
                 r = circle[2];
             }
         }
-        return new double[] {center[0], center[1], r};
+        return new double[]{center[0], center[1], r};
     }
 
     private double[] b_minidisk_one(List<Integer> shuffled, int i) {
@@ -226,9 +226,10 @@ public class PropSmallestEnclosingCircle extends Propagator<Variable> {
                 double[] circle = b_minidisk_two(shuffled, i, j);
                 center[0] = circle[0];
                 center[1] = circle[1];
-                r = circle[2];            }
+                r = circle[2];
+            }
         }
-        return new double[] {center[0], center[1], r};
+        return new double[]{center[0], center[1], r};
     }
 
     private double[] b_minidisk_two(List<Integer> shuffled, int i, int j) {
@@ -246,14 +247,14 @@ public class PropSmallestEnclosingCircle extends Propagator<Variable> {
                 r = circle[2];
             }
         }
-        return new double[] {center[0], center[1], r};
+        return new double[]{center[0], center[1], r};
     }
 
     /**
      * @return The coordinates of the vector (p1, p2)
      */
     private static double[] vector(double[] p1, double[] p2) {
-        return new double[] {p1[0] + p2[0], p1[1] + p2[1]};
+        return new double[]{p1[0] + p2[0], p1[1] + p2[1]};
     }
 
     /**
@@ -261,7 +262,7 @@ public class PropSmallestEnclosingCircle extends Propagator<Variable> {
      */
     private static double[] midpoint(double[] p1, double[] p2) {
         double[] v = vector(p1, p2);
-        return new double[] {v[0] / 2, v[1] / 2};
+        return new double[]{v[0] / 2, v[1] / 2};
     }
 
     /**
@@ -277,13 +278,13 @@ public class PropSmallestEnclosingCircle extends Propagator<Variable> {
     private static double[] circumcircle(double[] a, double[] b, double[] c) {
         double d = 2 * (a[0] * (b[1] - c[1]) + b[0] * (c[1] - a[1]) + c[0] * (a[1] - b[1]));
         double cx = ((Math.pow(a[0], 2) + Math.pow(a[1], 2)) * (b[1] - c[1])
-                +  (Math.pow(b[0], 2) + Math.pow(b[1], 2)) * (c[1] - a[1])
+                + (Math.pow(b[0], 2) + Math.pow(b[1], 2)) * (c[1] - a[1])
                 + (Math.pow(c[0], 2) + Math.pow(c[1], 2)) * (a[1] - b[1])) / d;
         double cy = ((Math.pow(a[0], 2) + Math.pow(a[1], 2)) * (c[0] - b[0])
-                +  (Math.pow(b[0], 2) + Math.pow(b[1], 2)) * (a[0] - c[0])
+                + (Math.pow(b[0], 2) + Math.pow(b[1], 2)) * (a[0] - c[0])
                 + (Math.pow(c[0], 2) + Math.pow(c[1], 2)) * (b[0] - a[0])) / d;
-        double cr = distance(new double[] {cx, cy}, a) + EPSILON;
-        return new double[] {cx, cy, cr};
+        double cr = distance(new double[]{cx, cy}, a) + EPSILON;
+        return new double[]{cx, cy, cr};
     }
 
 }

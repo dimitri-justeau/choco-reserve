@@ -45,16 +45,16 @@ import java.util.List;
 /**
  * Test for PropInducedNeighborhood constraint.
  * Tests are performed on a 5x5 4-connected square grid.
- *     -------------------
- *    | 0 | 1 | 2 | 3 | 4 |
- *     -------------------
- *    | 5 | 6 | 7 | 8 | 9 |
- *     -------------------
- *    | 10| 11| 12| 13| 14|
- *     -------------------
- *    | 15| 16| 17| 18| 19|
- *     -------------------
- *    | 20| 21| 22| 23| 24|
+ * -------------------
+ * | 0 | 1 | 2 | 3 | 4 |
+ * -------------------
+ * | 5 | 6 | 7 | 8 | 9 |
+ * -------------------
+ * | 10| 11| 12| 13| 14|
+ * -------------------
+ * | 15| 16| 17| 18| 19|
+ * -------------------
+ * | 20| 21| 22| 23| 24|
  */
 public class TestPropInducedNeighborhood {
 
@@ -64,15 +64,15 @@ public class TestPropInducedNeighborhood {
         INeighborhood n4 = Neighborhoods.FOUR_CONNECTED;
         GraphModel model = new GraphModel("TestPropInducedNeigh");
         UndirectedGraphVar g = model.graphVar(
-            "testGraph",
-            new UndirectedGraph(model, grid.getNbCells(), SetType.BIPARTITESET, false),
-            n4.getFullGraph(grid, model, SetType.BIPARTITESET)
+                "testGraph",
+                new UndirectedGraph(model, grid.getNbCells(), SetType.BIPARTITESET, false),
+                n4.getFullGraph(grid, model, SetType.BIPARTITESET)
         );
         BoolVar[] cells = model.boolVarArray(grid.getNbCells());
         model.nodesChanneling(g, cells).post();
         model.post(new Constraint("inducedNeigh", new PropInducedNeighborhood(g)));
-        int[] selected = new int[] {6, 7, 8, 11, 12, 13, 17, 22};
-        int[] unselected = new int[] {0, 1, 2, 3, 4, 5, 9, 10, 14, 15, 16, 18, 19, 20, 21, 23, 24};
+        int[] selected = new int[]{6, 7, 8, 11, 12, 13, 17, 22};
+        int[] unselected = new int[]{0, 1, 2, 3, 4, 5, 9, 10, 14, 15, 16, 18, 19, 20, 21, 23, 24};
         for (int i : selected) {
             model.arithm(cells[i], "=", 1).post();
         }
@@ -93,34 +93,34 @@ public class TestPropInducedNeighborhood {
         // 6 neighbors
         int[] neigh = g.getMandNeighOf(6).toArray();
         Arrays.sort(neigh);
-        Assert.assertTrue(Arrays.equals(neigh, new int[] {7, 11}));
+        Assert.assertTrue(Arrays.equals(neigh, new int[]{7, 11}));
         // 7 neighbors
         neigh = g.getMandNeighOf(7).toArray();
         Arrays.sort(neigh);
-        Assert.assertTrue(Arrays.equals(neigh, new int[] {6, 8, 12}));
+        Assert.assertTrue(Arrays.equals(neigh, new int[]{6, 8, 12}));
         // 8 neighbors
         neigh = g.getMandNeighOf(8).toArray();
         Arrays.sort(neigh);
-        Assert.assertTrue(Arrays.equals(neigh, new int[] {7, 13}));
+        Assert.assertTrue(Arrays.equals(neigh, new int[]{7, 13}));
         // 11 neighbors
         neigh = g.getMandNeighOf(11).toArray();
         Arrays.sort(neigh);
-        Assert.assertTrue(Arrays.equals(neigh, new int[] {6, 12}));
+        Assert.assertTrue(Arrays.equals(neigh, new int[]{6, 12}));
         // 12 neighbors
         neigh = g.getMandNeighOf(12).toArray();
         Arrays.sort(neigh);
-        Assert.assertTrue(Arrays.equals(neigh, new int[] {7, 11, 13, 17}));
+        Assert.assertTrue(Arrays.equals(neigh, new int[]{7, 11, 13, 17}));
         // 13 neighbors
         neigh = g.getMandNeighOf(13).toArray();
         Arrays.sort(neigh);
-        Assert.assertTrue(Arrays.equals(neigh, new int[] {8, 12}));
+        Assert.assertTrue(Arrays.equals(neigh, new int[]{8, 12}));
         // 17 neighbors
         neigh = g.getMandNeighOf(17).toArray();
         Arrays.sort(neigh);
-        Assert.assertTrue(Arrays.equals(neigh, new int[] {12, 22}));
+        Assert.assertTrue(Arrays.equals(neigh, new int[]{12, 22}));
         // 22 neighbors
         neigh = g.getMandNeighOf(22).toArray();
         Arrays.sort(neigh);
-        Assert.assertTrue(Arrays.equals(neigh, new int[] {17}));
+        Assert.assertTrue(Arrays.equals(neigh, new int[]{17}));
     }
 }

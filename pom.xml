@@ -27,7 +27,7 @@
                         <format>html</format>
                         <format>xml</format>
                     </formats>
-                    <check />
+                    <check/>
                 </configuration>
             </plugin>
             <plugin>
@@ -37,7 +37,9 @@
                 <configuration>
                     <systemPropertyVariables>
                         <!-- Set JUL Formatting -->
-                        <java.util.logging.SimpleFormatter.format>%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS %4$-6s %2$s %5$s%6$s%n</java.util.logging.SimpleFormatter.format>
+                        <java.util.logging.SimpleFormatter.format>%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS %4$-6s %2$s
+                            %5$s%6$s%n
+                        </java.util.logging.SimpleFormatter.format>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
@@ -61,15 +63,23 @@
             <id>osgeo</id>
             <name>OSGeo Release Repository</name>
             <url>https://repo.osgeo.org/repository/release/</url>
-            <snapshots><enabled>false</enabled></snapshots>
-            <releases><enabled>true</enabled></releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
         </repository>
         <repository>
             <id>osgeo-snapshot</id>
             <name>OSGeo Snapshot Repository</name>
             <url>https://repo.osgeo.org/repository/snapshot/</url>
-            <snapshots><enabled>true</enabled></snapshots>
-            <releases><enabled>false</enabled></releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
         </repository>
         <repository>
             <id>jitpack.io</id>
@@ -84,14 +94,14 @@
             <version>4.10.3-SNAPSHOT</version>
         </dependency>
         <!--<dependency>-->
-            <!--<groupId>org.choco-solver</groupId>-->
-            <!--<artifactId>choco-graph</artifactId>-->
-            <!--<version>4.2.4-SNAPSHOT</version>-->
+        <!--<groupId>org.choco-solver</groupId>-->
+        <!--<artifactId>choco-graph</artifactId>-->
+        <!--<version>4.2.4-SNAPSHOT</version>-->
         <!--</dependency>-->
         <!--<dependency>-->
-            <!--<groupId>com.github.chocoteam</groupId>-->
-            <!--<artifactId>choco-solver</artifactId>-->
-            <!--<version>master</version>-->
+        <!--<groupId>com.github.chocoteam</groupId>-->
+        <!--<artifactId>choco-solver</artifactId>-->
+        <!--<version>master</version>-->
         <!--</dependency>-->
         <dependency>
             <groupId>com.github.dimitri-justeau</groupId>

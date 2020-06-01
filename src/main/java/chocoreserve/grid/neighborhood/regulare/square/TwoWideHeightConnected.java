@@ -29,9 +29,6 @@ import chocoreserve.grid.regular.square.RegularSquareGrid;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.chocosolver.util.objects.setDataStructures.SetFactory;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * The 2-wide height-connected neighborhood in a regular square grid.
  */

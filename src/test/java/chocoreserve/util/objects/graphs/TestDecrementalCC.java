@@ -44,32 +44,32 @@ public class TestDecrementalCC {
         for (int i = 0; i < 5; i++) {
             g.addNode(i);
         }
-        int[][] edges = new int[][]{{0, 1},{1, 2},{2, 3},{3, 4}};
+        int[][] edges = new int[][]{{0, 1}, {1, 2}, {2, 3}, {3, 4}};
         for (int[] e : edges) {
             g.addEdge(e[0], e[1]);
         }
         g.init();
         // 1 cc
         Set<Integer> cc0 = new HashSet<>();
-        IntStream.of(new int[] {0, 1, 2, 3, 4}).forEach(i -> cc0.add(i));
+        IntStream.of(new int[]{0, 1, 2, 3, 4}).forEach(i -> cc0.add(i));
         Assert.assertEquals(g.getConnectedComponentOfNode(0), cc0);
         Assert.assertEquals(g.getNbCC(), 1);
         // 2 cc
         g.removeEdge(1, 2);
         Set<Integer> cc1 = new HashSet<>();
-        IntStream.of(new int[] {2, 3, 4}).forEach(i -> cc1.add(i));
+        IntStream.of(new int[]{2, 3, 4}).forEach(i -> cc1.add(i));
         Assert.assertEquals(g.getConnectedComponentOfNode(2), cc1);
         Assert.assertEquals(g.getNbCC(), 2);
         // 3 cc
         g.removeEdge(3, 4);
         Set<Integer> cc2 = new HashSet<>();
-        IntStream.of(new int[] {4}).forEach(i -> cc2.add(i));
+        IntStream.of(new int[]{4}).forEach(i -> cc2.add(i));
         Assert.assertEquals(g.getConnectedComponentOfNode(4), cc2);
         Assert.assertEquals(g.getNbCC(), 3);
         // 4 cc
         g.removeEdge(0, 1);
         Set<Integer> cc3 = new HashSet<>();
-        IntStream.of(new int[] {1}).forEach(i -> cc3.add(i));
+        IntStream.of(new int[]{1}).forEach(i -> cc3.add(i));
         Assert.assertEquals(g.getConnectedComponentOfNode(1), cc3);
         Assert.assertEquals(g.getNbCC(), 4);
         g.removeNode(1);

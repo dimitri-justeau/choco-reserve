@@ -69,7 +69,9 @@ public class PropNbCCIncremental extends Propagator<Variable> {
         this.visitedMax = new BitSet(g.getNbMaxNodes());
         this.fifo = new int[g.getNbMaxNodes()];
         this.ccOf = new int[g.getNbMaxNodes()];
-        nbProp = 0; totalTime = 0; totTimeIncr = 0;
+        nbProp = 0;
+        totalTime = 0;
+        totTimeIncr = 0;
     }
 
     //***********************************************************************************
@@ -78,7 +80,7 @@ public class PropNbCCIncremental extends Propagator<Variable> {
 
     @Override
     public void propagate(int evtmask) throws ContradictionException {
-        nbProp ++;
+        nbProp++;
         // trivial case
         k.updateBounds(0, g.getPotentialNodes().size(), this);
         if (k.getUB() == 0) {
@@ -96,7 +98,7 @@ public class PropNbCCIncremental extends Propagator<Variable> {
         // The number of CC cannot increase :
         // - remove unreachable nodes
         // - force articulation points and bridges
-        if(min != max) {
+        if (min != max) {
             if (k.getUB() == min) {
 
                 // 1 --- remove unreachable nodes
@@ -128,24 +130,24 @@ public class PropNbCCIncremental extends Propagator<Variable> {
                 }
             }
             // a maximal number of CC is required : remaining nodes will be singleton
-            else if(k.getLB() == max){
+            else if (k.getLB() == max) {
                 // --- transform every potential node into a mandatory isolated node
                 ISet mNodes = g.getMandatoryNodes();
-                for(int i:g.getPotentialNodes()){
-                    if(!mNodes.contains(i)){
-                        for(int j:g.getPotNeighOf(i)){
-                            g.removeArc(i,j,this);
+                for (int i : g.getPotentialNodes()) {
+                    if (!mNodes.contains(i)) {
+                        for (int j : g.getPotNeighOf(i)) {
+                            g.removeArc(i, j, this);
                         }
-                        g.enforceNode(i,this);
+                        g.enforceNode(i, this);
                     }
                 }
                 // --- remove edges between mandatory nodes that would merge 2 CC
                 // note that it can happen that 2 mandatory node already belong to the same CC
                 // if so the edge should not be filtered
-                for(int i:g.getPotentialNodes()){
-                    for(int j:g.getPotNeighOf(i)){
-                        if(ccOf[i] != ccOf[j]) {
-                            g.removeArc(i,j,this);
+                for (int i : g.getPotentialNodes()) {
+                    for (int j : g.getPotNeighOf(i)) {
+                        if (ccOf[i] != ccOf[j]) {
+                            g.removeArc(i, j, this);
                         }
                     }
                 }

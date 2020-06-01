@@ -73,9 +73,8 @@ public class PropInducedNeighborhood extends Propagator<UndirectedGraphVar> {
             for (int j : initialGUB.getSuccOrNeighOf(i)) {
                 if (g.getMandatoryNodes().contains(j))
                     g.enforceArc(i, j, this);
-                else
-                    if (!g.getPotNeighOf(i).contains(j))
-                        g.removeNode(j, this);
+                else if (!g.getPotNeighOf(i).contains(j))
+                    g.removeNode(j, this);
             }
         }
     }

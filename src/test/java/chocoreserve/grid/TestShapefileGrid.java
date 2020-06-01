@@ -24,28 +24,11 @@
 package chocoreserve.grid;
 
 import chocoreserve.grid.neighborhood.Neighborhoods;
-import chocoreserve.solver.ReserveModel;
-import chocoreserve.solver.region.Region;
-import org.chocosolver.solver.Model;
-import org.chocosolver.solver.Solver;
-import org.geotools.data.DataStore;
-import org.geotools.data.DataStoreFinder;
-import org.geotools.data.FeatureSource;
-import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.feature.FeatureCollection;
 import org.junit.Assert;
 import org.junit.Test;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory2;
-import org.opengis.filter.identity.FeatureId;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  *
@@ -56,7 +39,7 @@ public class TestShapefileGrid {
     public void testReadShapeAndConnectivity() throws IOException {
         String path = getClass().getClassLoader().getResource("vector/BV_RGNC/BV_RGNC.shp").getPath();
         ShapefileGrid grid = new ShapefileGrid(path);
-        int[][] expectedNeighborhoods = new int[][] {
+        int[][] expectedNeighborhoods = new int[][]{
                 {2, 3},
                 {14, 15, 29, 2},
                 {1, 29, 0},

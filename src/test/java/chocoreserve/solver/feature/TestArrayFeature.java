@@ -26,7 +26,6 @@ package chocoreserve.solver.feature;
 import chocoreserve.solver.feature.array.BinaryArrayFeature;
 import chocoreserve.solver.feature.array.ProbabilisticArrayFeature;
 import chocoreserve.solver.feature.array.QuantitativeArrayFeature;
-
 import jdk.nashorn.internal.runtime.regexp.joni.exception.ValueException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -38,7 +37,7 @@ public class TestArrayFeature {
 
     @Test
     public void testBinary() {
-        BinaryArrayFeature feature = new BinaryArrayFeature("test_binary", new int[] {0, 1, 1, 0, 1, 0, 1, 4});
+        BinaryArrayFeature feature = new BinaryArrayFeature("test_binary", new int[]{0, 1, 1, 0, 1, 0, 1, 4});
         Assert.assertEquals(feature.getName(), "test_binary");
         int[] data = feature.getBinaryData();
         for (int d : data) {
@@ -50,7 +49,7 @@ public class TestArrayFeature {
     public void testGetDataProbabilistic() {
         ProbabilisticArrayFeature feature = new ProbabilisticArrayFeature(
                 "probTest",
-                new double[] {0.1, 0.5, 0, 0.88, 0.5, 0.11}
+                new double[]{0.1, 0.5, 0, 0.88, 0.5, 0.11}
         );
         Assert.assertEquals(feature.getName(), "probTest");
         double[] data = feature.getProbabilisticData();
@@ -59,17 +58,18 @@ public class TestArrayFeature {
         }
         ProbabilisticArrayFeature featureFail = new ProbabilisticArrayFeature(
                 "probTest",
-                new double[] {0.1, 0.5, 0, 1.1, 0.5, 0.11}
+                new double[]{0.1, 0.5, 0, 1.1, 0.5, 0.11}
         );
         try {
             featureFail.getProbabilisticData();
             Assert.fail();
-        } catch (ValueException e) { }
+        } catch (ValueException e) {
+        }
     }
 
     @Test
     public void testGetDataQuantitative() {
-        QuantitativeArrayFeature feature = new QuantitativeArrayFeature("test", new int[] {10, 20, 0, 30, 45});
+        QuantitativeArrayFeature feature = new QuantitativeArrayFeature("test", new int[]{10, 20, 0, 30, 45});
         feature.getQuantitativeData();
     }
 }

@@ -42,7 +42,6 @@ import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.chocosolver.util.objects.setDataStructures.SetFactory;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 import org.chocosolver.util.procedure.IntProcedure;
-import org.chocosolver.util.tools.ArrayUtils;
 
 import java.util.Arrays;
 
@@ -96,7 +95,8 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
         }
         this.forceG = node -> added.add(node);
 //        this.removeG = node -> removed.add(node); //updateRemoveNode(node);
-        this.removeG = node -> removed.add(node);;
+        this.removeG = node -> removed.add(node);
+        ;
         this.connectivityFinderGUB = new ConnectivityFinderSpatialGraph(g.getGUB());
         removed = SetFactory.makeBitSet(0);
         added = SetFactory.makeBitSet(0);
@@ -124,8 +124,8 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
         computeIIC_LB();
         computeIIC_UB();
 //        if (g.isInstantiated()) {
-            System.out.println("IIC Initial (LB) = " + ((double) (iic.getLB()) / Math.pow(10, precision)));
-            System.out.println("IIC Initial (UB) = " + ((double) (iic.getUB()) / Math.pow(10, precision)));
+        System.out.println("IIC Initial (LB) = " + ((double) (iic.getLB()) / Math.pow(10, precision)));
+        System.out.println("IIC Initial (UB) = " + ((double) (iic.getUB()) / Math.pow(10, precision)));
 //        }
         gdm.unfreeze();
     }
@@ -507,7 +507,7 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
 //        }
         int[] roots = g.getGLB().getRoots().toArray();
         int[][] ccs = new int[roots.length][];
-        for (int i =  0; i < roots.length; i++) {
+        for (int i = 0; i < roots.length; i++) {
             ccs[i] = g.getGLB().getConnectedComponent(roots[i]).toArray();
             Arrays.sort(ccs[i]);
         }
@@ -708,6 +708,7 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
 
     /**
      * Minimum Detour Algorithm for grid graphs (Hadlock 1977).
+     *
      * @param source
      * @param dest
      * @return [ [dist], [path] ]
@@ -715,14 +716,14 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
     public int[][] minimumDetour(RegularSquareGrid grid, UndirectedGraph graph, int source, int dest) {
 
         if (!graph.getNodes().contains(source)) {
-            return new int[][] { {-1}, null };
+            return new int[][]{{-1}, null};
         }
         if (!graph.getNodes().contains(dest)) {
-            return new int[][] { {-1}, null };
+            return new int[][]{{-1}, null};
         }
 
         if (source == dest) {
-            return new int[][] { {0}, {source}};
+            return new int[][]{{0}, {source}};
         }
 
         // When the graph has maintains connected component, avoid running the algorithm for two nodes
@@ -811,7 +812,7 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
             }
 
             if (next == -1) {
-                return new int[][] { {Integer.MAX_VALUE}, null };
+                return new int[][]{{Integer.MAX_VALUE}, null};
             }
             if (potPrev != -1) {
                 prev[next] = potPrev;
@@ -825,15 +826,15 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
         for (int i = dist - 1; i >= 0; i--) {
             path[i] = prev[path[i + 1]];
         }
-        return new int[][] { {dist}, path, prev};
+        return new int[][]{{dist}, path, prev};
     }
 
     public int manhattanDistance(RegularSquareGrid grid, int source, int dest) {
-            int[] sourceCoords = grid.getCoordinatesFromIndex(source);
-            int[] destCoords = grid.getCoordinatesFromIndex(dest);
-            int dx = Math.abs(sourceCoords[1] - destCoords[1]);
-            int dy = Math.abs(sourceCoords[0] - destCoords[0]);
-            return dx + dy;
+        int[] sourceCoords = grid.getCoordinatesFromIndex(source);
+        int[] destCoords = grid.getCoordinatesFromIndex(dest);
+        int dx = Math.abs(sourceCoords[1] - destCoords[1]);
+        int dy = Math.abs(sourceCoords[0] - destCoords[0]);
+        return dx + dy;
     }
 
     public int[][] floydWarshall(UndirectedGraph g) {
@@ -855,12 +856,12 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
         }
         for (int k = 0; k < nbNodes; k++) {
             for (int i = 0; i < nbNodes; i++) {
-               for (int j = i; j < nbNodes; j++) {
-                   int a = Integer.min(k, i);
-                   int b = Integer.max(k, i);
-                   int c = Integer.min(k, j);
-                   int d = Integer.max(k, j);
-                   dists[i][j] = Integer.min(dists[i][j], dists[a][b] + dists[c][d]);
+                for (int j = i; j < nbNodes; j++) {
+                    int a = Integer.min(k, i);
+                    int b = Integer.max(k, i);
+                    int c = Integer.min(k, j);
+                    int d = Integer.max(k, j);
+                    dists[i][j] = Integer.min(dists[i][j], dists[a][b] + dists[c][d]);
                 }
             }
         }
