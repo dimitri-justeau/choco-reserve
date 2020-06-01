@@ -20,7 +20,7 @@ mvn install
 
 ## Quick start ##
 
-First, create a grid representing the discretized geographical space you are working on:
+First, create a grid representing the discretized geographical space you are working on, for instance a regular square grid:
 
 ```java
 Grid grid = new FourConnectedSquareGrid(nbRows, nbCols);

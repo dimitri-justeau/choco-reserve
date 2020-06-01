@@ -25,10 +25,9 @@ package chocoreserve.util.objects.graphs;
 
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.util.objects.setDataStructures.SetType;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.Assert;
+import org.junit.Test;
 
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
