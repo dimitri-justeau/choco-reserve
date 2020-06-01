@@ -29,7 +29,6 @@ import chocoreserve.grid.regular.square.PartialRegularSquareGrid;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.constraints.choco.graph.spatial.PropIICSpatialGraph;
-import chocoreserve.solver.constraints.choco.graph.spatial.PropIICSpatialGraphAlt;
 import chocoreserve.solver.region.Region;
 import chocoreserve.solver.variable.SpatialGraphVar;
 import org.chocosolver.graphsolver.GraphModel;

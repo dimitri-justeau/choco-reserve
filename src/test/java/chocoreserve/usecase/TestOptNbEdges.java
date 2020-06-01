@@ -26,7 +26,7 @@ package chocoreserve.usecase;
 import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.ReserveModel;
-import chocoreserve.solver.constraints.choco.graph.spatial.PropNbArcsSpatial;
+import chocoreserve.solver.constraints.choco.graph.spatial.PropNbArcsSpatialGraph;
 import chocoreserve.solver.constraints.spatial.NbEdges;
 import chocoreserve.solver.region.ComposedRegion;
 import chocoreserve.solver.region.Region;
@@ -218,11 +218,11 @@ public class TestOptNbEdges {
         reserveModel.nbConnectedComponents(potentialForestB, 1, 1).post();
 
         IntVar nbEdgesPotA = model.intVar("nbEdgesPotA", 0, potentialForestGraphVarA.getNbMaxNodes() * potentialForestGraphVarA.getNbMaxNodes());
-        PropNbArcsSpatial propNbEdgesPotA = new PropNbArcsSpatial(potentialForestGraphVarA, nbEdgesPotA);
+        PropNbArcsSpatialGraph propNbEdgesPotA = new PropNbArcsSpatialGraph(potentialForestGraphVarA, nbEdgesPotA);
         model.post(new Constraint("PropNbEdgesPotA", propNbEdgesPotA));
 
         IntVar nbEdgesPotB = model.intVar("nbEdgesPotB", 0, potentialForestGraphVarB.getNbMaxNodes() * potentialForestGraphVarB.getNbMaxNodes());
-        PropNbArcsSpatial propNbEdgesPotB = new PropNbArcsSpatial(potentialForestGraphVarB, nbEdgesPotB);
+        PropNbArcsSpatialGraph propNbEdgesPotB = new PropNbArcsSpatialGraph(potentialForestGraphVarB, nbEdgesPotB);
         model.post(new Constraint("PropNbEdgesPotB", propNbEdgesPotB));
 
         IntVar nbEdgesPot = model.intVar("nbEdgesPot", 0, 11 * 11);
@@ -309,7 +309,7 @@ public class TestOptNbEdges {
         SpatialGraphVar potentialForestGraphVar = potentialForest.getSetVar();
 
         IntVar nbEdges = model.intVar("nbEdges", 0, potentialForestGraphVar.getNbMaxNodes() * potentialForestGraphVar.getNbMaxNodes());
-        PropNbArcsSpatial propNbEdges = new PropNbArcsSpatial(potentialForestGraphVar, nbEdges);
+        PropNbArcsSpatialGraph propNbEdges = new PropNbArcsSpatialGraph(potentialForestGraphVar, nbEdges);
         model.post(new Constraint("PropNbEdges", propNbEdges));
 
 //        model.nbConnectedComponents(potentialForestGraphVar, model.intVar(1)).post();

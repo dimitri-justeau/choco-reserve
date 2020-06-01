@@ -108,6 +108,7 @@ public class TestPropInducedNeighborhood {
         Assert.assertTrue(Arrays.equals(neigh, new int[] {6, 12}));
         // 12 neighbors
         neigh = g.getMandNeighOf(12).toArray();
+        Arrays.sort(neigh);
         Assert.assertTrue(Arrays.equals(neigh, new int[] {7, 11, 13, 17}));
         // 13 neighbors
         neigh = g.getMandNeighOf(13).toArray();

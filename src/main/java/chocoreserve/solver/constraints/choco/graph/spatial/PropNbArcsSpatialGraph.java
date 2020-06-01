@@ -44,7 +44,7 @@ import org.chocosolver.util.procedure.IntProcedure;
  *
  * @author Jean-Guillaume Fages
  */
-public class PropNbArcsSpatial extends Propagator<Variable> {
+public class PropNbArcsSpatialGraph extends Propagator<Variable> {
 
 	//***********************************************************************************
 	// VARIABLES
@@ -62,7 +62,7 @@ public class PropNbArcsSpatial extends Propagator<Variable> {
 	// CONSTRUCTORS
 	//***********************************************************************************
 
-	public PropNbArcsSpatial(SpatialGraphVar graph, IntVar k) {
+	public PropNbArcsSpatialGraph(SpatialGraphVar graph, IntVar k) {
 		super(new Variable[]{graph, k}, PropagatorPriority.LINEAR, false);
 		this.g = graph;
 		this.k = k;

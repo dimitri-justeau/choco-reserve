@@ -24,7 +24,7 @@
 package chocoreserve.solver.constraints.spatial;
 
 import chocoreserve.solver.ReserveModel;
-import chocoreserve.solver.constraints.choco.graph.spatial.PropNbArcsSpatial;
+import chocoreserve.solver.constraints.choco.graph.spatial.PropNbArcsSpatialGraph;
 import chocoreserve.solver.region.AbstractRegion;
 import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.variables.IntVar;
@@ -46,7 +46,7 @@ public class NbEdges extends SpatialConstraint{
 
     @Override
     public void post() {
-        PropNbArcsSpatial propNbEdges = new PropNbArcsSpatial(region.getSetVar(), nbEdges);
+        PropNbArcsSpatialGraph propNbEdges = new PropNbArcsSpatialGraph(region.getSetVar(), nbEdges);
         chocoModel.post(new Constraint("PropNbEdges_" + region.getName(), propNbEdges));
     }
 }
