@@ -40,7 +40,6 @@ import java.util.stream.IntStream;
  */
 public class ComposedRegion extends AbstractRegion {
 
-    private final SetType GRAPH_SET_TYPE = SetType.BIPARTITESET;
     private final SetType SET_VAR_SET_TYPE = SetType.BIPARTITESET;
 
     private INeighborhood neighborhood;

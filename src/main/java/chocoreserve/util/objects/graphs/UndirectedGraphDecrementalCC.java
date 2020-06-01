@@ -44,8 +44,9 @@ import java.util.Set;
 public class UndirectedGraphDecrementalCC extends UndirectedGraph {
 
     public IStateIntVector cc;
-    IStateInt nbCC, delta;
-    boolean init;
+    private IStateInt nbCC;
+    private IStateInt delta;
+    private boolean init;
 
     public UndirectedGraphDecrementalCC(Model model, int n, SetType type, boolean allNodes) {
         super(model, n, type, allNodes);
@@ -180,10 +181,10 @@ public class UndirectedGraphDecrementalCC extends UndirectedGraph {
 
     public class ProcessA {
 
-        IGraph graph;
-        int n, x, y, current, last, nbVisited;
-        int[] fifo, parent;
-        boolean yReached;
+        private IGraph graph;
+        private int n, x, y, current, last, nbVisited;
+        private int[] fifo, parent;
+        private boolean yReached;
 
         public ProcessA(IGraph graph, int x, int y) {
             this.graph = graph;

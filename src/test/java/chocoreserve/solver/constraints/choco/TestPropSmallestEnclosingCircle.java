@@ -275,7 +275,13 @@ public class TestPropSmallestEnclosingCircle {
         int[] points;
         double[][] coordinates;
         double[] minidisk;
-        int xmin, xmax, xshift, ymin, ymax, yshift, scale;
+        int xmin;
+        int xmax;
+        int xshift;
+        int ymin;
+        int ymax;
+        int yshift;
+        int scale;
 
         public MinidiskCanvas(int[] points, double[][] coordinates, double[] minidisk,
                               int xmin, int xmax, int xshift, int ymin, int ymax, int yshift, int scale) {

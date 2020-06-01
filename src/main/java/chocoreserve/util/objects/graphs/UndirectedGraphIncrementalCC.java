@@ -41,8 +41,8 @@ import java.util.Set;
  */
 public class UndirectedGraphIncrementalCC extends UndirectedGraph {
 
-    IStateIntVector parent;
-    IStateIntVector rank;
+    private IStateIntVector parent;
+    private IStateIntVector rank;
 
     public UndirectedGraphIncrementalCC(Model model, int n, SetType type, boolean allNodes) {
         super(model, n, type, allNodes);

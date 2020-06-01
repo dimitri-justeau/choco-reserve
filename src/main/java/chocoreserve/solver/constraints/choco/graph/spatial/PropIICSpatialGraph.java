@@ -96,7 +96,6 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
         this.forceG = node -> added.add(node);
 //        this.removeG = node -> removed.add(node); //updateRemoveNode(node);
         this.removeG = node -> removed.add(node);
-        ;
         this.connectivityFinderGUB = new ConnectivityFinderSpatialGraph(g.getGUB());
         removed = SetFactory.makeBitSet(0);
         added = SetFactory.makeBitSet(0);
@@ -247,7 +246,6 @@ public class PropIICSpatialGraph extends Propagator<Variable> {
                 continue;
             }
             int[][] mdaResult = minimumDetour(grid, glb, node, dest);
-            int minDist = mdaResult[0][0];
             int[] shortestPath = mdaResult[1];
             for (int x = 1; x < shortestPath.length; x++) {
                 int manDist = manDists[node][shortestPath[x]];
