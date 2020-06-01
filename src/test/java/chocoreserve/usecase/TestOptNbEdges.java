@@ -23,6 +23,7 @@
 
 package chocoreserve.usecase;
 
+import chocoreserve.grid.Grid;
 import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.ReserveModel;
@@ -53,7 +54,7 @@ public class TestOptNbEdges {
         int nbRows = 11;
         int nbCols = 11;
 
-        RegularSquareGrid grid = new RegularSquareGrid(nbRows, nbCols);
+        Grid grid = new RegularSquareGrid(nbRows, nbCols);
 
         int[] forestPixels = IntStream.range(0, nbRows).map(i -> nbCols * i + (nbCols - 1) / 2).toArray();
         System.out.println(Arrays.toString(forestPixels));

@@ -20,37 +20,61 @@ mvn install
 
 ## Quick start ##
 
-First, create a grid representing the discretized geographical space you are working on, for instance a regular square grid:
+First, create a grid representing the discretized geographical space you are working on. For example a 20x20 regular square grid:
 
 ```java
-Grid grid = new FourConnectedSquareGrid(nbRows, nbCols);
+Grid grid = new RegularSquareGrid(20, 20);
 ```
 
-Then instantiate a ReserveModel object:
+Then declare the regions to be delineated in this grid, and the neighborhood definition within these regions. For example a protected core area, a protected buffer zone and the out-reserve area, with the four-connected neighborhood definition:
 
 ```java
-ReserveModel reserveModel = new ReserveModel(grid);
+Region core = new Region("core", Neighborhoods.FOUR_CONNECTED);
+Region buffer = new Region("buffer", Neighborhoods.FOUR_CONNECTED);
+Region out = new Region("out", Neighborhoods.FOUR_CONNECTED);
 ```
 
-Create some features (e.g. from raster files):
+Create the model:
+
+```java
+ReserveModel reserveModel = new ReserveModel(grid, out, buffer, core);
+```
+
+Load some features (e.g. species occurrences from raster files):
 
 ```java
 BinaryFeature speciesA = reserveModel.binaryFeature("Species_A", "/path/to/species_A/raster.tiff");
 BinaryFeature speciesB = reserveModel.binaryFeature("Species_B", "/path/to/species_B/raster.tiff");
-ProbabilisticFeature speciesC = reserveModel.binaryFeature("Species_C", "/path/to/species_C/raster.tiff");
 ```
 
 Post some constraint to the model:
 
 ```java
-reserveModel.coveredFeatures(speciesA, speciesB).post();
-reserveModel.minProbability(0.9, speciesC).post();
-reserveModel.nbReserves(1, 1).post();
+// The protected core must contain an occurrence of speciesA and speciesB
+reserveModel.coveredFeatures(core, speciesA, speciesB).post();
+// The protected core must be connected
+reserveModel.nbConnectedComponents(1, 1).post();
+// The protected buffer must be a buffer zone between the core area and the out-reserve area
+reserveModel.bufferZone(core, out, buffer).post();
+// The protected buffer zone must be compact (within a smallest enclosing circle with a 4-sites maximum diameter)
+reserveModel.maxDiameter(buffer, 4).post();  
+```
+
+Define an optimization objective if necessary, e.g. the number of edges:
+
+```java
+// Define the constraint
+NbEdges nbEdgesConstraint = new NbEdges(reserveModel, potentialForest);
+// Get the nbEdges variable - It will be defined as an optimization objective to the solver
+IntVar nbEdges = nbEdgesConstraint.nbEdges;
+// Post the constraint
+nbEdgesConstraint.post();
 ```
 
 Get the Choco solver and solve:
 
 ```java
 Solver solver = reserveModel.getChocoSolver();
-solver.solve();
+// Tell the solver to find the solution satisfying the constraints AND maximizing the number of edges
+solver.findOptimalSolution(nbEdges, true);
 ```
