@@ -39,7 +39,7 @@ import java.util.Set;
  */
 public class ConnectivityIndices {
 
-    public float getIIC(UndirectedGraph g, Grid grid, INeighborhood threshold) {
+    public static float getIIC(UndirectedGraph g, Grid grid, INeighborhood threshold) {
         ConnectivityFinderSpatialGraph connectivityFinder = new ConnectivityFinderSpatialGraph(g);
         connectivityFinder.findAllCC();
         // Construct inter-patch graph
