@@ -30,6 +30,8 @@ import chocoreserve.solver.constraints.features.CoveredFeatures;
 import chocoreserve.solver.constraints.features.MinProbability;
 import chocoreserve.solver.constraints.features.RedundantFeatures;
 import chocoreserve.solver.constraints.spatial.*;
+import chocoreserve.solver.constraints.spatial.fragmentation.AggregationIndex;
+import chocoreserve.solver.constraints.spatial.fragmentation.EffectiveMeshSize;
 import chocoreserve.solver.feature.BinaryFeature;
 import chocoreserve.solver.feature.ProbabilisticFeature;
 import chocoreserve.solver.region.AbstractRegion;
@@ -199,4 +201,21 @@ public interface IReserveConstraintFactory {
     default IReserveConstraint perimeter(AbstractRegion region) {
         return new PerimeterSquareGridFourConnected(self(), region);
     }
+
+    // ---------------- //
+    // Variable Factory //
+    // ---------------- //
+
+    default IntVar aggregationIndex(AbstractRegion region, int precision) {
+        AggregationIndex aggIndexConstraint = new AggregationIndex(self(), region, precision);
+        aggIndexConstraint.post();
+        return aggIndexConstraint.aggregationIndex;
+    }
+
+    default IntVar effectiveMeshSize(AbstractRegion region, int precision) {
+        EffectiveMeshSize meshConstraint = new EffectiveMeshSize(self(), region, self().getGrid().getNbCells(), precision);
+        meshConstraint.post();
+        return meshConstraint.mesh;
+    }
+
 }
