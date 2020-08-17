@@ -58,7 +58,7 @@ public class PropEffectiveMeshSize extends Propagator<Variable> {
      * @param landscapeArea The total landscape area.
      */
     public PropEffectiveMeshSize(SpatialGraphVar g, IntVar mesh, int landscapeArea, int precison) {
-        super(new Variable[] {g, mesh}, PropagatorPriority.LINEAR, false);
+        super(new Variable[] {g, mesh}, PropagatorPriority.VERY_SLOW, false);
         this.g = g;
         this.mesh = mesh;
         this.landscapeArea = landscapeArea;
