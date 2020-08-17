@@ -206,6 +206,12 @@ public interface IReserveConstraintFactory {
     // Variable Factory //
     // ---------------- //
 
+    default IntVar nbEdgesVar(AbstractRegion region) {
+        NbEdges nbEdgesConstraint = new NbEdges(self(), region);
+        nbEdgesConstraint.post();
+        return nbEdgesConstraint.nbEdges;
+    }
+
     default IntVar aggregationIndex(AbstractRegion region, int precision) {
         AggregationIndex aggIndexConstraint = new AggregationIndex(self(), region, precision);
         aggIndexConstraint.post();
