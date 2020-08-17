@@ -30,6 +30,7 @@ import chocoreserve.solver.constraints.features.CoveredFeatures;
 import chocoreserve.solver.constraints.features.MinProbability;
 import chocoreserve.solver.constraints.features.RedundantFeatures;
 import chocoreserve.solver.constraints.spatial.*;
+import chocoreserve.solver.constraints.spatial.connectivity.IntegralIndexOfConnectivity;
 import chocoreserve.solver.constraints.spatial.fragmentation.AggregationIndex;
 import chocoreserve.solver.constraints.spatial.fragmentation.EffectiveMeshSize;
 import chocoreserve.solver.feature.BinaryFeature;
@@ -224,4 +225,15 @@ public interface IReserveConstraintFactory {
         return meshConstraint.mesh;
     }
 
+    default IntVar integralIndexOfConnectivity(AbstractRegion region, INeighborhood distanceThreshold, int precision) {
+        IntegralIndexOfConnectivity iic = new IntegralIndexOfConnectivity(
+                self(),
+                region,
+                self().getGrid().getNbCells(),
+                distanceThreshold,
+                precision
+        );
+        iic.post();
+        return iic.iic;
+    }
 }

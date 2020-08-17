@@ -21,22 +21,30 @@
  * along with Choco-reserve.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package chocoreserve.grid.neighborhood;
+package chocoreserve.grid.neighborhood.regulare.square;
 
-
-import chocoreserve.grid.neighborhood.regulare.square.*;
+import chocoreserve.grid.neighborhood.INeighborhood;
+import chocoreserve.grid.neighborhood.Neighborhoods;
+import chocoreserve.grid.regular.square.RegularSquareGrid;
+import org.chocosolver.util.objects.setDataStructures.ISet;
+import org.chocosolver.util.objects.setDataStructures.SetFactory;
 
 /**
- * Utility class for accessing neighborhoods.
+ * The 2-wide four-connected neighborhood in a regular square grid.
  */
-public class Neighborhoods {
+public class TwoWideFourConnected<T extends RegularSquareGrid> implements INeighborhood<T> {
 
-    public final static FourConnected FOUR_CONNECTED = new FourConnected();
-    public final static HeightConnected HEIGHT_CONNECTED = new HeightConnected();
-    public final static PartialFourConnected PARTIAL_FOUR_CONNECTED = new PartialFourConnected();
-    public final static PartialHeightConnected PARTIAL_HEIGHT_CONNECTED = new PartialHeightConnected();
-    public final static TwoWideHeightConnected TWO_WIDE_HEIGHT_CONNECTED = new TwoWideHeightConnected();
-    public final static TwoWideFourConnected TWO_WIDE_FOUR_CONNECTED = new TwoWideFourConnected();
-    public final static ShapefileNeighborhood SHAPEFILE_NEIGHBORHOOD = new ShapefileNeighborhood();
+    public ISet getNeighbors(T grid, int i) {
+        FourConnected four = Neighborhoods.FOUR_CONNECTED;
+        ISet neighbors = SetFactory.makeBitSet(0);
+        ISet heightneigh = four.getNeighbors(grid, i);
+        for (int neigh : heightneigh) {
+            neighbors.add(neigh);
+            for (int nneigh : four.getNeighbors(grid, neigh)) {
+                neighbors.add(nneigh);
+            }
+        }
+        return neighbors;
+    }
 
 }
