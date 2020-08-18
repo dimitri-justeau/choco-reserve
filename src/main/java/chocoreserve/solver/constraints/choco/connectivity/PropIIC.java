@@ -55,6 +55,7 @@ public class PropIIC extends Propagator<Variable> {
     protected INeighborhood threshold;
     public ConnectivityFinderSpatialGraph connectivityFinderGUB;
     public ConnectivityFinderSpatialGraph connectivityFinderGLB;
+    public int[][] threshNeigh;
 
 
     /**
@@ -73,6 +74,7 @@ public class PropIIC extends Propagator<Variable> {
         this.threshold = distanceThreshold;
         this.connectivityFinderGUB = new ConnectivityFinderSpatialGraph(g.getGUB());
         this.connectivityFinderGLB = new ConnectivityFinderSpatialGraph(g.getGLB());
+        this.threshNeigh = new int[grid.getNbCells()][];
     }
 
     @Override
@@ -124,8 +126,10 @@ public class PropIIC extends Propagator<Variable> {
             Set<Integer> conn = new HashSet<>();
             int[] cc = connectivityFinderGUB.getCC(i);
             for (int node : cc) {
-                ISet n = threshold.getNeighbors(grid, node);
-                for (int j : n) {
+                if (threshNeigh[node] == null) {
+                    threshNeigh[node] = threshold.getNeighbors(grid, node).toArray();
+                }
+                for (int j : threshNeigh[node]) {
                     if (nodeCC[j] != i && g.getPotentialNodes().contains(j)) {
                         conn.add(nodeCC[j]);
                     }
@@ -145,8 +149,10 @@ public class PropIIC extends Propagator<Variable> {
             Set<Integer> conn = new HashSet<>();
             int[] cc = connectivityFinderGLB.getCC(i);
             for (int node : cc) {
-                ISet n = threshold.getNeighbors(grid, node);
-                for (int j : n) {
+                if (threshNeigh[node] == null) {
+                    threshNeigh[node] = threshold.getNeighbors(grid, node).toArray();
+                }
+                for (int j : threshNeigh[node]) {
                     if (nodeCC[j] != i && g.getMandatoryNodes().contains(j)) {
                         conn.add(nodeCC[j]);
                     }

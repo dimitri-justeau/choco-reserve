@@ -165,7 +165,7 @@ public class ConnectivityFinderSpatialGraph {
         add(start, cc);
         while (first < last) {
             int i = fifo[first++];
-            for (int j : getNeigh(i)) {
+            for (int j : g.getNeighOf(i)) {
                 if (p[j] == -1) {
                     p[j] = i;
                     add(j, cc);

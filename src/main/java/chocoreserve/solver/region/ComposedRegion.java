@@ -40,23 +40,28 @@ import java.util.stream.IntStream;
  */
 public class ComposedRegion extends AbstractRegion {
 
-    private final SetType SET_VAR_SET_TYPE = SetType.BIPARTITESET;
+    private static final SetType SET_VAR_SET_TYPE = SetType.BIPARTITESET;
 
     private INeighborhood neighborhood;
     private Region[] regions;
     private int[] LBNodes;
     private int[] UBNodes;
     private boolean ubDecr;
+    private SetType setType;
 
     public ComposedRegion(String name, Region... regions) {
-        this(name, false, regions);
+        this(name, false, SET_VAR_SET_TYPE, regions);
+    }
+    public ComposedRegion(String name,  SetType setType, Region... regions) {
+        this(name, false, setType, regions);
     }
 
-    public ComposedRegion(String name, boolean ubDecr, Region... regions) {
+    public ComposedRegion(String name, boolean ubDecr, SetType setType, Region... regions) {
         super(name);
         this.regions = regions;
         this.neighborhood = regions[0].getNeighborhood();
         this.ubDecr = ubDecr;
+        this.setType = setType;
         Set<Integer> lb = new HashSet<>();
         Set<Integer> ub = new HashSet<>();
         boolean ubNull = false;
@@ -93,8 +98,8 @@ public class ComposedRegion extends AbstractRegion {
         }
         setVar = new SpatialGraphVar(
                 "composedRegionSetVar['" + name + "']",
-                LBNodes, SET_VAR_SET_TYPE,
-                UBNodes, SET_VAR_SET_TYPE,
+                LBNodes, setType,
+                UBNodes, setType,
                 model,
                 grid,
                 neighborhood,
