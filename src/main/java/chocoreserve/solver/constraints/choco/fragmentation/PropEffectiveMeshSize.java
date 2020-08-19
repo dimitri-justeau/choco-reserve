@@ -58,7 +58,7 @@ public class PropEffectiveMeshSize extends Propagator<Variable> {
      * @param landscapeArea The total landscape area.
      */
     public PropEffectiveMeshSize(SpatialGraphVar g, IntVar mesh, int landscapeArea, int precison) {
-        super(new Variable[] {g, mesh}, PropagatorPriority.VERY_SLOW, false);
+        super(new Variable[] {g, mesh}, PropagatorPriority.QUADRATIC, false);
         this.g = g;
         this.mesh = mesh;
         this.landscapeArea = landscapeArea;
@@ -73,6 +73,14 @@ public class PropEffectiveMeshSize extends Propagator<Variable> {
     @Override
     public void propagate(int evtmask) throws ContradictionException {
         // LB
+        int mesh_LB_round = getLB();
+        mesh.updateLowerBound(mesh_LB_round, this);
+        // UB
+        int mesh_UB_round = getUB();
+        mesh.updateUpperBound(mesh_UB_round, this);
+    }
+
+    private int getLB() {
         double mesh_LB = 0;
         Map<Integer, Set<Integer>> ccs = g.getGLB().getConnectedComponents();
         for (int r : ccs.keySet()) {
@@ -80,8 +88,11 @@ public class PropEffectiveMeshSize extends Propagator<Variable> {
             mesh_LB += patchSize * patchSize;
         }
         mesh_LB /= 1.0 * landscapeArea;
-        mesh.updateLowerBound((int) (mesh_LB * Math.pow(10, precision)), this);
-        // UB
+        int mesh_LB_round = (int) Math.round(mesh_LB * Math.pow(10, precision));
+        return mesh_LB_round;
+    }
+
+    private int getUB() {
         double mesh_UB = 0;
         connectivityFinderGUB.findAllCC();
         for (int i = 0; i < connectivityFinderGUB.getNBCC(); i++) {
@@ -89,25 +100,19 @@ public class PropEffectiveMeshSize extends Propagator<Variable> {
             mesh_UB += s * s;
         }
         mesh_UB /= 1.0 * landscapeArea;
-        mesh.updateUpperBound((int) (mesh_UB * Math.pow(10, precision)), this);
+        int mesh_UB_round = (int) Math.round(mesh_UB * Math.pow(10, precision));
+        return mesh_UB_round;
     }
 
     @Override
     public ESat isEntailed() {
-        if (g.isInstantiated()) {
-            if (mesh.isInstantiated()) {
-                double mesh_LB = 0;
-                Map<Integer, Set<Integer>> ccs = g.getGLB().getConnectedComponents();
-                for (int r : ccs.keySet()) {
-                    int patchSize = ccs.get(r).size();
-                    mesh_LB += patchSize * patchSize;
-                }
-                mesh_LB /= 1.0 * landscapeArea;
-                if (mesh.getLB() == (int) (mesh_LB * Math.pow(10, precision))) {
-                    return ESat.TRUE;
-                }
-            }
+        int mesh_LB_round = getLB();
+        int mesh_UB_round = getUB();
+        if (mesh_LB_round > mesh.getUB() || mesh_UB_round < mesh.getLB()) {
             return ESat.FALSE;
+        }
+        if (isCompletelyInstantiated()) {
+            return ESat.TRUE;
         }
         return ESat.UNDEFINED;
     }

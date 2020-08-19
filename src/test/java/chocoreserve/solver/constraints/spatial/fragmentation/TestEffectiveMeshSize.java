@@ -101,7 +101,7 @@ public class TestEffectiveMeshSize {
         IntVar MESH = reserveModel.effectiveMeshSize(core, 2);
         Solver solver = reserveModel.getChocoSolver();
         solver.solve();
-        Assert.assertEquals((int) (100.0 * (12 * 12 + 6 * 6 + 9 * 9) / grid.getNbCells()), MESH.getValue());
+        Assert.assertEquals(Math.round(100.0 * (12 * 12 + 6 * 6 + 9 * 9) / grid.getNbCells()), MESH.getValue());
     }
 
     /**

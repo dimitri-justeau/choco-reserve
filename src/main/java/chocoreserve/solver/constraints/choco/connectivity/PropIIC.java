@@ -65,7 +65,7 @@ public class PropIIC extends Propagator<Variable> {
      * @param landscapeArea The total landscape area.
      */
     public PropIIC(SpatialGraphVar g, IntVar iic, int landscapeArea, INeighborhood distanceThreshold, int precison) {
-        super(new Variable[] {g, iic}, PropagatorPriority.VERY_SLOW, false);
+        super(new Variable[] {g, iic}, PropagatorPriority.QUADRATIC, false);
         this.g = g;
         this.grid = (RegularSquareGrid) g.getGrid();
         this.iic = iic;
