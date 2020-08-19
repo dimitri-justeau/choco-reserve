@@ -25,7 +25,6 @@ package chocoreserve.grid.neighborhood;
 
 import chocoreserve.grid.Grid;
 import chocoreserve.util.objects.graphs.UndirectedGraphDecrementalCC;
-import chocoreserve.util.objects.graphs.UndirectedGraphIncrementalCC;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.solver.Model;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
@@ -52,7 +51,7 @@ public interface INeighborhood<T extends Grid> {
      */
     default UndirectedGraph getFullGraph(T grid, GraphModel model, SetType setType) {
         int nbCells = grid.getNbCells();
-        UndirectedGraphDecrementalCC g = new UndirectedGraphDecrementalCC(model, nbCells, setType, false);
+        UndirectedGraph g = new UndirectedGraph(model, nbCells, setType, false);
         for (int i = 0; i < nbCells; i++) {
             g.addNode(i);
             ISet neighbors = getNeighbors(grid, i);
@@ -60,7 +59,6 @@ public interface INeighborhood<T extends Grid> {
                 g.addEdge(i, ii);
             }
         }
-        g.init();
         return g;
     }
 
@@ -71,9 +69,9 @@ public interface INeighborhood<T extends Grid> {
      * @param setType The SetType to use for encoding the graph.
      * @return The partial graph associated to a subset of cells of the grid.
      */
-    default UndirectedGraphIncrementalCC getPartialGraph(T grid, Model model, int[] cells, SetType setType) {
+    default UndirectedGraph getPartialGraph(T grid, Model model, int[] cells, SetType setType) {
         int nbCells = grid.getNbCells();
-        UndirectedGraphIncrementalCC partialGraph = new UndirectedGraphIncrementalCC(model, nbCells, setType, false);
+        UndirectedGraph partialGraph = new UndirectedGraph(model, nbCells, setType, false);
         for (int i : cells) {
             partialGraph.addNode(i);
         }

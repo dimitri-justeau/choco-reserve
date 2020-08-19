@@ -48,7 +48,7 @@ public class PropEffectiveMeshSize extends Propagator<Variable> {
     protected IntVar mesh;
     protected int landscapeArea;
     protected int precision;
-    public ConnectivityFinderSpatialGraph connectivityFinderGUB;
+    public ConnectivityFinderSpatialGraph connectivityFinderGUB, connectivityFinderGLB;
 
 
     /**
@@ -64,6 +64,7 @@ public class PropEffectiveMeshSize extends Propagator<Variable> {
         this.landscapeArea = landscapeArea;
         this.precision = precison;
         this.connectivityFinderGUB = new ConnectivityFinderSpatialGraph(g.getGUB());
+        this.connectivityFinderGLB = new ConnectivityFinderSpatialGraph(g.getGLB());
     }
 
     public PropEffectiveMeshSize(SpatialGraphVar g, IntVar mesh, int landscapeArea) {
@@ -81,11 +82,20 @@ public class PropEffectiveMeshSize extends Propagator<Variable> {
     }
 
     private int getLB() {
+//        double mesh_LB = 0;
+//        Map<Integer, Set<Integer>> ccs = g.getGLB().getConnectedComponents();
+//        for (int r : ccs.keySet()) {
+//            int patchSize = ccs.get(r).size();
+//            mesh_LB += patchSize * patchSize;
+//        }
+//        mesh_LB /= 1.0 * landscapeArea;
+//        int mesh_LB_round = (int) Math.round(mesh_LB * Math.pow(10, precision));
+//        return mesh_LB_round;
         double mesh_LB = 0;
-        Map<Integer, Set<Integer>> ccs = g.getGLB().getConnectedComponents();
-        for (int r : ccs.keySet()) {
-            int patchSize = ccs.get(r).size();
-            mesh_LB += patchSize * patchSize;
+        connectivityFinderGLB.findAllCC();
+        for (int i = 0; i < connectivityFinderGLB.getNBCC(); i++) {
+            int s = connectivityFinderGLB.getSizeCC()[i];
+            mesh_LB += s * s;
         }
         mesh_LB /= 1.0 * landscapeArea;
         int mesh_LB_round = (int) Math.round(mesh_LB * Math.pow(10, precision));

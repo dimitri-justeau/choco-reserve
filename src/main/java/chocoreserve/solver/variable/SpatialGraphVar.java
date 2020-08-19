@@ -25,7 +25,6 @@ package chocoreserve.solver.variable;
 
 import chocoreserve.grid.Grid;
 import chocoreserve.grid.neighborhood.INeighborhood;
-import chocoreserve.util.objects.graphs.UndirectedGraphIncrementalCC;
 import org.chocosolver.solver.ICause;
 import org.chocosolver.solver.Model;
 import org.chocosolver.solver.constraints.Constraint;
@@ -60,7 +59,7 @@ public class SpatialGraphVar extends AbstractVariable implements SetVar {
     // From set Var Impl - END //
     protected Grid grid;
     protected INeighborhood neighborhood;
-    protected UndirectedGraphIncrementalCC GLB;
+    protected UndirectedGraph GLB;
     protected UndirectedGraph GUB;
 
     public SpatialGraphVar(String name, int[] ker, SetType kerType, int[] env, SetType envType, Model model, Grid grid, INeighborhood neighborhood, boolean ubDecr) {
@@ -138,7 +137,7 @@ public class SpatialGraphVar extends AbstractVariable implements SetVar {
         return ubReadOnly;
     }
 
-    public UndirectedGraphIncrementalCC getGLB() {
+    public UndirectedGraph getGLB() {
         return GLB;
     }
 
