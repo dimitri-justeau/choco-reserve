@@ -38,9 +38,10 @@ public class IntegralIndexOfConnectivity extends SpatialConstraint {
     public int landscapeArea;
     public INeighborhood distanceThreshold;
     public int precision;
+    private boolean maximize;
 
     public IntegralIndexOfConnectivity(ReserveModel reserveModel, AbstractRegion region, int landscapeArea,
-                                       INeighborhood distanceThreshold, int precision) {
+                                       INeighborhood distanceThreshold, int precision, boolean maximize) {
         super(reserveModel);
         this.region = region;
         this.landscapeArea = landscapeArea;
@@ -50,6 +51,7 @@ public class IntegralIndexOfConnectivity extends SpatialConstraint {
                 "IIC_" + region.getName(),
                 0, (int) (Math.pow(10, precision))
         );
+        this.maximize = maximize;
     }
 
     @Override
@@ -62,7 +64,8 @@ public class IntegralIndexOfConnectivity extends SpatialConstraint {
                                 iic,
                                 landscapeArea,
                                 distanceThreshold,
-                                precision
+                                precision,
+                                maximize
                         )
                 )
         );

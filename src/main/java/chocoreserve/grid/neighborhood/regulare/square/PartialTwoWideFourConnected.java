@@ -38,11 +38,13 @@ public class PartialTwoWideFourConnected<T extends PartialRegularSquareGrid> imp
     public ISet getNeighbors(T grid, int i) {
         PartialFourConnected four = Neighborhoods.PARTIAL_FOUR_CONNECTED;
         ISet neighbors = SetFactory.makeBitSet(0);
-        ISet heightneigh = four.getNeighbors(grid, i);
-        for (int neigh : heightneigh) {
-            neighbors.add(neigh);
+        ISet fourneigh = four.getNeighbors(grid, i);
+        for (int neigh : fourneigh) {
+//            neighbors.add(neigh);
             for (int nneigh : four.getNeighbors(grid, neigh)) {
-                neighbors.add(nneigh);
+                if (nneigh != i) {
+                    neighbors.add(nneigh);
+                }
             }
         }
         return neighbors;

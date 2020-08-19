@@ -219,21 +219,31 @@ public interface IReserveConstraintFactory {
         return aggIndexConstraint.aggregationIndex;
     }
 
-    default IntVar effectiveMeshSize(AbstractRegion region, int precision) {
-        EffectiveMeshSize meshConstraint = new EffectiveMeshSize(self(), region, self().getGrid().getNbCells(), precision);
+    default IntVar effectiveMeshSize(AbstractRegion region, int precision, boolean maximize) {
+        EffectiveMeshSize meshConstraint = new EffectiveMeshSize(self(), region, self().getGrid().getNbCells(), precision, maximize);
         meshConstraint.post();
         return meshConstraint.mesh;
     }
 
-    default IntVar integralIndexOfConnectivity(AbstractRegion region, INeighborhood distanceThreshold, int precision) {
+    default IntVar effectiveMeshSize(AbstractRegion region, int precision) {
+        return effectiveMeshSize(region, precision, false);
+
+    }
+
+    default IntVar integralIndexOfConnectivity(AbstractRegion region, INeighborhood distanceThreshold, int precision, boolean maximize) {
         IntegralIndexOfConnectivity iic = new IntegralIndexOfConnectivity(
                 self(),
                 region,
                 self().getGrid().getNbCells(),
                 distanceThreshold,
-                precision
+                precision,
+                maximize
         );
         iic.post();
         return iic.iic;
+    }
+
+    default IntVar integralIndexOfConnectivity(AbstractRegion region, INeighborhood distanceThreshold, int precision) {
+        return integralIndexOfConnectivity(region, distanceThreshold, precision, false);
     }
 }

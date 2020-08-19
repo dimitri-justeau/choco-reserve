@@ -49,6 +49,7 @@ public class PropEffectiveMeshSize extends Propagator<Variable> {
     protected int landscapeArea;
     protected int precision;
     public ConnectivityFinderSpatialGraph connectivityFinderGUB, connectivityFinderGLB;
+    private boolean maximize;
 
 
     /**
@@ -57,7 +58,7 @@ public class PropEffectiveMeshSize extends Propagator<Variable> {
      * @param mesh The integer variable equals to MESH, maintained by this propagator.
      * @param landscapeArea The total landscape area.
      */
-    public PropEffectiveMeshSize(SpatialGraphVar g, IntVar mesh, int landscapeArea, int precison) {
+    public PropEffectiveMeshSize(SpatialGraphVar g, IntVar mesh, int landscapeArea, int precison, boolean maximize) {
         super(new Variable[] {g, mesh}, PropagatorPriority.QUADRATIC, false);
         this.g = g;
         this.mesh = mesh;
@@ -65,32 +66,26 @@ public class PropEffectiveMeshSize extends Propagator<Variable> {
         this.precision = precison;
         this.connectivityFinderGUB = new ConnectivityFinderSpatialGraph(g.getGUB());
         this.connectivityFinderGLB = new ConnectivityFinderSpatialGraph(g.getGLB());
+        this.maximize = maximize;
     }
 
-    public PropEffectiveMeshSize(SpatialGraphVar g, IntVar mesh, int landscapeArea) {
-        this(g, mesh, landscapeArea, 2);
+    public PropEffectiveMeshSize(SpatialGraphVar g, IntVar mesh, int landscapeArea, int precison) {
+        this(g, mesh, landscapeArea, precison, false);
     }
 
     @Override
     public void propagate(int evtmask) throws ContradictionException {
         // LB
-        int mesh_LB_round = getLB();
-        mesh.updateLowerBound(mesh_LB_round, this);
+        if (!maximize || g.isInstantiated()) {
+            int mesh_LB_round = getLB();
+            mesh.updateLowerBound(mesh_LB_round, this);
+        }
         // UB
         int mesh_UB_round = getUB();
         mesh.updateUpperBound(mesh_UB_round, this);
     }
 
     private int getLB() {
-//        double mesh_LB = 0;
-//        Map<Integer, Set<Integer>> ccs = g.getGLB().getConnectedComponents();
-//        for (int r : ccs.keySet()) {
-//            int patchSize = ccs.get(r).size();
-//            mesh_LB += patchSize * patchSize;
-//        }
-//        mesh_LB /= 1.0 * landscapeArea;
-//        int mesh_LB_round = (int) Math.round(mesh_LB * Math.pow(10, precision));
-//        return mesh_LB_round;
         double mesh_LB = 0;
         connectivityFinderGLB.findAllCC();
         for (int i = 0; i < connectivityFinderGLB.getNBCC(); i++) {

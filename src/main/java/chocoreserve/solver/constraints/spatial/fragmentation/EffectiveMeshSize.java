@@ -38,8 +38,10 @@ public class EffectiveMeshSize extends SpatialConstraint {
     public IntVar mesh;
     public int landscapeArea;
     public int precision;
+    private boolean maximize;
 
-    public EffectiveMeshSize(ReserveModel reserveModel, AbstractRegion region, int landscapeArea, int precision) {
+    public EffectiveMeshSize(ReserveModel reserveModel, AbstractRegion region, int landscapeArea, int precision,
+                             boolean maximize) {
         super(reserveModel);
         this.region = region;
         this.landscapeArea = landscapeArea;
@@ -48,6 +50,7 @@ public class EffectiveMeshSize extends SpatialConstraint {
                 "MESH_" + region.getName(),
                 0, (int) (landscapeArea * Math.pow(10, precision))
         );
+        this.maximize = maximize;
     }
 
     @Override
@@ -59,7 +62,8 @@ public class EffectiveMeshSize extends SpatialConstraint {
                                 region.getSetVar(),
                                 mesh,
                                 landscapeArea,
-                                precision
+                                precision,
+                                maximize
                         )
                 )
         );

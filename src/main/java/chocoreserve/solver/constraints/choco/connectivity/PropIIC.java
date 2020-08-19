@@ -37,6 +37,7 @@ import org.chocosolver.util.ESat;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 
 import java.util.*;
+import java.util.stream.IntStream;
 
 /**
  * Propagator maintaining a variable equals to the Effective Mesh Size (MESH), using the classical CUT procedure.
@@ -56,7 +57,7 @@ public class PropIIC extends Propagator<Variable> {
     public ConnectivityFinderSpatialGraph connectivityFinderGUB;
     public ConnectivityFinderSpatialGraph connectivityFinderGLB;
     public int[][] threshNeigh;
-
+    private boolean maximize;
 
     /**
      *
@@ -64,7 +65,7 @@ public class PropIIC extends Propagator<Variable> {
      * @param iic The integer variable equals to MESH, maintained by this propagator.
      * @param landscapeArea The total landscape area.
      */
-    public PropIIC(SpatialGraphVar g, IntVar iic, int landscapeArea, INeighborhood distanceThreshold, int precison) {
+    public PropIIC(SpatialGraphVar g, IntVar iic, int landscapeArea, INeighborhood distanceThreshold, int precison, boolean maximize) {
         super(new Variable[] {g, iic}, PropagatorPriority.QUADRATIC, false);
         this.g = g;
         this.grid = (RegularSquareGrid) g.getGrid();
@@ -75,13 +76,21 @@ public class PropIIC extends Propagator<Variable> {
         this.connectivityFinderGUB = new ConnectivityFinderSpatialGraph(g.getGUB());
         this.connectivityFinderGLB = new ConnectivityFinderSpatialGraph(g.getGLB());
         this.threshNeigh = new int[grid.getNbCells()][];
+        this.maximize = maximize;
     }
+
+    public PropIIC(SpatialGraphVar g, IntVar iic, int landscapeArea, INeighborhood distanceThreshold, int precison) {
+        this(g, iic, landscapeArea, distanceThreshold, precison, false);
+    }
+
 
     @Override
     public void propagate(int evtmask) throws ContradictionException {
         // LB
-        int iic_LB = (int) Math.round(getIICLB() * Math.pow(10, precision));
-        iic.updateLowerBound(iic_LB, this);
+        if (!maximize || g.isInstantiated()) {
+	        int iic_LB = (int) Math.round(getIICLB() * Math.pow(10, precision));
+            iic.updateLowerBound(iic_LB, this);
+        }        
         // UB
         int iic_UB = (int) Math.round(getIICUB() * Math.pow(10, precision));
         iic.updateUpperBound(iic_UB, this);
@@ -120,10 +129,12 @@ public class PropIIC extends Propagator<Variable> {
     }
 
     public int[][] getLinkedUB() {
-        int[][] neigh = new int[connectivityFinderGUB.getNBCC()][];
+        int nbCC = connectivityFinderGUB.getNBCC();
+        int[][] neigh = new int[nbCC][];
         int[] nodeCC = connectivityFinderGUB.getNodeCC();
-        for (int i = 0; i < connectivityFinderGUB.getNBCC(); i++) {
-            Set<Integer> conn = new HashSet<>();
+        for (int i = 0; i < nbCC; i++) {
+            boolean[] conn = new boolean[nbCC];
+            int nAdj = 0;
             int[] cc = connectivityFinderGUB.getCC(i);
             for (int node : cc) {
                 if (threshNeigh[node] == null) {
@@ -131,22 +142,32 @@ public class PropIIC extends Propagator<Variable> {
                 }
                 for (int j : threshNeigh[node]) {
                     if (nodeCC[j] != i && g.getPotentialNodes().contains(j)) {
-                        conn.add(nodeCC[j]);
+                        if (!conn[nodeCC[j]]) {
+                            conn[nodeCC[j]] = true;
+                            nAdj += 1;
+                        }
                     }
                 }
             }
-            int[] adj = conn.stream().mapToInt(v -> v).toArray();
-            Arrays.sort(adj);
+            int[] adj = new int[nAdj];
+            int k = 0;
+            for (int j = 0; j < nbCC; j++) {
+                if (conn[j]) {
+                    adj[k++] = j;
+                }
+            }
             neigh[i] = adj;
         }
         return neigh;
     }
 
     public int[][] getLinkedLB() {
-        int[][] neigh = new int[connectivityFinderGLB.getNBCC()][];
+        int nbCC = connectivityFinderGLB.getNBCC();
+        int[][] neigh = new int[nbCC][];
         int[] nodeCC = connectivityFinderGLB.getNodeCC();
-        for (int i = 0; i < connectivityFinderGLB.getNBCC(); i++) {
-            Set<Integer> conn = new HashSet<>();
+        for (int i = 0; i < nbCC; i++) {
+            boolean[] conn = new boolean[nbCC];
+            int nAdj = 0;
             int[] cc = connectivityFinderGLB.getCC(i);
             for (int node : cc) {
                 if (threshNeigh[node] == null) {
@@ -154,12 +175,20 @@ public class PropIIC extends Propagator<Variable> {
                 }
                 for (int j : threshNeigh[node]) {
                     if (nodeCC[j] != i && g.getMandatoryNodes().contains(j)) {
-                        conn.add(nodeCC[j]);
+                        if (!conn[nodeCC[j]]) {
+                            conn[nodeCC[j]] = true;
+                            nAdj += 1;
+                        }
                     }
                 }
             }
-            int[] adj = conn.stream().mapToInt(v -> v).toArray();
-            Arrays.sort(adj);
+            int[] adj = new int[nAdj];
+            int k = 0;
+            for (int j = 0; j < nbCC; j++) {
+                if (conn[j]) {
+                    adj[k++] = j;
+                }
+            }
             neigh[i] = adj;
         }
         return neigh;
