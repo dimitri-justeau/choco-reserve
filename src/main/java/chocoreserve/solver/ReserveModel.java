@@ -32,13 +32,15 @@ import chocoreserve.solver.feature.IFeatureFactory;
 import chocoreserve.solver.region.ComposedRegion;
 import chocoreserve.solver.region.Region;
 import org.chocosolver.graphsolver.GraphModel;
+import org.chocosolver.solver.Solution;
+import org.chocosolver.solver.Solver;
+import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.SetVar;
+import org.chocosolver.util.criteria.Criterion;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Base model for the Nature Reserve Problem. Defines the variables and constraints that are common to every
@@ -150,6 +152,33 @@ public class ReserveModel<T extends Grid> implements IReserveModel<T>, IReserveC
 
     public IntVar[] getSites() {
         return sites;
+    }
+
+    /**
+     * Patch of Choco's findAllOptimalSolutions, unposting the arithmetic constraint forcing optimal value for
+     * enumeration before returning.
+     */
+    public List<Solution> findAllOptimalSolutions(IntVar objective, boolean maximize, Criterion... stop) {
+        Solver solver = model.getSolver();
+        solver.addStopCriterion(stop);
+        boolean defaultS = solver.getSearch()==null;// best bound (in default) is only for optim
+        solver.findOptimalSolution(objective, maximize);
+        if (!solver.isStopCriterionMet()
+                && solver.getSolutionCount() > 0) {
+            solver.removeStopCriterion(stop);
+            int opt = solver.getObjectiveManager().getBestSolutionValue().intValue();
+            solver.reset();
+            solver.getModel().clearObjective();
+            Constraint forceOptimal = model.arithm(objective, "=", opt);
+            forceOptimal.post();
+            if(defaultS) solver.setSearch(Search.defaultSearch(solver.getModel()));// best bound (in default) is only for optim
+            List<Solution> solutions = solver.findAllSolutions(stop);
+            model.unpost(forceOptimal);
+            return solutions;
+        } else {
+            solver.removeStopCriterion(stop);
+            return Collections.emptyList();
+        }
     }
 
     // -------------------------- //
