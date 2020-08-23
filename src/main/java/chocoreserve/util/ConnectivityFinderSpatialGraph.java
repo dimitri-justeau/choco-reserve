@@ -132,7 +132,7 @@ public class ConnectivityFinderSpatialGraph {
         }
         sizeMinCC = 0;
         sizeMaxCC = 0;
-        ISet act = g.getNodes();
+        int[] act = g.getNodes().toArray();
         for (int i : act) {
             p[i] = -1;
         }
@@ -165,7 +165,7 @@ public class ConnectivityFinderSpatialGraph {
         add(start, cc);
         while (first < last) {
             int i = fifo[first++];
-            for (int j : g.getNeighOf(i)) {
+            for (int j : g.getNeighOf(i).toArray()) {
                 if (p[j] == -1) {
                     p[j] = i;
                     add(j, cc);

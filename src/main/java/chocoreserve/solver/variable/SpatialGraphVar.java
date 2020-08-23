@@ -205,10 +205,10 @@ public class SpatialGraphVar extends AbstractVariable implements SetVar {
             return true;
         }
         if (getGUB().removeNode(element)) {
-            int[] nei = GUB.getSuccOrNeighOf(element).toArray();
-            for (int i : nei) {
-                GUB.removeEdge(i, element);
-            }
+//            int[] nei = GUB.getSuccOrNeighOf(element).toArray();
+//            for (int i : nei) {
+//                GUB.removeEdge(i, element);
+//            }
             if (reactOnModification) {
                 delta.add(element, SetDelta.UB, cause);
             }

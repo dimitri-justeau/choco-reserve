@@ -24,7 +24,6 @@
 package chocoreserve.solver.constraints.choco.connectivity;
 
 import chocoreserve.grid.neighborhood.INeighborhood;
-import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.variable.SpatialGraphVar;
 import chocoreserve.util.ConnectivityFinderSpatialGraph;
@@ -34,10 +33,6 @@ import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
 import org.chocosolver.util.ESat;
-import org.chocosolver.util.objects.setDataStructures.ISet;
-
-import java.util.*;
-import java.util.stream.IntStream;
 
 /**
  * Propagator maintaining a variable equals to the Effective Mesh Size (MESH), using the classical CUT procedure.
@@ -94,6 +89,13 @@ public class PropIIC extends Propagator<Variable> {
         // UB
         int iic_UB = (int) Math.round(getIICUB() * Math.pow(10, precision));
         iic.updateUpperBound(iic_UB, this);
+
+        if (iic.getLB() == iic_UB) {
+            for (int i : g.getPotentialNodes()) {
+                g.enforceNode(i, this);
+            }
+            iic.updateLowerBound(iic_UB, this);
+        }
     }
 
     public float getIICLB() {

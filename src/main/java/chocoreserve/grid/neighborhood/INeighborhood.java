@@ -106,6 +106,7 @@ public interface INeighborhood<T extends Grid> {
 
         } else {
             partialGraph = new UndirectedGraph(model, nbCells, setType, false);
+//            partialGraph = new UndirectedGraph()
         }
         for (int i : cells) {
             partialGraph.addNode(i);

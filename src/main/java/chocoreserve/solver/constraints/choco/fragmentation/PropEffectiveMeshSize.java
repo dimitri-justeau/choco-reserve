@@ -59,7 +59,7 @@ public class PropEffectiveMeshSize extends Propagator<Variable> {
      * @param landscapeArea The total landscape area.
      */
     public PropEffectiveMeshSize(SpatialGraphVar g, IntVar mesh, int landscapeArea, int precison, boolean maximize) {
-        super(new Variable[] {g, mesh}, PropagatorPriority.QUADRATIC, false);
+        super(new Variable[] {g, mesh}, PropagatorPriority.VERY_SLOW, false);
         this.g = g;
         this.mesh = mesh;
         this.landscapeArea = landscapeArea;
@@ -83,6 +83,34 @@ public class PropEffectiveMeshSize extends Propagator<Variable> {
         // UB
         int mesh_UB_round = getUB();
         mesh.updateUpperBound(mesh_UB_round, this);
+
+        if (mesh.getLB() == mesh_UB_round) {
+            for (int i : g.getPotentialNodes()) {
+                g.enforceNode(i, this);
+            }
+            mesh.updateLowerBound(mesh_UB_round, this);
+        } else {
+            boolean filtered = false;
+            if (!g.isInstantiated()) {
+                for (int i = 0; i < connectivityFinderGUB.getNBCC(); i++) {
+                    int s = connectivityFinderGUB.getSizeCC()[i];
+                    double d = (1.0 / landscapeArea) * ((s - 1) * (s - 1) - (s * s));
+                    int delta = (int) Math.round(d * Math.pow(10, precision));
+                    if (mesh_UB_round + delta < mesh.getLB()) {
+                        filtered = true;
+                        for (int j : connectivityFinderGUB.getCC(i)) {
+                            g.enforceNode(j, this);
+                        }
+                    }
+                }
+                if (filtered) {
+                    if (!maximize || g.isInstantiated()) {
+                        int mesh_LB_round = getLB();
+                        mesh.updateLowerBound(mesh_LB_round, this);
+                    }
+                }
+            }
+        }
     }
 
     private int getLB() {
