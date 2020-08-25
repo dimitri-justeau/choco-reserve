@@ -44,6 +44,7 @@ public class UndirectedGraphIncrementalCC extends UndirectedGraph {
     IStateIntVector rank;
     IStateIntVector sizeCC;
     IStateInt nbCC;
+    public int[] nodeCC;
 
     public UndirectedGraphIncrementalCC(Model model, int n, SetType type, boolean allNodes) {
         super(model, n, type, allNodes);
@@ -159,6 +160,7 @@ public class UndirectedGraphIncrementalCC extends UndirectedGraph {
     }
 
     public int[][] getConnectedComponents() {
+        nodeCC = new int[getNbMaxNodes()];
         int[] roots = getRoots();
         int[][] ccs = new int[roots.length][];
         int[] idx = new int[roots.length];
@@ -171,6 +173,7 @@ public class UndirectedGraphIncrementalCC extends UndirectedGraph {
         for (int i : getNodes()) {
             int r = getRoot(i);
             int j = mapRoot.get(r);
+            nodeCC[i] = j;
             ccs[j][idx[j]] = i;
             idx[j] += 1;
         }

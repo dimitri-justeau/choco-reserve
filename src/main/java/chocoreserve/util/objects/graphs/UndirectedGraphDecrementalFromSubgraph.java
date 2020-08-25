@@ -39,6 +39,7 @@ public class UndirectedGraphDecrementalFromSubgraph extends UndirectedGraph {
 
     private UndirectedGraphIncrementalCC GLB;
     public FindCCs findCCs;
+    public int[] nodeCC;
 
     public UndirectedGraphDecrementalFromSubgraph(Model model, int n, SetType type, UndirectedGraphIncrementalCC GLB, boolean allNodes) {
         super(model, n, type, allNodes);
@@ -79,6 +80,7 @@ public class UndirectedGraphDecrementalFromSubgraph extends UndirectedGraph {
     }
 
     public int[][] getConnectedComponents() {
+        nodeCC = new int[getNbMaxNodes()];
         int[] roots = getRoots();
         int[][] ccs = new int[roots.length][];
         int[] idx = new int[roots.length];
@@ -91,7 +93,9 @@ public class UndirectedGraphDecrementalFromSubgraph extends UndirectedGraph {
         for (int i : getNodes()) {
             int r = getRoot(i);
             int j = mapRoot.get(r);
-            ccs[j][idx[j++]] = i;
+            nodeCC[i] = j;
+            ccs[j][idx[j]] = i;
+            idx[j] += 1;
         }
         return ccs;
     }
@@ -115,14 +119,18 @@ public class UndirectedGraphDecrementalFromSubgraph extends UndirectedGraph {
             findAllCCFromGLB();
         }
 
+        private void makeSet(int i) {
+            parent[i] = i;
+            rank[i] = 0;
+            sizeCC[i] = 1;
+            nbCC += 1;
+        }
+
         private void findAllCCFromGLB() {
             int[] nodes = getNodes().toArray();
             for (int i : nodes) {
                 if (!GLB.getNodes().contains(i)) {
-                    parent[i] = i;
-                    rank[i] = 0;
-                    sizeCC[i] = 1;
-                    nbCC += 1;
+                    makeSet(i);
                 }
             }
             for (int i : nodes) {

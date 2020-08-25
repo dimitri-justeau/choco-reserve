@@ -27,6 +27,8 @@ import chocoreserve.grid.neighborhood.INeighborhood;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.variable.SpatialGraphVar;
 import chocoreserve.util.ConnectivityFinderSpatialGraph;
+import chocoreserve.util.objects.graphs.UndirectedGraphDecrementalFromSubgraph;
+import chocoreserve.util.objects.graphs.UndirectedGraphIncrementalCC;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -49,8 +51,8 @@ public class PropIIC extends Propagator<Variable> {
     protected int precision;
     protected RegularSquareGrid grid;
     protected INeighborhood threshold;
-    public ConnectivityFinderSpatialGraph connectivityFinderGUB;
-    public ConnectivityFinderSpatialGraph connectivityFinderGLB;
+//    public ConnectivityFinderSpatialGraph connectivityFinderGUB;
+//    public ConnectivityFinderSpatialGraph connectivityFinderGLB;
     public int[][] threshNeigh;
     private boolean maximize;
 
@@ -68,8 +70,8 @@ public class PropIIC extends Propagator<Variable> {
         this.landscapeArea = landscapeArea;
         this.precision = precison;
         this.threshold = distanceThreshold;
-        this.connectivityFinderGUB = new ConnectivityFinderSpatialGraph(g.getGUB());
-        this.connectivityFinderGLB = new ConnectivityFinderSpatialGraph(g.getGLB());
+//        this.connectivityFinderGUB = new ConnectivityFinderSpatialGraph(g.getGUB());
+//        this.connectivityFinderGLB = new ConnectivityFinderSpatialGraph(g.getGLB());
         this.threshNeigh = new int[grid.getNbCells()][];
         this.maximize = maximize;
     }
@@ -99,15 +101,18 @@ public class PropIIC extends Propagator<Variable> {
     }
 
     public float getIICLB() {
-        connectivityFinderGLB.findAllCC();
-        int[] sizeCC = connectivityFinderGLB.getSizeCC();
-        int[][] adj = getLinkedLB();
+        // GET CCs
+        UndirectedGraphIncrementalCC gg = (UndirectedGraphIncrementalCC) g.getGLB();
+        int nbCC = gg.getNbCC();
+        int[][] ccs = gg.getConnectedComponents();
+        int[] nodeCC = gg.nodeCC;
+        int[][] adj = getLinkedLB(nbCC, ccs, nodeCC);
         float iic_LB = 0;
         for (int i = 0; i < adj.length; i++) {
             int[] dists = bfs(i, adj);
             for (int j = 0; j < adj.length; j++) {
                 if (dists[j] >= 0) {
-                    iic_LB +=  (sizeCC[i] * sizeCC[j]) / (1 + dists[j]);
+                    iic_LB +=  (ccs[i].length * ccs[j].length) / (1 + dists[j]);
                 }
             }
         }
@@ -115,29 +120,32 @@ public class PropIIC extends Propagator<Variable> {
     }
 
     public float getIICUB() {
-        connectivityFinderGUB.findAllCC();
-        int[] sizeCC = connectivityFinderGUB.getSizeCC();
-        int[][] adj = getLinkedUB();
+        UndirectedGraphDecrementalFromSubgraph gg = (UndirectedGraphDecrementalFromSubgraph) g.getGUB();
+        gg.findCCs();
+        int nbCC = gg.getNbCC();
+        int[][] ccs = gg.getConnectedComponents();
+        int[] nodeCC = gg.nodeCC;
+        int[][] adj = getLinkedUB(nbCC, ccs, nodeCC);
         float iic_UB = 0;
         for (int i = 0; i < adj.length; i++) {
             int[] dists = bfs(i, adj);
             for (int j = 0; j < adj.length; j++) {
                 if (dists[j] >= 0) {
-                    iic_UB +=  (sizeCC[i] * sizeCC[j]) / (1 + dists[j]);
+                    iic_UB +=  (ccs[i].length * ccs[j].length) / (1 + dists[j]);
                 }
             }
         }
         return iic_UB  / (landscapeArea * landscapeArea);
     }
 
-    public int[][] getLinkedUB() {
-        int nbCC = connectivityFinderGUB.getNBCC();
+    public int[][] getLinkedUB(int nbCC, int[][] ccs, int[] nodeCC) {
+        UndirectedGraphDecrementalFromSubgraph gg = (UndirectedGraphDecrementalFromSubgraph) g.getGUB();
+        gg.findCCs();
         int[][] neigh = new int[nbCC][];
-        int[] nodeCC = connectivityFinderGUB.getNodeCC();
         for (int i = 0; i < nbCC; i++) {
             boolean[] conn = new boolean[nbCC];
             int nAdj = 0;
-            int[] cc = connectivityFinderGUB.getCC(i);
+            int[] cc = ccs[i];
             for (int node : cc) {
                 if (threshNeigh[node] == null) {
                     threshNeigh[node] = threshold.getNeighbors(grid, node).toArray();
@@ -163,14 +171,12 @@ public class PropIIC extends Propagator<Variable> {
         return neigh;
     }
 
-    public int[][] getLinkedLB() {
-        int nbCC = connectivityFinderGLB.getNBCC();
+    public int[][] getLinkedLB(int nbCC, int[][] ccs, int[] nodeCC) {
         int[][] neigh = new int[nbCC][];
-        int[] nodeCC = connectivityFinderGLB.getNodeCC();
         for (int i = 0; i < nbCC; i++) {
             boolean[] conn = new boolean[nbCC];
             int nAdj = 0;
-            int[] cc = connectivityFinderGLB.getCC(i);
+            int[] cc = ccs[i];
             for (int node : cc) {
                 if (threshNeigh[node] == null) {
                     threshNeigh[node] = threshold.getNeighbors(grid, node).toArray();
