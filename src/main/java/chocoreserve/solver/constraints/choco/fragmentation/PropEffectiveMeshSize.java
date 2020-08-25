@@ -25,6 +25,8 @@ package chocoreserve.solver.constraints.choco.fragmentation;
 
 import chocoreserve.solver.variable.SpatialGraphVar;
 import chocoreserve.util.ConnectivityFinderSpatialGraph;
+import chocoreserve.util.objects.graphs.UndirectedGraphDecrementalFromSubgraph;
+import chocoreserve.util.objects.graphs.UndirectedGraphIncrementalCC;
 import org.chocosolver.solver.constraints.Propagator;
 import org.chocosolver.solver.constraints.PropagatorPriority;
 import org.chocosolver.solver.exception.ContradictionException;
@@ -32,6 +34,7 @@ import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
 import org.chocosolver.util.ESat;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
@@ -115,11 +118,31 @@ public class PropEffectiveMeshSize extends Propagator<Variable> {
 
     private int getLB() {
         double mesh_LB = 0;
-        connectivityFinderGLB.findAllCC();
-        for (int i = 0; i < connectivityFinderGLB.getNBCC(); i++) {
-            int s = connectivityFinderGLB.getSizeCC()[i];
-            mesh_LB += s * s;
+        if (g.getGLB() instanceof UndirectedGraphIncrementalCC) {
+            UndirectedGraphIncrementalCC gg = (UndirectedGraphIncrementalCC) g.getGLB();
+            for (int r : gg.getRoots()) {
+                int s = gg.getSizeCC(r);
+                mesh_LB += s * s;
+            }
+        } else {
+            connectivityFinderGLB.findAllCC();
+            for (int i = 0; i < connectivityFinderGLB.getNBCC(); i++) {
+                int s = connectivityFinderGLB.getSizeCC()[i];
+                mesh_LB += s * s;
+            }
         }
+//        UndirectedGraphIncrementalCC gg = (UndirectedGraphIncrementalCC) g.getGLB();
+//            if (mesh_LB == mesh_LB1) {
+//                System.out.println("INCREMENTAL " + mesh_LB1);
+//                for (int[] cc : gg.getConnectedComponents()) {
+//                    System.out.println(Arrays.toString(cc) + " - " + cc.length);
+//                }
+//                System.out.println("\nDECREMENTAL " + mesh_LB);
+//                for (int i = 0; i < connectivityFinderGLB.getNBCC(); i++) {
+//                    System.out.println(Arrays.toString(connectivityFinderGLB.getCC(i)) + " - " + connectivityFinderGLB.getSizeCC()[i]);
+//                }
+//                System.out.println();
+//            }
         mesh_LB /= 1.0 * landscapeArea;
         int mesh_LB_round = (int) Math.round(mesh_LB * Math.pow(10, precision));
         return mesh_LB_round;
@@ -127,10 +150,19 @@ public class PropEffectiveMeshSize extends Propagator<Variable> {
 
     private int getUB() {
         double mesh_UB = 0;
-        connectivityFinderGUB.findAllCC();
-        for (int i = 0; i < connectivityFinderGUB.getNBCC(); i++) {
-            int s = connectivityFinderGUB.getSizeCC()[i];
-            mesh_UB += s * s;
+        if (g.getGUB() instanceof UndirectedGraphDecrementalFromSubgraph) {
+            UndirectedGraphDecrementalFromSubgraph gg = (UndirectedGraphDecrementalFromSubgraph) g.getGUB();
+            gg.findCCs();
+            for (int r : gg.getRoots()) {
+                int s = gg.getSizeCC(r);
+                mesh_UB += s * s;
+            }
+        } else {
+            connectivityFinderGUB.findAllCC();
+            for (int i = 0; i < connectivityFinderGUB.getNBCC(); i++) {
+                int s = connectivityFinderGUB.getSizeCC()[i];
+                mesh_UB += s * s;
+            }
         }
         mesh_UB /= 1.0 * landscapeArea;
         int mesh_UB_round = (int) Math.round(mesh_UB * Math.pow(10, precision));

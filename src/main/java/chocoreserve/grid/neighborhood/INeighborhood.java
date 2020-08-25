@@ -25,6 +25,8 @@ package chocoreserve.grid.neighborhood;
 
 import chocoreserve.grid.Grid;
 import chocoreserve.util.objects.graphs.UndirectedGraphDecrementalCC;
+import chocoreserve.util.objects.graphs.UndirectedGraphDecrementalFromSubgraph;
+import chocoreserve.util.objects.graphs.UndirectedGraphIncrementalCC;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.solver.Model;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
@@ -71,7 +73,7 @@ public interface INeighborhood<T extends Grid> {
      */
     default UndirectedGraph getPartialGraph(T grid, Model model, int[] cells, SetType setType) {
         int nbCells = grid.getNbCells();
-        UndirectedGraph partialGraph = new UndirectedGraph(model, nbCells, setType, false);
+        UndirectedGraphIncrementalCC partialGraph = new UndirectedGraphIncrementalCC(model, nbCells, setType, false);
         for (int i : cells) {
             partialGraph.addNode(i);
         }
@@ -121,6 +123,24 @@ public interface INeighborhood<T extends Grid> {
         }
         if (decr) {
             ((UndirectedGraphDecrementalCC) partialGraph).init();
+        }
+        return partialGraph;
+    }
+
+    default UndirectedGraph getPartialGraphUBFromLB(T grid, Model model, int[] cells, SetType setType, UndirectedGraphIncrementalCC GLB) {
+        int nbCells = grid.getNbCells();
+        UndirectedGraph partialGraph;
+        partialGraph = new UndirectedGraphDecrementalFromSubgraph(model, nbCells, setType, GLB, false);
+        for (int i : cells) {
+            partialGraph.addNode(i);
+        }
+        for (int i : cells) {
+            ISet neighbors = getNeighbors(grid, i);
+            for (int ii : neighbors) {
+                if (partialGraph.getNodes().contains(ii)) {
+                    partialGraph.addEdge(i, ii);
+                }
+            }
         }
         return partialGraph;
     }

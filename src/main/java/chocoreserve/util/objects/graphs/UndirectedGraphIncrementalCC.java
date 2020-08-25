@@ -23,6 +23,7 @@
 
 package chocoreserve.util.objects.graphs;
 
+import org.chocosolver.memory.IStateInt;
 import org.chocosolver.memory.IStateIntVector;
 import org.chocosolver.solver.Model;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
@@ -31,9 +32,7 @@ import org.chocosolver.util.objects.setDataStructures.SetFactory;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Backtrackable graph data structure incrementally maintaining connected components by using a
@@ -41,16 +40,17 @@ import java.util.Set;
  */
 public class UndirectedGraphIncrementalCC extends UndirectedGraph {
 
-    private IStateIntVector parent;
-    private IStateIntVector rank;
+    IStateIntVector parent;
+    IStateIntVector rank;
+    IStateIntVector sizeCC;
+    IStateInt nbCC;
 
     public UndirectedGraphIncrementalCC(Model model, int n, SetType type, boolean allNodes) {
         super(model, n, type, allNodes);
         parent = model.getEnvironment().makeIntVector(getNbMaxNodes(), -1);
         rank = model.getEnvironment().makeIntVector(getNbMaxNodes(), -1);
-        for (int i = 0; i < n; i++) {
-            makeSet(i);
-        }
+        sizeCC = model.getEnvironment().makeIntVector(getNbMaxNodes(), -1);
+        nbCC = model.getEnvironment().makeInt(getNodes().size());
     }
 
     @Override
@@ -66,6 +66,14 @@ public class UndirectedGraphIncrementalCC extends UndirectedGraph {
     }
 
     @Override
+    public boolean addNode(int x) {
+        if (!getNodes().contains(x)) {
+            makeSet(x);
+        }
+        return super.addNode(x);
+    }
+
+    @Override
     public boolean addEdge(int x, int y) {
         boolean b = super.addEdge(x, y);
         if (b) {
@@ -77,6 +85,8 @@ public class UndirectedGraphIncrementalCC extends UndirectedGraph {
     private void makeSet(int i) {
         parent.quickSet(i, i);
         rank.quickSet(i, 0);
+        sizeCC.quickSet(i, 1);
+        nbCC.add(1);
     }
 
     private int find(int i) {
@@ -112,58 +122,57 @@ public class UndirectedGraphIncrementalCC extends UndirectedGraph {
         if (rank.quickGet(maxRank) == rank.quickGet(minRank)) {
             rank.quickSet(maxRank, rank.quickGet(maxRank) + 1);
         }
+        int s1 = sizeCC.quickGet(minRank);
+        int s2 = sizeCC.quickGet(maxRank);
+        sizeCC.quickSet(minRank, s1 + s2);
+        sizeCC.quickSet(maxRank, s1 + s2);
+        nbCC.add(-1);
     }
 
     public int getNbCC() {
-        ISet roots = getRoots();
-        return roots.size();
+        return nbCC.get();
+    }
+
+    public int getSizeCC(int i) {
+        return sizeCC.quickGet(parent.quickGet(i));
     }
 
     public int getRoot(int node) {
         return find(node);
     }
 
-    public ISet getRoots() {
-        ISet roots = SetFactory.makeBitSet(0);
-        for (int i = 0; i < getNbMaxNodes(); i++) {
-            int r = find(i);
-            if (getNodes().contains(i) && !roots.contains(r)) {
-                roots.add(r);
+    public int[] getRoots() {
+        int[] roots = new int[getNbCC()];
+        boolean[] added = new boolean[getNbMaxNodes()];
+        int idx = 0;
+        for (int i = 0; i < getNbMaxNodes(); i ++) {
+            int a = parent.quickGet(i);
+            if (a >= 0) {
+                int root = find(i);
+                if (!added[root]) {
+                    roots[idx++] = root;
+                    added[root] = true;
+                }
             }
         }
         return roots;
     }
 
-    public ISet getConnectedComponent(int root) {
-        ISet cc = SetFactory.makeBipartiteSet(0);
-        for (int i = 0; i < getNbMaxNodes(); i++) {
-            if (getRoot(i) == root && getNodes().contains(i)) {
-                cc.add(i);
-            }
+    public int[][] getConnectedComponents() {
+        int[] roots = getRoots();
+        int[][] ccs = new int[roots.length][];
+        int[] idx = new int[roots.length];
+        Map<Integer, Integer> mapRoot = new HashMap<>();
+        for (int i = 0; i < roots.length; i++) {
+            idx[i] = 0;
+            ccs[i] = new int[getSizeCC(roots[i])];
+            mapRoot.put(roots[i], i);
         }
-        return cc;
-    }
-
-    public ISet getConnectedComponent(int root, int startFrom, ISet exclude) {
-        ISet cc = SetFactory.makeBipartiteSet(0);
-        for (int i = startFrom; i < getNbMaxNodes(); i++) {
-            if (getRoot(i) == root && !exclude.contains(i) && getNodes().contains(i)) {
-                cc.add(i);
-            }
-        }
-        return cc;
-    }
-
-    public Map<Integer, Set<Integer>> getConnectedComponents() {
-        ISet roots = getRoots();
-        Map<Integer, Set<Integer>> ccs = new HashMap<>();
-        for (int r : roots) {
-            ccs.put(r, new HashSet<>());
-        }
-        for (int i = 0; i < getNbMaxNodes(); i++) {
-            if (getNodes().contains(i)) {
-                ccs.get(find(i)).add(i);
-            }
+        for (int i : getNodes()) {
+            int r = getRoot(i);
+            int j = mapRoot.get(r);
+            ccs[j][idx[j]] = i;
+            idx[j] += 1;
         }
         return ccs;
     }

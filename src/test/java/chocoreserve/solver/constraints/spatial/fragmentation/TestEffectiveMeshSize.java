@@ -30,6 +30,7 @@ import chocoreserve.solver.region.Region;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
 import org.chocosolver.solver.exception.ContradictionException;
+import org.chocosolver.solver.search.strategy.Search;
 import org.chocosolver.solver.variables.IntVar;
 import org.junit.Assert;
 import org.junit.Test;
@@ -129,11 +130,28 @@ public class TestEffectiveMeshSize {
         sol.restore();
         reserveModel.printSolution();
         Assert.assertEquals(4, MESH.getValue());
-        // Maximize
+//         Maximize
         solver.reset();
         sol = solver.findOptimalSolution(MESH, true);
         sol.restore();
         reserveModel.printSolution();
         Assert.assertEquals(16, MESH.getValue());
+    }
+
+
+    @Test
+    public void testOptimization2() throws ContradictionException {
+        RegularSquareGrid grid = new RegularSquareGrid(100, 100);
+        Region core = new Region("core", Neighborhoods.FOUR_CONNECTED);
+        Region out = new Region("out", Neighborhoods.FOUR_CONNECTED);
+        ReserveModel reserveModel = new ReserveModel(grid, out, core);
+        IntVar MESH = reserveModel.effectiveMeshSize(core, 0);
+        Solver solver = reserveModel.getChocoSolver();
+        solver.setSearch(Search.sequencer(Search.minDomUBSearch(new IntVar[] {MESH}), Search.minDomUBSearch(reserveModel.getSites())));
+//         Maximize
+        Solution sol = solver.findOptimalSolution(MESH, true);
+        sol.restore();
+        reserveModel.printSolution();
+//        Assert.assertEquals(16, MESH.getValue());
     }
 }

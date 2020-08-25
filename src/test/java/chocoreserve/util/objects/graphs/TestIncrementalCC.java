@@ -28,6 +28,7 @@ import org.chocosolver.util.objects.setDataStructures.SetType;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
 
@@ -41,29 +42,52 @@ public class TestIncrementalCC {
         GraphModel model = new GraphModel();
         UndirectedGraphIncrementalCC g = new UndirectedGraphIncrementalCC(model, 10, SetType.BIPARTITESET, false);
         Assert.assertEquals(g.getNbCC(), 0);
+        Assert.assertEquals(g.getRoots().length, 0);
         g.addNode(0);
         Assert.assertEquals(g.getNbCC(), 1);
+        Assert.assertEquals(g.getSizeCC(0), 1);
+        Assert.assertEquals(g.getRoots().length, 1);
+        Assert.assertEquals(g.getRoots()[0], 0);
         g.addNode(1);
         Assert.assertEquals(g.getNbCC(), 2);
+        Assert.assertEquals(g.getSizeCC(0), 1);
+        Assert.assertEquals(g.getSizeCC(1), 1);
+        Assert.assertEquals(g.getRoots().length, 2);
         g.addEdge(0, 1);
         Assert.assertEquals(g.getNbCC(), 1);
+        Assert.assertEquals(g.getSizeCC(0), 2);
+        Assert.assertEquals(g.getSizeCC(1), 2);
+        Assert.assertEquals(g.getRoots().length, 1);
         g.addNode(2);
         g.addNode(3);
         Assert.assertEquals(g.getNbCC(), 3);
-
+        Assert.assertEquals(g.getRoots().length, 3);
         g.addNode(4);
         g.addEdge(1, 4);
+
+        Assert.assertEquals(g.getSizeCC(4), 3);
+        Assert.assertEquals(g.getSizeCC(0), 3);
+        Assert.assertEquals(g.getSizeCC(1), 3);
+        Assert.assertEquals(g.getRoots().length, 3);
+
         g.addNode(5);
         g.addEdge(0, 5);
+
+        Assert.assertEquals(g.getSizeCC(0), 4);
+        Assert.assertEquals(g.getSizeCC(5), 4);
+        Assert.assertEquals(g.getRoots().length, 3);
+
         g.addNode(6);
         g.addEdge(6, 2);
         g.addNode(7);
 
+        Assert.assertEquals(g.getRoots().length, 4);
+
         System.out.println(g.getNbCC());
         System.out.println(g.getRoots());
-        Map<Integer, Set<Integer>> ccs = g.getConnectedComponents();
-        for (int root : ccs.keySet()) {
-            System.out.println("cc[" + root + "] : " + ccs.get(root));
+        int[][] ccs = g.getConnectedComponents();
+        for (int[] cc : ccs) {
+            System.out.println(Arrays.toString(cc));
         }
     }
 
