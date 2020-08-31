@@ -81,7 +81,7 @@ public class ReserveModel<T extends Grid> implements IReserveModel<T>, IReserveC
 
     public ReserveModel(T grid, Region[] regions, ComposedRegion[] composedRegions) {
         this.grid = grid;
-        this.model = new GraphModel("Nature Reserve Problem");
+        this.model = new GraphModel("Choco-Reserve");
         this.regions = regions;
         this.composedRegions = composedRegions;
         Arrays.stream(regions).forEach(r -> {
