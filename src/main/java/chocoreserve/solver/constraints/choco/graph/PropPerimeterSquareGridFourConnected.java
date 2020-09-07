@@ -110,7 +110,7 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
         return getPerimeter(g.getMandatoryNodes());
     }
 
-    private int getPerimeterGUB() {
+    public int getPerimeterGUB() {
         return getPerimeter(g.getPotentialNodes());
     }
 
