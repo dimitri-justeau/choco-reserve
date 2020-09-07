@@ -26,7 +26,6 @@ package chocoreserve.grid.neighborhood.regulare.square;
 import chocoreserve.grid.neighborhood.INeighborhood;
 import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.PartialRegularSquareGrid;
-import chocoreserve.grid.regular.square.RegularSquareGrid;
 import org.chocosolver.util.objects.setDataStructures.ISet;
 import org.chocosolver.util.objects.setDataStructures.SetFactory;
 

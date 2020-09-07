@@ -29,10 +29,8 @@ import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.ReserveModel;
 import chocoreserve.solver.constraints.spatial.NbEdges;
 import chocoreserve.solver.region.Region;
-import chocoreserve.solver.variable.SpatialGraphVar;
 import org.chocosolver.graphsolver.GraphModel;
 import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 import org.junit.Test;
 

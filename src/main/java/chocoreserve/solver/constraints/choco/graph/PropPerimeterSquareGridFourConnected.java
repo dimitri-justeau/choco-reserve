@@ -83,7 +83,7 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
         return ESat.UNDEFINED;
     }
 
-    int getPerimeter(ISet graphNodes, ISet toAdd) {
+    private int getPerimeter(ISet graphNodes, ISet toAdd) {
         int p = 0;
         for (ISet set : new ISet[]{graphNodes, toAdd}) {
             for (int node : set) {
@@ -110,7 +110,7 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
         return getPerimeter(g.getMandatoryNodes());
     }
 
-    int getPerimeterGUB() {
+    private int getPerimeterGUB() {
         return getPerimeter(g.getPotentialNodes());
     }
 
@@ -214,7 +214,7 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
         return new int[]{LB, UB};
     }
 
-    int getPotIncreasing(int node) {
+    private int getPotIncreasing(int node) {
         ISet neighs = g.getPotNeighOf(node);
         int frontierGrid = 4 - neighs.size();
         int n = 0;
@@ -226,7 +226,7 @@ public class PropPerimeterSquareGridFourConnected extends Propagator<Variable> {
         return frontierGrid + n;
     }
 
-    int getPotDecreasing(int node) {
+    private int getPotDecreasing(int node) {
         int n = 0;
         for (int i : g.getPotNeighOf(node)) {
             if (g.getMandatoryNodes().contains(i)) {

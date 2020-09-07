@@ -38,7 +38,9 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
+ * Propagator for the Smallest enclosing circle constraint, based on Welzl algorithm.
  *
+ * https://link.springer.com/content/pdf/10.1007/bfb0038202.pdf
  */
 public class PropSmallestEnclosingCircle extends Propagator<Variable> {
 

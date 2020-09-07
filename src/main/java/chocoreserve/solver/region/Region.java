@@ -40,7 +40,7 @@ public class Region extends AbstractRegion {
     private INeighborhood neighborhood;
     private IntVar nbCC;
     private SetType setVarSetType;
-    transient int[] LBNodes, UBNodes;
+    protected int[] LBNodes, UBNodes;
     private boolean ubDecr;
 
     public Region(String name, INeighborhood neighborhood, SetType setVarSetType, int[] LBNodes, int[] UBNodes) {

@@ -26,19 +26,14 @@ package chocoreserve.solver.constraints.spatial.connectivity;
 import chocoreserve.grid.neighborhood.Neighborhoods;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.ReserveModel;
-import chocoreserve.solver.constraints.choco.connectivity.PropIIC;
 import chocoreserve.solver.region.Region;
 import org.chocosolver.solver.Solution;
 import org.chocosolver.solver.Solver;
-import org.chocosolver.solver.constraints.Constraint;
 import org.chocosolver.solver.exception.ContradictionException;
 import org.chocosolver.solver.variables.IntVar;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.IntStream;
 
 public class TestIIC {

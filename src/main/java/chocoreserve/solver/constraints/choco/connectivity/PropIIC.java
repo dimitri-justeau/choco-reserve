@@ -26,7 +26,6 @@ package chocoreserve.solver.constraints.choco.connectivity;
 import chocoreserve.grid.neighborhood.INeighborhood;
 import chocoreserve.grid.regular.square.RegularSquareGrid;
 import chocoreserve.solver.variable.SpatialGraphVar;
-import chocoreserve.util.ConnectivityFinderSpatialGraph;
 import chocoreserve.util.objects.graphs.UndirectedGraphDecrementalFromSubgraph;
 import chocoreserve.util.objects.graphs.UndirectedGraphIncrementalCC;
 import org.chocosolver.solver.constraints.Propagator;
@@ -37,9 +36,9 @@ import org.chocosolver.solver.variables.Variable;
 import org.chocosolver.util.ESat;
 
 /**
- * Propagator maintaining a variable equals to the Effective Mesh Size (MESH), using the classical CUT procedure.
+ * Propagator maintaining a variable equals to the Integral Index of Connectivity.
  *
- * Ref: https://link.springer.com/article/10.1023/A:1008129329289
+ * Ref: https://link.springer.com/article/10.1007/s10980-006-0013-z
  *
  * @author Dimitri Justeau-Allaire
  */
@@ -51,8 +50,6 @@ public class PropIIC extends Propagator<Variable> {
     protected int precision;
     protected RegularSquareGrid grid;
     protected INeighborhood threshold;
-//    public ConnectivityFinderSpatialGraph connectivityFinderGUB;
-//    public ConnectivityFinderSpatialGraph connectivityFinderGLB;
     public int[][] threshNeigh;
     private boolean maximize;
 
@@ -70,8 +67,6 @@ public class PropIIC extends Propagator<Variable> {
         this.landscapeArea = landscapeArea;
         this.precision = precison;
         this.threshold = distanceThreshold;
-//        this.connectivityFinderGUB = new ConnectivityFinderSpatialGraph(g.getGUB());
-//        this.connectivityFinderGLB = new ConnectivityFinderSpatialGraph(g.getGLB());
         this.threshNeigh = new int[grid.getNbCells()][];
         this.maximize = maximize;
     }
@@ -224,7 +219,6 @@ public class PropIIC extends Propagator<Variable> {
                     dist[i] = dist[current] + 1;
                     queue[rear++] = i;
                     visited[i] = true;
-                    int d = dist[i];
                 }
             }
         }

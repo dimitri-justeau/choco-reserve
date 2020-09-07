@@ -73,7 +73,7 @@ public class PropAggregationIndex extends Propagator<Variable> {
         aggregationIndex.updateUpperBound((int) ub, this);
     }
 
-    public int getNbEdges(UndirectedGraph graph) {
+    private int getNbEdges(UndirectedGraph graph) {
         int nbE = 0;
         for (int i : graph.getNodes()) {
             nbE += graph.getNeighOf(i).size();
@@ -82,7 +82,7 @@ public class PropAggregationIndex extends Propagator<Variable> {
         return nbE;
     }
 
-    int getNbEdges(ISet graphNodes, ISet toAdd) {
+    private int getNbEdges(ISet graphNodes, ISet toAdd) {
         int nbE = 0;
         for (ISet set : new ISet[]{graphNodes, toAdd}) {
             for (int node : set) {
@@ -218,7 +218,7 @@ public class PropAggregationIndex extends Propagator<Variable> {
         return new double[]{AI_LB, AI_UB};
     }
 
-    int getPotIncreasing(int node) {
+    private int getPotIncreasing(int node) {
         ISet neighs = g.getPotNeighOf(node);
         int frontierGrid = 4 - neighs.size();
         int n = 0;
@@ -230,7 +230,7 @@ public class PropAggregationIndex extends Propagator<Variable> {
         return frontierGrid + n;
     }
 
-    int getPotDecreasing(int node) {
+    private int getPotDecreasing(int node) {
         int n = 0;
         for (int i : g.getPotNeighOf(node)) {
             if (g.getMandatoryNodes().contains(i)) {

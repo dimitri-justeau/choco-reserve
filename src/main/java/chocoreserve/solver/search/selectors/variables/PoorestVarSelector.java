@@ -40,12 +40,12 @@ import java.util.stream.IntStream;
  */
 public class PoorestVarSelector implements VariableSelector<IntVar> {
 
-    ReserveModel reserveModel;
-    Feature[] features;
-    double threshold;
-    boolean deterministic;
-    double[] scores;
-    int[] ranking;
+    public ReserveModel reserveModel;
+    public Feature[] features;
+    public double threshold;
+    public boolean deterministic;
+    public double[] scores;
+    public int[] ranking;
 
     public PoorestVarSelector(ReserveModel reserveModel, double threshold, boolean deterministic,
                               Feature... features) {

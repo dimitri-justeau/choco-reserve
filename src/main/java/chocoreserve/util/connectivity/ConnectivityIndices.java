@@ -96,7 +96,6 @@ public class ConnectivityIndices {
                     dist[i] = dist[current] + 1;
                     queue[rear++] = i;
                     visited[i] = true;
-                    int d = dist[i];
                 }
             }
         }

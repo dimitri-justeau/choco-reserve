@@ -27,8 +27,6 @@ import org.chocosolver.memory.IStateInt;
 import org.chocosolver.memory.IStateIntVector;
 import org.chocosolver.solver.Model;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
-import org.chocosolver.util.objects.setDataStructures.ISet;
-import org.chocosolver.util.objects.setDataStructures.SetFactory;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 
 import java.util.HashMap;
@@ -40,10 +38,10 @@ import java.util.Map;
  */
 public class UndirectedGraphIncrementalCC extends UndirectedGraph {
 
-    IStateIntVector parent;
-    IStateIntVector rank;
-    IStateIntVector sizeCC;
-    IStateInt nbCC;
+    protected IStateIntVector parent;
+    protected IStateIntVector rank;
+    protected IStateIntVector sizeCC;
+    protected IStateInt nbCC;
     public int[] nodeCC;
 
     public UndirectedGraphIncrementalCC(Model model, int n, SetType type, boolean allNodes) {

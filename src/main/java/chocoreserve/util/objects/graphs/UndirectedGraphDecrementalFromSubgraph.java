@@ -25,8 +25,6 @@ package chocoreserve.util.objects.graphs;
 
 import org.chocosolver.solver.Model;
 import org.chocosolver.util.objects.graphs.UndirectedGraph;
-import org.chocosolver.util.objects.setDataStructures.ISet;
-import org.chocosolver.util.objects.setDataStructures.SetFactory;
 import org.chocosolver.util.objects.setDataStructures.SetType;
 
 import java.util.HashMap;
@@ -34,6 +32,8 @@ import java.util.Map;
 
 /**
  * Backtrackable graph data structure decrementally maintaining connected components.
+ * From an incremental lower bound, retrieve the incremental union-find structure and complete
+ * it to reach the current graph.
  */
 public class UndirectedGraphDecrementalFromSubgraph extends UndirectedGraph {
 

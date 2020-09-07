@@ -34,10 +34,6 @@ import org.chocosolver.solver.variables.IntVar;
 import org.chocosolver.solver.variables.Variable;
 import org.chocosolver.util.ESat;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * Propagator maintaining a variable equals to the Effective Mesh Size (MESH), using the classical CUT procedure.
  *
@@ -131,18 +127,6 @@ public class PropEffectiveMeshSize extends Propagator<Variable> {
                 mesh_LB += s * s;
             }
         }
-//        UndirectedGraphIncrementalCC gg = (UndirectedGraphIncrementalCC) g.getGLB();
-//            if (mesh_LB == mesh_LB1) {
-//                System.out.println("INCREMENTAL " + mesh_LB1);
-//                for (int[] cc : gg.getConnectedComponents()) {
-//                    System.out.println(Arrays.toString(cc) + " - " + cc.length);
-//                }
-//                System.out.println("\nDECREMENTAL " + mesh_LB);
-//                for (int i = 0; i < connectivityFinderGLB.getNBCC(); i++) {
-//                    System.out.println(Arrays.toString(connectivityFinderGLB.getCC(i)) + " - " + connectivityFinderGLB.getSizeCC()[i]);
-//                }
-//                System.out.println();
-//            }
         mesh_LB /= 1.0 * landscapeArea;
         int mesh_LB_round = (int) Math.round(mesh_LB * Math.pow(10, precision));
         return mesh_LB_round;

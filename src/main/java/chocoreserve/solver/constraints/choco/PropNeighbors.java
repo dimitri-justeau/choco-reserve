@@ -27,7 +27,7 @@ public class PropNeighbors extends Propagator<SetVar> {
     private ISetDeltaMonitor[] sdm;
     private IntProcedure elementForcedX, elementRemovedX, elementForcedN, elementRemovedN;
 
-    int[][] adjLists;
+    protected int[][] adjLists;
 
     //***********************************************************************************
     // CONSTRUCTOR
