@@ -101,7 +101,7 @@ public class PropIIC extends Propagator<Variable> {
         int nbCC = gg.getNbCC();
         int[][] ccs = gg.getConnectedComponents();
         int[] nodeCC = gg.nodeCC;
-        int[][] adj = getLinkedLB(nbCC, ccs, nodeCC);
+        int[][] adj = getLandscapeGraphLB(nbCC, ccs, nodeCC);
         float iic_LB = 0;
         for (int i = 0; i < adj.length; i++) {
             int[] dists = bfs(i, adj);
@@ -120,7 +120,7 @@ public class PropIIC extends Propagator<Variable> {
         int nbCC = gg.getNbCC();
         int[][] ccs = gg.getConnectedComponents();
         int[] nodeCC = gg.nodeCC;
-        int[][] adj = getLinkedUB(nbCC, ccs, nodeCC);
+        int[][] adj = getLandscapeGraphUB(nbCC, ccs, nodeCC);
         float iic_UB = 0;
         for (int i = 0; i < adj.length; i++) {
             int[] dists = bfs(i, adj);
@@ -133,7 +133,7 @@ public class PropIIC extends Propagator<Variable> {
         return iic_UB  / (landscapeArea * landscapeArea);
     }
 
-    public int[][] getLinkedUB(int nbCC, int[][] ccs, int[] nodeCC) {
+    public int[][] getLandscapeGraphUB(int nbCC, int[][] ccs, int[] nodeCC) {
         UndirectedGraphDecrementalFromSubgraph gg = (UndirectedGraphDecrementalFromSubgraph) g.getGUB();
         gg.findCCs();
         int[][] neigh = new int[nbCC][];
@@ -166,7 +166,7 @@ public class PropIIC extends Propagator<Variable> {
         return neigh;
     }
 
-    public int[][] getLinkedLB(int nbCC, int[][] ccs, int[] nodeCC) {
+    public int[][] getLandscapeGraphLB(int nbCC, int[][] ccs, int[] nodeCC) {
         int[][] neigh = new int[nbCC][];
         for (int i = 0; i < nbCC; i++) {
             boolean[] conn = new boolean[nbCC];
