@@ -36,7 +36,7 @@ import org.chocosolver.solver.variables.Variable;
 import org.chocosolver.util.ESat;
 
 /**
- * Propagator maintaining a variable equals to the Integral Index of Connectivity.
+ * Propagator maintaining a variable equals to the Integral Index of Connectivity (IIC).
  *
  * Ref: https://link.springer.com/article/10.1007/s10980-006-0013-z
  *
@@ -55,8 +55,8 @@ public class PropIIC extends Propagator<Variable> {
 
     /**
      *
-     * @param g The graph variable associated to the region for which the propagator will maintain MESH.
-     * @param iic The integer variable equals to MESH, maintained by this propagator.
+     * @param g The graph variable associated to the region for which the propagator will maintain IIC.
+     * @param iic The integer variable equals to IIC, maintained by this propagator.
      * @param landscapeArea The total landscape area.
      */
     public PropIIC(SpatialGraphVar g, IntVar iic, int landscapeArea, INeighborhood distanceThreshold, int precison, boolean maximize) {
